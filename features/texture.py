@@ -1,4 +1,7 @@
 from numpy import *
+
+__all__ = ['haralickfeatures','LEFT','RIGHT','UP','DOWN','ALL_DIRECTIONS']
+
 LEFT = 1
 RIGHT = 2
 UP = 4
