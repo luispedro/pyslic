@@ -1,5 +1,3 @@
-from load import *
-from threshold import *
 from numpy import *
 __all__ = ['bbox', 'croptobbox', 'expandto']
 def bbox(img):
