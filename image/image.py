@@ -3,6 +3,15 @@ from numpy import *
 
 __all__ = ['Image']
 
+def _open_file(fname):
+    """
+    Force a file to be B&W
+    """
+    A=imread(fname)
+    if A.ndim == 3:
+        A=A.mean(2)
+    return A
+
 class Image(object):
     """
     class Image(object)
@@ -28,9 +37,13 @@ class Image(object):
     def load(self):
         for k,v in self.channels.items():
             if k != self.crop_channel: # Crop is handled like a region
-                self.channeldata[k]=imread(v)
+                self.channeldata[k]=_open_file(v)
         if self.crop_channel in self.channels:
-            self.regions = imread(self.channels[self.crop_channel])
+            # These files often need to be fixed:
+            self.regions = _open_file(self.channels[self.crop_channel])
+            if self.regions.max() == 255:
+                self.regions[self.regions == 255] = 1
+            
 
     def unload(self):
         self.channeldata={}
