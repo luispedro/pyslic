@@ -1,4 +1,5 @@
 from numpy import *
+from scipy.ndimage import center_of_mass
 
 __all__ = ['imgmoments','imgcentmoments']
 def imgmonents(img,x,y):
