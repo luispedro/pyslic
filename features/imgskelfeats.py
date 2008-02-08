@@ -29,9 +29,9 @@ from bbox import croptobbox
 from mmthin import mmthin
 from convexhull import convexhull
 
-__all__ = ['imgskelfeats']
+__all__ = ['imgskelfeatures']
 
-def imgskelfeats(imageproc):
+def imgskelfeatures(imageproc):
     """
 [NAMES, VALUES, SLFNAMES] = ML_IMGSKELFEATURES(IMAGEPROC) calculates 
    skeleton features for IMAGEPROC
@@ -84,7 +84,6 @@ Calculate skeleton features for the object OBJIMG.
 
     skellen = (objskel > 0).sum()
     objsize = objbin.sum()
-    print objsize
     if objsize == 0:
         return array([0,0,0,0,0])
 
