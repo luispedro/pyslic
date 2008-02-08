@@ -21,11 +21,17 @@
 
 from bwperim import bwperim
 from imgmoments import imgcentmoments
+from convexhull import convexhull
+from numpy import *
+
+__all__ = ['hullfeatures']
 
 def _bwarea(img):
     return (img > 0).sum()
 
-def hullfeatures(imageproc,imagehull):
+def hullfeatures(imageproc,imagehull=None):
+    if imagehull is None:
+        imagehull = convexhull(imageproc > 0)
 
     Ahull = _bwarea(imagehull) ;
     hullfract = double((imageproc > 0).sum())/Ahull
