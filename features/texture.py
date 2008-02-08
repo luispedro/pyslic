@@ -14,6 +14,8 @@ def haralickfeatures(img,directions = ALL_DIRECTIONS):
 
     Returns a 13-vector of doubles
     """
+    if img.max() > 256:
+        img = asarray(double(img) * 256./img.max(),uint8)
     p=computecooccurence(img,directions)
     N=256
     feats=zeros(13)
