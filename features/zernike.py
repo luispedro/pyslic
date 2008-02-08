@@ -27,9 +27,11 @@ from scipy.ndimage import *
 
 __all__ = ['zernike']
 
-def factorial(N):
-    if N == 0: return 1
-    return reduce(lambda a,b : a*b,xrange(1,N+1))
+def _factorial(N):
+    res = 1.
+    for i in xrange(1,N+1):
+        res *= i
+    return res
 
 def _polar(r,theta):
     x = r * cos(theta)
@@ -41,8 +43,8 @@ def Znl(n,l,X,Y,P):
     for x,y,p in zip(X,Y,P):
         Vnl = 0.
         for m in xrange( (n-l)//2 ):
-              Vnl += (-1.)**m * factorial(n-m) /  \
-            ( factorial(m) * factorial((n - 2.*m + l) / 2.) * factorial((n - 2.*m - l) / 2.) ) * \
+              Vnl += (-1.)**m * _factorial(n-m) /  \
+            ( _factorial(m) * _factorial((n - 2*m + l) // 2) * _factorial((n - 2*m - l) // 2) ) * \
             ( sqrt(x*x + y*y)**(n - 2*m) * _polar(1.0, l*atan2(y,x)) )
         v += p * conjugate(Vnl)
 
