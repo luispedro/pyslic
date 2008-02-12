@@ -25,14 +25,16 @@ from scipy.ndimage import binary_hit_or_miss
 __all__ = ['mmthin']
 def mmthin(binimg):
     """
-ML_MMTHIN image transformation by thinning
-IMG_SKEL=ML_MMTHIN(BIN_IMAGE)
+    ML_MMTHIN image transformation by thinning
+    IMG_SKEL=ML_MMTHIN(BIN_IMAGE)
 
-rewrite the mmthin function in the morphological toolbox
-This code is written by yenixsa and Sam in Summer 2004
-Last updated on 12/3/2005
+    rewrite the mmthin function in the morphological toolbox
+    This code is written by yenixsa and Sam in Summer 2004
+    Last updated on 12/3/2005
+    Ported to Python by LPC on Feb 2008
     """
 
+    binimg=binimg.copy()
     degrees = 45;
     num_elem = abs(360//degrees)
 
