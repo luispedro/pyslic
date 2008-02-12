@@ -44,17 +44,19 @@ def imgskelfeatures(imageproc):
 
     # Find objects in the image
     imagelabeled,N = label(imageproc > 0)
+    if N == 0:
+        return zeros(5,double)
+    print N
     for i in xrange(1,N+1):
         # Get an image of the single object
-        objmask = (imagelabeled==i)
-        objimage = imageproc * objmask
+        objimage = imageproc * (imagelabeled == i)
         # Compute skeleton features
         skelfeats=objskelfeats(objimage)
         values.append(skelfeats)
 
     # Average the skeleton features over the whole cell
     values=array(values)
-    values=mean(values)
+    values=values.mean(0)
     # SLF names
     slfnames = []
     for feat_no in xrange(1,6):
@@ -64,30 +66,35 @@ def imgskelfeatures(imageproc):
 
 def find_branch_points(img):
     """
-    branch_points = ml_find_branch_points( img)
+    branch_points = find_branch_points( img)
+
     img is the image with the skeleton of one object
-    bran_points is the image with the branch points of the skeleton of that object
+    branch_points is the image with the branch points of the skeleton of that object
+
+    Ported from ml_find_branch_points.m
     """
     kernel = array([[0,1,0],[1,0,1],[0,1,0]])
-    branch_points = convolve(img,kernel)*img;
-    return (branch_points < 3) * (branch_points > 0)
+    img=asarray(img,uint8)
+    branch_points = convolve(img,kernel,mode='constant')*img;
+    branch_points[branch_points < 3] = 0
+    return (branch_points > 0)
 
 def objskelfeats(objimg):
     """
-[FEATS, NAMES] = ML_OBJSKELFEATS( OBJIMG)
+    feats = objskelfeats(objimg)
 
-Calculate skeleton features for the object OBJIMG.
+    Calculate skeleton features for the object OBJIMG.
     """
     objimg = croptobbox(objimg)
     objbin = objimg > 0
-    objskel = mmthin(objbin);
-
-    skellen = (objskel > 0).sum()
     objsize = objbin.sum()
+
     if objsize == 0:
         return array([0,0,0,0,0])
 
-    skel_obj_area_ratio = skellen / objsize
+    objskel = mmthin(objbin);
+    skellen = (objskel > 0).sum()
+
 
     skelhull = convexhull(objskel);
     hullsize = skelhull.sum()
@@ -98,6 +105,9 @@ Calculate skeleton features for the object OBJIMG.
          hullsize = skellen
 
     skel_hull_area_ratio = skellen / hullsize
+
+    skel_obj_area_ratio = skellen/objsize
+
     skel_fluor = objimg[objskel].sum()
     obj_fluor = objimg.sum()
     skel_obj_fluor_ratio = skel_fluor/obj_fluor
