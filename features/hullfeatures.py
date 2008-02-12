@@ -19,6 +19,7 @@
 # For additional information visit http://murphylab.web.cmu.edu or
 # send email to murphy@cmu.edu
 
+from __future__ import division
 from bwperim import bwperim
 from imgmoments import imgcentmoments
 from convexhull import convexhull
