@@ -89,6 +89,6 @@ def zernike(img,D,radius):
                 z= Znl(n,l, Xn[k], Yn[k], frac_center)
                 zvalues.append(z.real)
                 zvalues.append(z.imag)
-    return znames, zvalues
+    return zvalues
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
