@@ -59,7 +59,9 @@ def edgefeatures(protproc):
     M.Velliste June 2, 2002: added SLF names
     """  
         
-    A = sobel(protproc).sum()/protproc.sum()
+    binimg=(protproc > 0)
+    edges = sobel(protproc) > 100
+    A = edges.sum()/binimg.sum()
     #A = bwarea(edge(imageproc,'canny',[]))/bwarea(im2bw(imageproc)) ;
 
     # Directional edge filters
@@ -67,12 +69,13 @@ def edgefeatures(protproc):
     W = array([[1,0,-1],[1,0,-1],[1,0,-1]])
 
     # Calculation of the gradient from two orthogonal directions
+    protproc=asarray(protproc.copy(),int16)
     iprocN = convolve(protproc,N)
     iprocW = convolve(protproc,W)
 
     # Calculate the magnitude and direction of the gradient
-    iprocmag = sqrt(iprocN**2 + iprocW**2) ;
-    iproctheta = atan2(iprocN, iprocW) ;
+    iprocmag = sqrt(iprocN**2 + iprocW**2)
+    iproctheta = atan2(iprocN, iprocW)
 
     # Change by MV:
     # Identify pixels in iprocmag that are not 0
@@ -86,7 +89,7 @@ def edgefeatures(protproc):
     v_mag = v_mag[v_mag > 0]
 
     # Histogram the gradient directions
-    h,_ = histogram(v,8) ;
+    h,_ = histogram(v,8)
 
     # max/min ratio
     maxidx=argmax(h)
@@ -103,8 +106,8 @@ def edgefeatures(protproc):
     #  In general, objects have an equal number of pixels at an angle
     #  and that angle+pi. The differences are normalized to the sum of 
     #  the two directions.
-    diff = abs(h[:4]-h[4:])/abs(h[:4]+h[4:]);
-    diff[abs(h[:4]-h[4:])==0] = 0;
+    diff = abs(h[:4]-h[4:])/abs(h[:4]+h[4:])
+    diff[abs(h[:4]-h[4:])==0] = 0
 
 
     h[maxidx] = 0
@@ -117,7 +120,7 @@ def edgefeatures(protproc):
     #  the first two bins of the histogram.
     # Change by MV: Made it be based on edge magnitude histogram. Was
     # incorrectly based on edge direction histogram before.
-    h_mag,_ = histogram(v_mag,4);
+    h_mag,_ = histogram(v_mag,4)
     homogeneity = h_mag[0]/h_mag.sum()
 
     #names = [names cellstr('edges:area_fraction') ...
