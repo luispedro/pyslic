@@ -25,6 +25,7 @@ class Image(object):
 
     procdna_channel='procdna'
     procprotein_channel='procprotein'
+    residualprotein_channel='resprotein'
 
     __slots__ = ['label','features','regions','channels','channeldata']
     def __init__(self):
