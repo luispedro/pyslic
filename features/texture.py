@@ -1,14 +1,9 @@
+from __future__ import division
 from numpy import *
 
-__all__ = ['haralickfeatures','LEFT','RIGHT','UP','DOWN','ALL_DIRECTIONS']
+__all__ = ['haralickfeatures','computecooccurence']
 
-LEFT = 1
-RIGHT = 2
-UP = 4
-DOWN = 8
-ALL_DIRECTIONS = (LEFT|RIGHT|UP|DOWN)
-
-def haralickfeatures(img,directions = ALL_DIRECTIONS):
+def haralickfeatures(img,directions = [0,45,90,135]):
     """
     Computes Haralick texture features for img.
 
@@ -16,44 +11,52 @@ def haralickfeatures(img,directions = ALL_DIRECTIONS):
     """
     if img.max() > 256:
         img = asarray(double(img) * 256./img.max(),uint8)
-    p=computecooccurence(img,directions)
-    N=256
-    feats=zeros(13)
-    px=p.sum(0)
-    py=p.sum(1)
-    k=arange(N)
-    ux=(k*px).sum()
-    uy=(k*py).sum()
-    sx=sqrt( (px*(k-ux)**2).sum() )
-    sy=sqrt( (py*(k-uy)**2).sum() )
-    px_plus_y=array([p.trace(G-N) for G in xrange(2*N)])
-    px_minus_y=array([p.trace(G)+p.trace(-G) for G in xrange(N)])
-    px_minus_y[0] /= 2
-    g=array([[abs(i-j) for i in xrange(N)] for j in xrange(N)])
-    i,i=mgrid[:N,:N]
+    feats=zeros((len(directions),13))
+    for di,dir in enumerate(directions):
+        p=computecooccurence(img,dir)
+        N,_=p.shape
+        px=p.sum(0)
+        py=p.sum(1)
+        k=arange(N)
+        ux=(k*px).sum()
+        uy=(k*py).sum()
+        sx=sqrt( (px*(k-ux)**2).sum() )
+        sy=sqrt( (py*(k-uy)**2).sum() )
+        px_plus_y=zeros(2*N)
+        for i in xrange(N):
+            for j in xrange(N):
+                px_plus_y[i+j] += p[i,j]
+        px_minus_y=array([p.trace(G)+p.trace(-G) for G in xrange(N)])
+        px_minus_y[0] /= 2
+        g=array([[abs(i-j) for i in xrange(N)] for j in xrange(N)])
 
-    feats[0]=(p**2).sum()
-    feats[1]=(k**2*px_minus_y).sum()
-    feats[2]=1./sx/sy * ((i*j*p).sum() - ux*uy)
-    feats[3]=((k-ux)**2*px).sum()
-    feats[4]=(1./(1+(i-j)**2)*p).sum()
-    feats[5]=(arange(2*N)*px_plus_y).sum()
-    feats[6]=((arange(2*N)-feats[5])**2*px_plus_y).sum() # There is some confusion w.r.t. this feature.
-                                                         # In some sources, it's feats[7] that is used
-    feats[7]=entropy(px_plus_y)
-    feats[8]=entropy(p)
-    feats[9]=px_minus_y.var()
-    feats[10]=entropy(px_minus_y)
-    
-    HX=entropy(px)
-    HY=entropy(py)
-    crosspxpy=dot(reshape(px,(N,1)),reshape(py,(1,N)))
-    crosspxpy[crosspxpy == 0]=1. # This makes the log be zero and everything works OK below:
-    HXY1=-(p*log(crosspxpy)).sum()
-    HXY2=entropy(crosspxpy)
+        i,j=mgrid[:N,:N]
 
-    feats[11]=feats[8]-HXY1/max(HX,HY)
-    feats[12]=sqrt(1-exp(-2*(HXY2-feats[8])))
+        feats[di,0]=(p**2).sum()
+        feats[di,1]=(k**2*px_minus_y).sum()
+
+        feats[di,2]=1./sx/sy * ((i*j*p).sum() - ux*uy)
+
+        feats[di,3]=((k-ux)**2*px).sum()
+        feats[di,4]=(1./(1+(i-j)**2)*p).sum()
+        feats[di,5]=(arange(2*N)*px_plus_y).sum()
+
+        feats[di,6]=((arange(2*N)-feats[di,5])**2*px_plus_y).sum() # There is some confusion w.r.t. this feature.
+                                                             # In some sources, it's feats[7] that is used
+        feats[di,7]=entropy(px_plus_y)
+        feats[di,8]=entropy(p)
+        feats[di,9]=px_minus_y.var() # This is wrongly implemented in ml_texture
+        feats[di,10]=entropy(px_minus_y)
+        
+        HX=entropy(px)
+        HY=entropy(py)
+        crosspxpy=outer(px,py)
+        crosspxpy[crosspxpy == 0]=1. # This makes the log be zero and everything works OK below:
+        HXY1=-(p*log2(crosspxpy)).sum()
+        HXY2=entropy(crosspxpy)
+
+        feats[di,11]=(feats[di,8]-HXY1)/max(HX,HY)
+        feats[di,12]=sqrt(1-exp(-2*(HXY2-feats[di,8])))
 
     return feats
 
@@ -61,24 +64,37 @@ def entropy(p):
     p=p[p != 0]
     return -(p*log2(p)).sum()
 
-def computecooccurence(img,directions):
-    comap = zeros((256,256))
+def computecooccurence(img,dir,remove_zeros=True):
+# This is probably a good candidate for a C speed up
+    assert dir in [0,45,90,135]
+    Ng=img.max()+1 # 1 for value 0
+    comap = zeros((Ng,Ng))
     N,M=img.shape
-    for i in xrange(N):
-        for j in xrange(M):
-            p=img[i,j]
-            if directions & LEFT and i > 0:
-                n=img[i-1,j]
-                comap[p,n] += 1
-            if directions & UP and j > 0:
-                n=img[i,j-1]
-                comap[p,n] += 1
-            if directions & RIGHT and i < N -1:
-                n=img[i+1,j]
-                comap[p,n] += 1
-            if directions & DOWN and j < M - 1:
-                n=img[i,j+1]
-                comap[p,n] += 1
+    dx,dy=0,0
+    if dir == 0:
+        dx=1
+    elif dir == 45:
+        dx=1
+        dy=-1
+    elif dir == 90:
+        dy=-1
+    elif dir == 135:
+        dx=-1
+        dy=-1
+    else:
+        assert False
+    for y in xrange(N):
+        for x in xrange(M):
+            ny=y+dy
+            nx=x+dx
+            if ny < 0 or nx < 0 or ny >= N or nx >= M:
+                continue
+            p=img[y,x]
+            n=img[ny,nx]
+            comap[p,n] += 1
+    comap = comap + comap.T
+    if remove_zeros:
+        comap=comap[1:,1:]
     comap /= comap.sum()
     return comap
 
