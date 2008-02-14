@@ -25,7 +25,7 @@ def bbox(img):
 
 def croptobbox(img):
     """
-    Returns a cropped version of img.
+    Returns a version of img cropped to the image's bounding box
     """
     
     min1,max1,min2,max2 = bbox(img)

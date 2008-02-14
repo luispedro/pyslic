@@ -1,7 +1,7 @@
 from __future__ import division
 def noffeatures(procimg,nofimg):
     """
-    Compute No object fluorescence features
+    Compute non object fluorescence features
     """
     obj_fluor = procimg.sum()
     nonobj_fluor = nofimg.sum()

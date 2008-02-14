@@ -29,7 +29,7 @@ atan2=vectorize(math.atan2)
 def edgefeatures(protproc):
     """
     values = edgefeatures(protproc)
-       where IMAGEPROC contains the pre-processed fluorescence image.
+       where protproc contains the pre-processed fluorescence image.
        Pre-processed means that the image has been cropped and had
        pixels of interest selected (via a threshold, for instance).
     
@@ -57,6 +57,7 @@ def edgefeatures(protproc):
        consistent results.
     
     M.Velliste June 2, 2002: added SLF names
+    Ported to Python by Luis Pedro Coelho
     """  
         
     binimg=(protproc > 0)
@@ -87,6 +88,9 @@ def edgefeatures(protproc):
     v_mag = iprocmag.ravel()
     v = v[v_mag > 0]
     v_mag = v_mag[v_mag > 0]
+
+    if v.size == 0:
+        return zeros(5)
 
     # Histogram the gradient directions
     h,_ = histogram(v,8)

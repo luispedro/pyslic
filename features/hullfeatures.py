@@ -31,6 +31,14 @@ def _bwarea(img):
     return (img > 0).sum()
 
 def hullfeatures(imageproc,imagehull=None):
+    """
+    Compute hull features:
+
+    hullfract:          bwarea/hullarea
+    hullshape:          roundness of hull
+    hull_eccentricity:  eccentricity of hull ellipse
+    """
+
     if imagehull is None:
         imagehull = convexhull(imageproc > 0)
 

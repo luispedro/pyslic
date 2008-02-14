@@ -7,7 +7,7 @@ def convexhull(bwimg):
     """
     hull = convexhull(bwimg)
 
-    Compute the convex hull of the binary image and return it as a mask
+    Compute the convex hull of the binary image and return it as a binary mask
     """
     X,Y=where(bwimg)
     P=[(x,y) for x,y in zip(X,Y)]

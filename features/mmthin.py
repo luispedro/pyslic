@@ -25,8 +25,8 @@ from scipy.ndimage import binary_hit_or_miss
 __all__ = ['mmthin']
 def mmthin(binimg):
     """
-    ML_MMTHIN image transformation by thinning
-    IMG_SKEL=ML_MMTHIN(BIN_IMAGE)
+    skel = mmthin(binimg)
+    image transformation by thinning
 
     rewrite the mmthin function in the morphological toolbox
     This code is written by yenixsa and Sam in Summer 2004

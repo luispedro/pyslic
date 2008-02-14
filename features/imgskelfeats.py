@@ -31,25 +31,24 @@ from convexhull import convexhull
 
 __all__ = ['imgskelfeatures']
 
-def imgskelfeatures(imageproc):
+def imgskelfeatures(protproc):
     """
-[NAMES, VALUES, SLFNAMES] = ML_IMGSKELFEATURES(IMAGEPROC) calculates 
-   skeleton features for IMAGEPROC
+    values = imgskelfeatures(protproc)
+    Compute skeleton features for protproc
 
-   where IMAGEPROC contains the pre-processed fluorescence image, 
+   where protproc contains the pre-processed fluorescence image, 
    Pre-processed means that the image has been cropped and had 
    pixels of interest selected (via a threshold, for instance).
     """
     values = [] ;
 
     # Find objects in the image
-    imagelabeled,N = label(imageproc > 0)
+    imagelabeled,N = label(protproc > 0)
     if N == 0:
         return zeros(5,double)
-    print N
     for i in xrange(1,N+1):
         # Get an image of the single object
-        objimage = imageproc * (imagelabeled == i)
+        objimage = protproc * (imagelabeled == i)
         # Compute skeleton features
         skelfeats=objskelfeats(objimage)
         values.append(skelfeats)
