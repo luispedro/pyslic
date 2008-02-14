@@ -1,0 +1,24 @@
+There are two ways to compute features:
+	* Through computefeatures()
+	* Calling individual functions
+
+The first method uses an image class, which contains the paths to the files (which must be a format understood by your Python Imaging Library instalation).
+
+The individual functions take preprocessed images of the protein, of the DNA channel, or of the residual fluorescence.
+
+==========================================
+USING COMPUTEFEATURES
+==========================================
+
+from pyslic import Image, computefeatures
+
+image=Image()
+# Set up the images
+image.channels[Image.protein_channel]='/images/image-prot.png'
+image.channels[Image.dna_channel]='/images/image-dna.png'
+image.channels[Image.crop_channel]='/images/image-crop.png'
+
+F=computefeatures(image,'SLF13')
+image.unload() # Save memory
+
+
