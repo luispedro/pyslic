@@ -18,7 +18,10 @@ class PyMLSVM(object):
 
     def apply(self,feats):
         assert self.trained
-        data=datafunc.VectorDataSet(feats)
-        return array(self.s.test(data))
+        if feats.ndim == 1:
+            data=datafunc.VectorDataSet([feats])
+            return array(self.s.classify(data,0))[0]
+        else:
+            raise Exception('Not implemented')
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
