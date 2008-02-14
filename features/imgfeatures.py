@@ -40,12 +40,12 @@ def imgfeatures(imageproc,dnaproc):
     """
     values = imgfeatures(imageproc,dnaproc)
 
-   Calculates features for IMAGEPROC
-   where IMAGEPROC contains the pre-processed fluorescence image, 
-   and DNAPROC the pre-processed DNA fluorescence image.
+   calculates features for imageproc
+   where imageproc contains the pre-processed fluorescence image, 
+   and dnaproc the pre-processed dna fluorescence image.
    Pre-processed means that the image has been cropped and had 
    pixels of interest selected (via a threshold, for instance).
-   Use DNAPROC=[] to exclude features based on the DNA image.  
+   use dnaproc=None to exclude features based on the dna image.  
 
    Features calculated include:
      - Number of objects
@@ -71,6 +71,8 @@ def imgfeatures(imageproc,dnaproc):
     bwimage=(imageproc > 0)
     imagelabeled,obj_number = label(bwimage)
     values = [obj_number]
+    if obj_number == 0:
+        return zeros(14)
 
     euler_nr = bweuler(bwimage)
     values.append(euler_nr)
@@ -111,14 +113,35 @@ def imgfeatures(imageproc,dnaproc):
     
     
     r,c=imageproc.shape
-    for x in xrange(c):
-        for y in xrange(r):
-            moment_array_index = imagelabeled[y,x]
-            img_moment00[moment_array_index] += imageproc[y,x];
-            img_moment10[moment_array_index] += (x * imageproc[y,x]);
-            img_moment01[moment_array_index] += (y * imageproc[y,x]);
-            obj_sizes[moment_array_index] += 1
-    
+    try:
+        from scipy import weave
+        from scipy.weave import converters
+        code='''
+        for (int x = 0; x != c; ++x) {
+            for (int y = 0; y != r; ++y) {
+                unsigned moment_array_index = imagelabeled(y,x);
+                img_moment00(moment_array_index) += imageproc(y,x);
+                img_moment10(moment_array_index) += (x * imageproc(y,x));
+                img_moment01(moment_array_index) += (y * imageproc(y,x));
+                ++obj_sizes(moment_array_index);
+            }
+        }
+        '''
+        weave.inline(code,
+            ['r','c','imageproc','imagelabeled','obj_sizes','img_moment00','img_moment01','img_moment10'],
+            type_converters=converters.blitz)
+    except:
+        img_moment00 = zeros(moment_length);
+        img_moment10 = zeros(moment_length);
+        img_moment01 = zeros(moment_length);
+        obj_sizes = zeros(moment_length);
+        for x in xrange(c):
+            for y in xrange(r):
+                moment_array_index = imagelabeled[y,x]
+                img_moment00[moment_array_index] += imageproc[y,x];
+                img_moment10[moment_array_index] += (x * imageproc[y,x]);
+                img_moment01[moment_array_index] += (y * imageproc[y,x]);
+                obj_sizes[moment_array_index] += 1
 
 
     for i in xrange(1,obj_number + 1):

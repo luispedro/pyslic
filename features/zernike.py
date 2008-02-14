@@ -25,14 +25,10 @@ from __future__ import division
 from math import *
 from numpy import *
 from scipy.ndimage import *
+from scipy import weave
+from scipy.weave import converters
 
 __all__ = ['zernike']
-
-def _factorial(N):
-    res = 1.
-    for i in xrange(1,N+1):
-        res *= i
-    return res
 
 def _polar(r,theta):
     x = r * cos(theta)
@@ -41,28 +37,55 @@ def _polar(r,theta):
 
 def Znl(n,l,X,Y,P):
     v = 0.+0.j
-    for x,y,p in zip(X,Y,P):
-        Vnl = 0.
-        for m in xrange( (n-l)//2 + 1 ):
-              Vnl += (-1.)**m * _factorial(n-m) /  \
-            ( _factorial(m) * _factorial((n - 2*m + l) // 2) * _factorial((n - 2*m - l) // 2) ) * \
-            ( sqrt(x*x + y*y)**(n - 2*m) * _polar(1.0, l*atan2(y,x)) )
-        v += p * conjugate(Vnl)
-
+    factorialtable=array([1,1,2,6,24,120,720,5040,40320,362880,3628800,39916800,479001600])
+    try:
+        Nelems=len(X)
+        code='''
+#line 46 "zernike.py"
+        using std::pow;
+        using std::atan2;
+        using std::polar;
+        using std::conj;
+        using std::complex;
+        complex<double> Vnl = 0.0;
+        for (int i = 0; i != Nelems; ++i) {
+            double x=X(i);
+            double y=Y(i);
+            double p=P(i);
+            for(int m = 0; m <= (n-l)/2; m++) {
+                double f = (m & 1) ? -1 : 1;
+                Vnl += f * factorialtable(int(n-m)) /
+                       ( factorialtable(m) * factorialtable((n - 2*m + l) / 2) * factorialtable((n - 2*m - l) / 2) ) *
+                       ( pow( sqrt(x*x + y*y), (double)(n - 2*m)) ) *
+                       polar(1.0, l*atan2(y,x)) ;
+                              }
+            v += p * conj(Vnl);
+        }
+        '''
+        err=weave.inline(code,
+            ['factorialtable','X','Y','P','v','n','l','Nelems'],
+            type_converters=converters.blitz,
+            compiler = 'gcc',
+            headers=['<complex>'])
+    except:
+        for x,y,p in zip(X,Y,P):
+            Vnl = 0.
+            for m in xrange( (n-l)//2 + 1 ):
+                  Vnl += (-1.)**m * factorialtable[n-m] /  \
+                ( factorialtable[m] * factorialtable[(n - 2*m + l) // 2] * factorialtable[(n - 2*m - l) // 2] )* \
+                ( sqrt(x*x + y*y)**(n - 2*m) * _polar(1.0, l*atan2(y,x)) )
+            v += p * conjugate(Vnl)
     v *= (n+1)/pi
     return v 
 
 
 def zernike(img,D,radius):
     """
-     ZVALUES = zernike(img,D,radius) Zernike moments through degree D 
-     ML_ZERNIKE(I,D,R),
-     Returns a vector of Zernike moments through degree D for the
-     image I, and the names of those moments in cell array znames. 
-     R is used as the maximum radius for the Zernike polynomials.
+     zvalues = zernike(img,D,radius) zernike moments through degree D
 
-     For use as features, it is desirable to take the 
-     magnitude of the Zernike moments (i.e. abs(zvalues))
+     Returns a vector of absolute Zernike moments through degree D for the
+     image I, and the names of those moments in cell array znames. 
+     radius is used as the maximum radius for the Zernike polynomials.
 
      Reference: Teague, MR. (1980). Image Analysis via the General
        Theory of Moments.  J. Opt. Soc. Am. 70(8):920-930.

@@ -14,6 +14,7 @@ def haralickfeatures(img,directions = [0,45,90,135]):
     feats=zeros((len(directions),13))
     for di,dir in enumerate(directions):
         p=computecooccurence(img,dir)
+        if p.size == 0: continue
         N,_=p.shape
         px=p.sum(0)
         py=p.sum(1)
@@ -83,15 +84,36 @@ def computecooccurence(img,dir,remove_zeros=True):
         dy=-1
     else:
         assert False
-    for y in xrange(N):
-        for x in xrange(M):
-            ny=y+dy
-            nx=x+dx
-            if ny < 0 or nx < 0 or ny >= N or nx >= M:
-                continue
-            p=img[y,x]
-            n=img[ny,nx]
-            comap[p,n] += 1
+    try:
+        from scipy import weave
+        from scipy.weave import converters
+        code = '''
+#line 90 "texture.py"
+        int ny,nx;
+        for (int y = 0; y != N; ++y) {
+            for (int x = 0; x != M; ++x) {
+                ny=y+dy;
+                nx=x+dx;
+                if (nx < 0 || ny < 0 || ny >= N || nx >= M) continue;
+                int p=img(y,x);
+                int n=img(ny,nx);
+                ++comap(p,n);
+            }
+        }
+        '''
+        weave.inline(code,
+            ['N','M','dx','dy','comap','img'],
+            type_converters=converters.blitz)
+    except:
+        for y in xrange(N):
+            for x in xrange(M):
+                ny=y+dy
+                nx=x+dx
+                if ny < 0 or nx < 0 or ny >= N or nx >= M:
+                    continue
+                p=img[y,x]
+                n=img[ny,nx]
+                comap[p,n] += 1
     comap = comap + comap.T
     if remove_zeros:
         comap=comap[1:,1:]
