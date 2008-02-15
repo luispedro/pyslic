@@ -23,11 +23,13 @@ def convexhull(bwimg):
 
 def _isLeft(p0,p1,p2):
     """
-    // isLeft(): tests if a point is Left|On|Right of an infinite line.
-    //    Input:  three points P0, P1, and P2
-    //    Return: >0 for P2 left of the line through P0 and P1
-    //            =0 for P2 on the line
-    //            <0 for P2 right of the line
+    tests if a point is Left|On|Right of an infinite line.
+    Input:  three points p0, p1, and p2
+
+    Return:
+        >0 for p2 left of the line through p0 and p1
+        =0 for p2 on the line
+        <0 for p2 right of the line
     """
     # Copyright 2001, softSurfer (www.softsurfer.com)
     # This code may be freely used and modified for any purpose
@@ -35,38 +37,32 @@ def _isLeft(p0,p1,p2):
     # SoftSurfer makes no warranty for this code, and cannot be held
     # liable for any real or imagined damage resulting from its use.
     # Users of this code must verify correctness for their application.
-     
     return (p1[0]-p0[0])*(p2[1]-p0[1]) - (p2[0]-p0[0])*(p1[1]-p0[1])
 
+def _inPlaceScan(P,reverse):
+    P.sort(reverse=reverse)
+    h=1
+    N=len(P)
+    for i in xrange(1,N):
+        while h >= 2 and _isLeft(P[h-2],P[h-1],P[i]) >= 0:
+            h -= 1
+        t=P[i]
+        P[i]=P[h]
+        P[h]=t
+        h += 1
+    return h
 def computesConvexHull(P):
     """
-    Compute convex hull based on Graham's scan algorithm as explained in
-    http://www.softsurfer.com/Archive/algorithm_0109/algorithm_0109.htm
+    From ``Space-Efficient Planar Convex Hull Algorithms''
+        by Bronnimann et al.
     """
-    p0=P[0]
-    for p in P:
-        if p[0] < p0[0] or (p[0] == p0[0] and p[1] < p0[1]):
-            p0=p
-    P1=P[1:]
-    def left(p1,p2):
-        v=_isLeft(p0,p1,p2)
-        if v > 0: return -1
-        if v < 0: return 1
-        return 0
-    P1.sort(left) 
-    p1=P1[0]
-    stack=[p0,p1]
-    i=1
-    N=len(P1)
-    while i < N:
-        p1=stack[-1]
-        p0=stack[-2]
-        if _isLeft(p0,p1,P1[i]) > 0:
-            stack.append(P1[i])
-            i += 1
-        else:
-            del stack[-1]
-
-    return stack
+    h=_inPlaceScan(P,False)
+    for i in xrange(h-1):
+        t=P[i]
+        P[i]=P[i+1]
+        P[i+1]=t
+    P2=P[h-2:]
+    h_=_inPlaceScan(P2,True)
+    return P[:h]+P2[:h_]
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
