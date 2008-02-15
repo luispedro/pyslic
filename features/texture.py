@@ -29,7 +29,6 @@ def haralickfeatures(img,directions = [0,45,90,135]):
                 px_plus_y[i+j] += p[i,j]
         px_minus_y=array([p.trace(G)+p.trace(-G) for G in xrange(N)])
         px_minus_y[0] /= 2
-        g=array([[abs(i-j) for i in xrange(N)] for j in xrange(N)])
 
         i,j=mgrid[:N,:N]
 
