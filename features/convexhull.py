@@ -20,60 +20,53 @@ def convexhull(bwimg):
     res=reshape(res,bwimg.shape)
     return res
 
-def _myDet(p, q, r):
-    """Calc. determinant of a special matrix with three 2D points.
 
-    The sign, "-" or "+", determines the side, right or left,
-    respectivly, on which the point r lies, when measured against
-    a directed vector from p to q.
+def _isLeft(p0,p1,p2):
     """
-
-    # We use Sarrus' Rule to calculate the determinant.
-    # (could also use the Numeric package...)
-    sum1 = q[0]*r[1] + p[0]*q[1] + r[0]*p[1]
-    sum2 = q[0]*p[1] + r[0]*q[1] + p[0]*r[1]
-
-    return sum1 - sum2
-
-
-def _isRightTurn((p, q, r)):
-    "Do the vectors pq:qr form a right turn, or not?"
-    assert p != q and q != r and p != r
-    return _myDet(p, q, r) < 0
+    // isLeft(): tests if a point is Left|On|Right of an infinite line.
+    //    Input:  three points P0, P1, and P2
+    //    Return: >0 for P2 left of the line through P0 and P1
+    //            =0 for P2 on the line
+    //            <0 for P2 right of the line
+    """
+    # Copyright 2001, softSurfer (www.softsurfer.com)
+    # This code may be freely used and modified for any purpose
+    # providing that this copyright notice is included with it.
+    # SoftSurfer makes no warranty for this code, and cannot be held
+    # liable for any real or imagined damage resulting from its use.
+    # Users of this code must verify correctness for their application.
+     
+    return (p1[0]-p0[0])*(p2[1]-p0[1]) - (p2[0]-p0[0])*(p1[1]-p0[1])
 
 def computesConvexHull(P):
     """
-	Calculate the convex hull of a set of points.
-	Taken from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/66527
+    Compute convex hull based on Graham's scan algorithm as explained in
+    http://www.softsurfer.com/Archive/algorithm_0109/algorithm_0109.htm
     """
+    p0=P[0]
+    for p in P:
+        if p[0] < p0[0] or (p[0] == p0[0] and p[1] < p0[1]):
+            p0=p
+    P1=P[1:]
+    def left(p1,p2):
+        v=_isLeft(p0,p1,p2)
+        if v > 0: return -1
+        if v < 0: return 1
+        return 0
+    P1.sort(left) 
+    p1=P1[0]
+    stack=[p0,p1]
+    i=1
+    N=len(P1)
+    while i < N:
+        p1=stack[-1]
+        p0=stack[-2]
+        if _isLeft(p0,p1,P1[i]) > 0:
+            stack.append(P1[i])
+            i += 1
+        else:
+            del stack[-1]
 
-    # Get a local list copy of the points and sort them lexically.
-    points=dict([(p,None) for p in P])
-    points=points.keys()
-    points.sort()
-
-    # Build upper half of the hull.
-    upper = [points[0], points[1]]
-    for p in points[2:]:
-	upper.append(p)
-	while len(upper) > 2 and not _isRightTurn(upper[-3:]):
-	    del upper[-2]
-
-    # Build lower half of the hull.
-    points.reverse()
-    lower = [points[0], points[1]]
-    for p in points[2:]:
-	lower.append(p)
-	while len(lower) > 2 and not _isRightTurn(lower[-3:]):
-	    del lower[-2]
-
-    # Remove duplicates.
-    del lower[0]
-    del lower[-1]
-
-    # Concatenate both halfs and return.
-    return tuple(upper + lower)
-
-
+    return stack
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
