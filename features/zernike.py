@@ -40,46 +40,50 @@ def Znl(n,l,X,Y,P):
     factorialtable=array([1,1,2,6,24,120,720,5040,40320,362880,3628800,39916800,479001600])
     try:
         Nelems=len(X)
+        v=array([v]) # This is necessary for the C++ code to see and update v correctly
         code='''
-#line 46 "zernike.py"
+#line 45 "zernike.py"
         using std::pow;
         using std::atan2;
         using std::polar;
         using std::conj;
         using std::complex;
         complex<double> Vnl = 0.0;
+        v(0)=0;
         for (int i = 0; i != Nelems; ++i) {
             double x=X(i);
             double y=Y(i);
             double p=P(i);
+            Vnl = 0.;
             for(int m = 0; m <= (n-l)/2; m++) {
                 double f = (m & 1) ? -1 : 1;
                 Vnl += f * factorialtable(int(n-m)) /
                        ( factorialtable(m) * factorialtable((n - 2*m + l) / 2) * factorialtable((n - 2*m - l) / 2) ) *
                        ( pow( sqrt(x*x + y*y), (double)(n - 2*m)) ) *
                        polar(1.0, l*atan2(y,x)) ;
-                              }
-            v += p * conj(Vnl);
+            }
+            v(0) += p * conj(Vnl);
         }
         '''
-        err=weave.inline(code,
+        weave.inline(code,
             ['factorialtable','X','Y','P','v','n','l','Nelems'],
             type_converters=converters.blitz,
             compiler = 'gcc',
             headers=['<complex>'])
+        v=v[0]
     except:
         for x,y,p in zip(X,Y,P):
             Vnl = 0.
             for m in xrange( (n-l)//2 + 1 ):
                   Vnl += (-1.)**m * factorialtable[n-m] /  \
-                ( factorialtable[m] * factorialtable[(n - 2*m + l) // 2] * factorialtable[(n - 2*m - l) // 2] )* \
+                ( factorialtable[m] * factorialtable[(n - 2*m + l) // 2] * factorialtable[(n - 2*m - l) // 2] ) * \
                 ( sqrt(x*x + y*y)**(n - 2*m) * _polar(1.0, l*atan2(y,x)) )
             v += p * conjugate(Vnl)
     v *= (n+1)/pi
     return v 
 
 
-def zernike(img,D,radius):
+def zernike(img,D,radius,scale=.23):
     """
      zvalues = zernike(img,D,radius) zernike moments through degree D
 
@@ -100,8 +104,8 @@ def zernike(img,D,radius):
 # Normalize the coordinates to the center of mass and normalize
 #  pixel distances using the maximum radius argument (radius)
     cofx,cofy = center_of_mass(img)
-    Xn = double(X-cofx)/radius
-    Yn = double(Y-cofy)/radius
+    Xn = double(X-cofx)/radius*scale
+    Yn = double(Y-cofy)/radius*scale
     Xn=Xn.ravel()
     Yn=Yn.ravel()
 
