@@ -48,6 +48,7 @@ class Image(object):
 
     def unload(self):
         self.channeldata={}
+        self.regions=None
 
     def show(self):
         self.load()
