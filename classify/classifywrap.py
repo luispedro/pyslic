@@ -11,6 +11,6 @@ class pretransformclassifier(object):
     
     def apply(self,features):
         features=self.transformer.apply(features)
-        return self.classifier.apply(features,labels)
+        return self.classifier.apply(features)
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
