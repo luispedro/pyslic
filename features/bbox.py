@@ -9,18 +9,39 @@ def bbox(img):
     min1=0
     min2=0
     max1,max2=img.shape
-    while min1 < max1 and all(img[min1,:]==0):
-        min1 += 1
+    try:
+        from scipy import weave
+        from scipy.weave import converters
+        vals=array([max1,max2,min1,min2])
+        code='''
+        int max1=vals(0);
+        int max2=vals(1);
+        for (int y = 0; y != max1; ++y) {
+            for (int x = 0; x != max2; ++x) {
+                if (img(y,x) > 0) {
+                    if (y < vals(0)) vals(0) = y;
+                    if (x < vals(1)) vals(1) = x;
+                    if (y > vals(2)) vals(2) = y;
+                    if (x > vals(3)) vals(3) = x;
+                }
+            }
+        }
+        '''
+        weave.inline(
+                code,
+                ['vals','img'],
+                type_converters=converters.blitz)
+        min1,min2,max1,max2=tuple(vals)
+    except:
+        pos1=where(img.any(1))[0]
+        if len(pos1) == 0:
+            return 0,0,0,0
+        min1=pos1[0]
+        max1=pos1[-1]
 
-    while max1 > min1 and all(img[max1-1,:]==0):
-        max1 -= 1
-
-    while min2 < max2 and all(img[:,min2]==0):
-        min2 += 1
-
-    while max2 > min2 and all(img[:,max2-1]==0):
-        max2 -= 1
-
+        pos2=where(img.any(0))[0]
+        min2=pos2[0]
+        max2=pos2[-1]
     return min1,max1,min2,max2
 
 def croptobbox(img):
