@@ -81,7 +81,7 @@ compute_convexHull(PyObject* self, PyObject* args) {
 }
 
 PyMethodDef methods[] = {
-  {"compute_convexHull",compute_convexHull, METH_VARARGS , "compute convex hull"},
+  {"computeConvexHull",compute_convexHull, METH_VARARGS , "compute convex hull"},
   {NULL, NULL,0,NULL},
 };
 

@@ -1,7 +1,7 @@
 from __future__ import division
 from matplotlib.nxutils import points_inside_poly
 from numpy import *
-import warning
+import warnings
 
 __all__ = ['convexhull','computeConvexHull']
 
@@ -11,14 +11,18 @@ def convexhull(bwimg):
 
     Compute the convex hull of the binary image and return it as a binary mask
     """
+    # This function is still a bottleneck.
+    # Computing the convex hull (computeConvexHull) is now very fast (in C),
+    # but points_inside_poly is slow (this is the wrong use for this function)
+    # a more specialised approach would do better
     X,Y=where(bwimg)
-    P=[(x,y) for x,y in zip(X,Y)]
+    P=list(zip(X,Y))
     if len(P) < 2:
         return bwimg
     H=computeConvexHull(P)
     X,Y=bwimg.shape
     X,Y=mgrid[:X,:Y]
-    res=points_inside_poly(array([(x,y) for x,y in zip(X.ravel(),Y.ravel())]),array(H))
+    res=points_inside_poly([(x,y) for x,y in zip(X.ravel(),Y.ravel())],H)
     res=reshape(res,bwimg.shape)
     return res
 
@@ -61,8 +65,8 @@ def computeConvexHull(P):
     try:
         import _convexhull
         return _convexhull.computeConvexHull(P)
-    except:
-        warning.warn('C code for convex hull failed. Resorting to (slow) python.')
+    except Exception, e:
+        warnings.warn('C code for convex hull failed. Resorting to (slow) python (Error: %s)' % e)
         h=_inPlaceScan(P,False)
         for i in xrange(h-1):
             t=P[i]
