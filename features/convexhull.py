@@ -1,7 +1,9 @@
+from __future__ import division
 from matplotlib.nxutils import points_inside_poly
 from numpy import *
+import warning
 
-__all__ = ['convexhull']
+__all__ = ['convexhull','computeConvexHull']
 
 def convexhull(bwimg):
     """
@@ -13,7 +15,7 @@ def convexhull(bwimg):
     P=[(x,y) for x,y in zip(X,Y)]
     if len(P) < 2:
         return bwimg
-    H=computesConvexHull(P)
+    H=computeConvexHull(P)
     X,Y=bwimg.shape
     X,Y=mgrid[:X,:Y]
     res=points_inside_poly(array([(x,y) for x,y in zip(X.ravel(),Y.ravel())]),array(H))
@@ -51,18 +53,23 @@ def _inPlaceScan(P,reverse):
         P[h]=t
         h += 1
     return h
-def computesConvexHull(P):
+def computeConvexHull(P):
     """
     From ``Space-Efficient Planar Convex Hull Algorithms''
         by Bronnimann et al.
     """
-    h=_inPlaceScan(P,False)
-    for i in xrange(h-1):
-        t=P[i]
-        P[i]=P[i+1]
-        P[i+1]=t
-    P2=P[h-2:]
-    h_=_inPlaceScan(P2,True)
-    return P[:h]+P2[:h_]
+    try:
+        import _convexhull
+        return _convexhull.computeConvexHull(P)
+    except:
+        warning.warn('C code for convex hull failed. Resorting to (slow) python.')
+        h=_inPlaceScan(P,False)
+        for i in xrange(h-1):
+            t=P[i]
+            P[i]=P[i+1]
+            P[i+1]=t
+        P2=P[h-2:]
+        h_=_inPlaceScan(P2,True)
+        return P[:h]+P2[:h_]
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
