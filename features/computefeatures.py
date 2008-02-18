@@ -23,6 +23,12 @@ def _featsfor(featset):
 def computefeatures(img,featsets):
     if type(featsets) == str:
         featsets = _featsfor(featsets)
+    if type(img) == list:
+        features=[]
+        for i in img:
+            f=computefeatures(i,featsets)
+            features.append(f)
+        return features
     preprocess(img,1,{})
     features=array([])
     procprotein=img.channeldata[Image.procprotein_channel]
