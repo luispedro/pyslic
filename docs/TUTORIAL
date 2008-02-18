@@ -1,3 +1,18 @@
+==========================================
+DEPENDENCIES
+==========================================
+
+The dependencies are fairly standard python libraries:
+	- numpy
+	- scipy
+	- matplotlib
+
+If a C++ compiler is found and useable, the code will run much faster, but it is not a strict dependency.
+
+==========================================
+COMPUTING FEATURES
+==========================================
+
 There are two ways to compute features:
 	* Through computefeatures()
 	* Calling individual functions
