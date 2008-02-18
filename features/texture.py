@@ -24,9 +24,22 @@ def haralickfeatures(img,directions = [0,45,90,135]):
         sx=sqrt( (px*(k-ux)**2).sum() )
         sy=sqrt( (py*(k-uy)**2).sum() )
         px_plus_y=zeros(2*N)
-        for i in xrange(N):
-            for j in xrange(N):
-                px_plus_y[i+j] += p[i,j]
+        try:
+            from scipy import weave
+            from scipy.weave import converters
+            code = '''
+            for (int i = 0; i != N; ++i)
+                for (int j = 0; j != N; ++j)
+                    px_plus_y(i+j) += p(i,j);
+            '''
+            weave.inline(
+                    code,
+                    ['N','p','px_plus_y'],
+                    type_converters=converters.blitz)
+        except:
+            for i in xrange(N):
+                for j in xrange(N):
+                    px_plus_y[i+j] += p[i,j]
         px_minus_y=array([p.trace(G)+p.trace(-G) for G in xrange(N)])
         px_minus_y[0] /= 2
 
@@ -42,9 +55,9 @@ def haralickfeatures(img,directions = [0,45,90,135]):
         feats[di,5]=(arange(2*N)*px_plus_y).sum()
 
         feats[di,6]=((arange(2*N)-feats[di,5])**2*px_plus_y).sum() # There is some confusion w.r.t. this feature.
-                                                             # In some sources, it's feats[7] that is used
+                                                                   # In some sources, it's feats[7] that is used
         feats[di,7]=entropy(px_plus_y)
-        feats[di,8]=entropy(p)
+        feats[di,8]=entropy(p.ravel())
         feats[di,9]=px_minus_y.var() # This is wrongly implemented in ml_texture
         feats[di,10]=entropy(px_minus_y)
         
@@ -53,7 +66,7 @@ def haralickfeatures(img,directions = [0,45,90,135]):
         crosspxpy=outer(px,py)
         crosspxpy[crosspxpy == 0]=1. # This makes the log be zero and everything works OK below:
         HXY1=-(p*log2(crosspxpy)).sum()
-        HXY2=entropy(crosspxpy)
+        HXY2=entropy(crosspxpy.ravel())
 
         feats[di,11]=(feats[di,8]-HXY1)/max(HX,HY)
         feats[di,12]=sqrt(1-exp(-2*(HXY2-feats[di,8])))
@@ -61,11 +74,27 @@ def haralickfeatures(img,directions = [0,45,90,135]):
     return feats
 
 def entropy(p):
-    p=p[p != 0]
-    return -(p*log2(p)).sum()
+    try:
+        from scipy import weave
+        from scipy.weave import converters
+        res=array([0.],double)
+        p=p.ravel()
+        N=len(p)
+        code = '''
+        for (int i = 0; i != N; ++i)
+            if (p(i) > 0.) res(0) += - p(i) * log2(p(i));
+        '''
+        weave.inline(
+                code,
+                ['N','p','res'],
+                type_converters=converters.blitz)
+        return res[0]
+    except:
+        import scipy.stats
+        p=p[p != 0]
+        return scipy.stats.entropy(p)/log(2) # scipy.stats.entropy is natural log based!
 
 def computecooccurence(img,dir,remove_zeros=True):
-# This is probably a good candidate for a C speed up
     assert dir in [0,45,90,135]
     Ng=img.max()+1 # 1 for value 0
     comap = zeros((Ng,Ng))
