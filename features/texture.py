@@ -27,21 +27,25 @@ def haralickfeatures(img,directions = [0,45,90,135]):
         try:
             from scipy import weave
             from scipy.weave import converters
+            px_minus_y = zeros(N)
             code = '''
-            for (int i = 0; i != N; ++i)
-                for (int j = 0; j != N; ++j)
+            for (int i = 0; i != N; ++i) {
+                for (int j = 0; j != N; ++j) {
                     px_plus_y(i+j) += p(i,j);
+                    px_minus_y(std::abs(i-j)) += p(i,j);
+                }
+            }
             '''
             weave.inline(
                     code,
-                    ['N','p','px_plus_y'],
+                    ['N','p','px_plus_y','px_minus_y'],
                     type_converters=converters.blitz)
         except:
             for i in xrange(N):
                 for j in xrange(N):
                     px_plus_y[i+j] += p[i,j]
-        px_minus_y=array([p.trace(G)+p.trace(-G) for G in xrange(N)])
-        px_minus_y[0] /= 2
+            px_minus_y=array([p.trace(G)+p.trace(-G) for G in xrange(N)])
+            px_minus_y[0] /= 2
 
         i,j=mgrid[:N,:N]
 
