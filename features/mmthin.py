@@ -97,7 +97,7 @@ def hitmiss(binimg,struct_elem):
     '''
     Implementation of hit-or-miss operation
     '''
-# Adapted from ml_mmhitmiss
+# Adapted from ml_mmhitmiss and ported to python
 
     r,c=binimg.shape
     changed_image = zeros((r,c))
@@ -108,13 +108,16 @@ def hitmiss(binimg,struct_elem):
 #line 105 "mmthin.py"
         for (int y = 0; y != r-2 ; ++y) {
             for (int x = 0; x != c-2; ++x) {
-                int hits = 0;
                 for (int w = 0; w != 3; ++w) {
                     for (int z = 0; z != 3; ++z) {
-                        if (struct_elem(w,z) == binimg(y+w,x+z) || struct_elem(w,z) == 2) ++hits;
+                        if (struct_elem(w,z) != binimg(y+w,x+z) && struct_elem(w,z) == 2) {
+                             goto next_position;
+                        }
                     }
                 }
-                if (hits == 9) changed_image(y+1,x+1) = 1;
+                changed_image(y+1,x+1) = 1;
+
+                next_position:   ;
             }
         }
         '''
@@ -124,7 +127,6 @@ def hitmiss(binimg,struct_elem):
             )
     except Exception, e:
         print 'Weave failed. Resorting to (slow) python code'
-        changed_image = zeros((r-2,c-2))
         for y in xrange(r-2):
             for x in xrange(c-2):
                 hits = 0
