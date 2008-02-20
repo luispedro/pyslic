@@ -9,6 +9,10 @@ def preprocess(image,regionid,options = {}):
     Preprocess the image
 
     image should be an Image object
+    regionid should be an integer
+    options is a dictionary:
+        'bgsub.way' can be 'ml' (default) or 'mb' and controls whether the region is selected prior to
+                    to preprocessing
     """
     def preprocessimg(img):
         img=img.copy()
@@ -27,7 +31,7 @@ def preprocess(image,regionid,options = {}):
         img[~mask]=0
         residual[mask]=0
         return img,residual
-    image.load()
+    image.lazy_load()
     img=image.channeldata[Image.protein_channel]
     image.channeldata[Image.procprotein_channel],image.channeldata[Image.residualprotein_channel]=preprocessimg(image.channeldata[Image.protein_channel])
     if Image.dna_channel in image.channeldata:
