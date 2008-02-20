@@ -6,9 +6,8 @@ def fullhistogram(img):
     """
     Return a histogram containing all the values in the image
     """
-    mint=img.min()
     maxt=img.max()
-    return histogram(img,mint,maxt,maxt-mint+1)
+    return histogram(img,0,maxt,maxt+1)
 
 def majority_filter(bwimg, N = 3):
     """
