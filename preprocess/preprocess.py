@@ -1,9 +1,11 @@
+from __future__ import division
 from sys import path
 path.append('../')
 from ..image import Image
 from basics import fullhistogram, majority_filter
 from thresholding import rc
 from numpy import *
+from warnings import warn
 def preprocessimage(image,regionid,options = {}):
     """
     Preprocess the image
@@ -17,12 +19,15 @@ def preprocessimage(image,regionid,options = {}):
     def preprocessimg(img):
         img=img.copy()
         cropimg=image.regions
-        if options.get('bgsub.way','ml') == 'ml':
-            img *= (cropimg == regionid)
-            img = bgsub(img,options)
-        else:
-            img = bgsub(img,options)
-            img *= (cropimg == regionid)
+        if cropimg:
+            if options.get('bgsub.way','ml') == 'ml':
+                img *= (cropimg == regionid)
+                img = bgsub(img,options)
+            else:
+                img = bgsub(img,options)
+                img *= (cropimg == regionid)
+        elif regionid != 1:
+            warn('Selecting a region different from 1 for an image without region information')
         imgscaled=_scale(img)
         T=thresholdfor(imgscaled,options)
         mask=(imgscaled > T)
