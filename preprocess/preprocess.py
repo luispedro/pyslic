@@ -1,6 +1,6 @@
 from sys import path
 path.append('../')
-from image import Image
+from ..image import Image
 from basics import fullhistogram, majority_filter
 from thresholding import rc
 from numpy import *

@@ -1,8 +1,6 @@
-from sys import path
-path.append('../')
 from string import upper
-from image import Image
-from preprocess import preprocess
+from ..image import Image
+from ..preprocess import preprocess
 from numpy import *
 
 from edgefeatures import edgefeatures
