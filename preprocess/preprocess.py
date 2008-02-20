@@ -19,7 +19,7 @@ def preprocessimage(image,regionid,options = {}):
     def preprocessimg(img):
         img=img.copy()
         cropimg=image.regions
-        if cropimg:
+        if cropimg is not None:
             if options.get('bgsub.way','ml') == 'ml':
                 img *= (cropimg == regionid)
                 img = bgsub(img,options)
