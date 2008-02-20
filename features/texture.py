@@ -58,9 +58,14 @@ def haralickfeatures(img,directions = [0,45,90,135]):
         feats[di,4]=(1./(1+(i-j)**2)*p).sum()
         feats[di,5]=(arange(2*N)*px_plus_y).sum()
 
-        feats[di,6]=((arange(2*N)-feats[di,5])**2*px_plus_y).sum() # There is some confusion w.r.t. this feature.
-                                                                   # In some sources, it's feats[7] that is used
         feats[di,7]=entropy(px_plus_y)
+        # There is some confusion w.r.t. this feature.
+        # This is the formular in Haralick's paper, but some sources
+        #  consider it a typo that feats[di,7] is used and argue that the
+        #  intended feature is obtained by substituting feats[di,5].
+        # This version is the one in MurphyLab's Matlab implementation
+        feats[di,6]=((arange(2*N)-feats[di,7])**2*px_plus_y).sum()
+                                                                 
         feats[di,8]=entropy(p.ravel())
         feats[di,9]=px_minus_y.var() # This is wrongly implemented in ml_texture
         feats[di,10]=entropy(px_minus_y)
