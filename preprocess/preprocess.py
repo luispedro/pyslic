@@ -4,7 +4,7 @@ from ..image import Image
 from basics import fullhistogram, majority_filter
 from thresholding import rc
 from numpy import *
-def preprocess(image,regionid,options = {}):
+def preprocessimage(image,regionid,options = {}):
     """
     Preprocess the image
 

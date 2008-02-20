@@ -1,6 +1,6 @@
 from string import upper
 from ..image import Image
-from ..preprocess import preprocess
+from ..preprocess import preprocessimage
 from numpy import *
 
 from edgefeatures import edgefeatures
@@ -27,7 +27,7 @@ def computefeatures(img,featsets):
             f=computefeatures(i,featsets)
             features.append(f)
         return features
-    preprocess(img,1,{})
+    preprocessimage(img,1,{})
     features=array([])
     procprotein=img.channeldata[Image.procprotein_channel]
     resprotein=img.channeldata[Image.residualprotein_channel]
