@@ -37,10 +37,16 @@ class Image(object):
         self.loaded=False
 
     def lazy_load(self):
+        '''
+        If the image has not been loaded, call load()
+        '''
         if not self.loaded:
             self.load()
 
     def load(self):
+        '''
+        Loads the channel data files and regions
+        '''
         for k,v in self.channels.items():
             if k != self.crop_channel: # Crop is handled like a region
                 self.channeldata[k]=_open_file(v)
@@ -52,17 +58,34 @@ class Image(object):
         self.loaded = True
 
     def unload(self):
+        '''
+        Unloads the channel data
+        '''
         self.channeldata={}
         self.regions=None
         self.loaded=False
 
-    def show(self):
-        self.load()
+
+    def composite(self):
+        '''
+        composite = img.composite()
+
+        Returns a multi colour image containing the different channels
+        '''
+        self.lazy_load()
         X,Y=self.channeldata[self.protein_channel].shape
         composite=zeros((X,Y,3))
         composite[:,:,1]=self.channeldata[self.protein_channel]
         if self.dna_channel in self.channeldata:
             composite[:,:,0]=self.channeldata[self.dna_channel]
-        imshow(composite)
+        return composite
+
+    def show(self):
+        '''
+        Shows the image composite
+
+        See composite.
+        '''
+        imshow(self.composite())
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
