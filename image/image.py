@@ -27,13 +27,18 @@ class Image(object):
     procprotein_channel='procprotein'
     residualprotein_channel='resprotein'
 
-    __slots__ = ['label','features','regions','channels','channeldata']
+    __slots__ = ['label','features','regions','channels','channeldata','loaded']
     def __init__(self):
         self.label=''
         self.features=None
         self.regions=None
         self.channels={}
         self.channeldata={}
+        self.loaded=False
+
+    def lazy_load(self):
+        if not self.loaded:
+            self.load()
 
     def load(self):
         for k,v in self.channels.items():
@@ -44,11 +49,12 @@ class Image(object):
             self.regions = _open_file(self.channels[self.crop_channel])
             if self.regions.max() == 255:
                 self.regions[self.regions == 255] = 1
-            
+        self.loaded = True
 
     def unload(self):
         self.channeldata={}
         self.regions=None
+        self.loaded=False
 
     def show(self):
         self.load()
