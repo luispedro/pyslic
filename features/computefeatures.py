@@ -19,6 +19,16 @@ def _featsfor(featset):
         return ['skl','nof','img','hul','zer','har','edg']
 
 def computefeatures(img,featsets):
+    '''
+    Compute features on img.
+
+    featsets can be either a list of feature groups (currently recognised:
+        'skl' 'nof' 'img' 'hul' 'zer' 'har' 'edg') or a feature set name
+        (currently recognised 'SLF7dna')
+
+    img can be a list of images. In this case, a list of feature vectors will be returned.
+        Also, in this case, imgs will be unload after feature calculation.
+    '''
     if type(featsets) == str:
         featsets = _featsfor(featsets)
     if type(img) == list:
@@ -26,6 +36,7 @@ def computefeatures(img,featsets):
         for i in img:
             f=computefeatures(i,featsets)
             features.append(f)
+            i.unload()
         return features
     preprocessimage(img,1,{})
     features=array([])
