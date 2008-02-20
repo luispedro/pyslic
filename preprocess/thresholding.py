@@ -1,5 +1,6 @@
 from numpy import *
 from scipy.ndimage import histogram
+from .basics import fullhistogram
 __all__=['rc','otsu']
 def rc(img,remove_zeros=False):
     """
@@ -15,11 +16,6 @@ def rc(img,remove_zeros=False):
     if remove_zeros:
         hist[0]=0
     N=hist.size
-    mint=0
-    while hist[mint] == 0:
-        mint += 1
-        if mint == N:
-            return mint 
 
     # Precompute most of what we need:
     sum1 = cumsum(arange(N) * hist)
@@ -36,7 +32,7 @@ def rc(img,remove_zeros=False):
     while t < min(maxt,res):
         res=(sum1[t]/sum2[t] + sum3[t+1]/sum4[t+1])/2
         t += 1
-    return res
+    return res + mint
         
 
 def otsu(img):
@@ -45,6 +41,22 @@ def otsu(img):
 
     Calculate a threshold according to the Otsu method.
     """
-    raise Exception('Not implemented')
+    hist=fullhistogram(img)
+    Ng=len(hist)
+    nB=cumsum(hist)
+    nO=nB[-1]-nB
+    mu_B=0
+    mu_O=(arange(1,Ng)*hist[1:]).sum()/hist.sum()
+    best=nB[0]*nO[0]*(mu_B-mu_O)*(mu_B-mu_O)
+    bestT=0
+
+    for T in xrange(1,Ng):
+        mu_B = (mu_B*nB[T-1] + T*hist[T-1]) / nB[T]
+        mu_O = (mu_O*nO[T-1] - T*hist[T-1]) / nO[T]
+        sigma_between=nB[T]*nO[T]*(mu_B-mu_O)*(mu_B-mu_O)
+        if sigma_between > best:
+            best = sigma_between
+            bestT = T
+    return bestT
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
