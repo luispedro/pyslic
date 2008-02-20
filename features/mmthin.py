@@ -1,4 +1,4 @@
-# Copyright (C) 2006  Murphy Lab
+# Copyright (C) 2006--2008  Murphy Lab
 # Carnegie Mellon University
 #
 # This program is free software; you can redistribute it and/or modify
@@ -97,8 +97,9 @@ def hitmiss(binimg,struct_elem):
     '''
     Implementation of hit-or-miss operation
     '''
-# Adapted from ml_mmhitmiss and ported to python
+# Adapted from ml_mmhitmiss and ported to python by Luis Pedro Coelho
 
+    assert struct_elem.shape == (3,3)
     r,c=binimg.shape
     changed_image = zeros((r,c))
     try:
@@ -110,14 +111,14 @@ def hitmiss(binimg,struct_elem):
             for (int x = 0; x != c-2; ++x) {
                 for (int w = 0; w != 3; ++w) {
                     for (int z = 0; z != 3; ++z) {
-                        if (struct_elem(w,z) != binimg(y+w,x+z) && struct_elem(w,z) == 2) {
-                             goto next_position;
+                        if (struct_elem(w,z) != binimg(y+w,x+z) && struct_elem(w,z) != 2) {
+                             goto next_position; // break out of the loop
                         }
                     }
                 }
                 changed_image(y+1,x+1) = 1;
 
-                next_position:   ;
+                next_position:  /* nothing */ ;
             }
         }
         '''
