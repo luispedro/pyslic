@@ -1,5 +1,8 @@
 from numpy import array, asanyarray
-from svm import *
+try:
+    from svm import *
+except:
+    from libsvm.svm import *
 
 __ALL__=['libsvmClassifier']
 class libsvmClassifier(object):
