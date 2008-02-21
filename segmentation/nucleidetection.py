@@ -1,13 +1,25 @@
 from __future__ import division
 from scipy.ndimage import median_filter, label, center_of_mass
 from ..preprocess.thresholding import otsu
-def detectnuclei(dnaimg):
+
+__all__ = ['labelnuclei','nucleicof']
+
+def labelnuclei(dnaimg,options=None):
     '''
-    Returns a set of nuclear centres.
+    labeled,N = labeled_nuclei(dnaimg,options=None)
+
+    N equals the number of nuclei
+    labeled is of the same shape as dnaimg and contains the labels of the nuclei
     '''
     dnaimg=median_filter(dnaimg,4)
     T=otsu(dnaimg)
-    labeled,N=label(dnaimg > T)
+    return label(dnaimg > T)
+
+def nucleicof(dnaimg,options=None):
+    '''
+    Returns a set of nuclear centres.
+    '''
+    labeled,N=labelnuclei(dnaimg)
     cofs=center_of_mass(dnaimg,labeled,range(1,N+1))
     return cofs
 
