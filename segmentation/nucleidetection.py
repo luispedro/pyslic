@@ -8,9 +8,7 @@ def detectnuclei(dnaimg):
     dnaimg=median_filter(dnaimg,4)
     T=otsu(dnaimg)
     labeled,N=label(dnaimg > T)
-    cofs=[]
-    for obj in xrange(1,N+1):
-        cofs.append(center_of_mass(labeled == obj))
+    cofs=center_of_mass(dnaimg,labeled,range(1,N+1))
     return cofs
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
