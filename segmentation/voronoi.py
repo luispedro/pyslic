@@ -2,6 +2,7 @@ from __future__ import division
 from numpy import *
 from scipy.ndimage import distance_transform_edt,label, median_filter
 from ..preprocess.thresholding import otsu
+import nucleidetection
 
 __all__ = ['voronoi','gvoronoi']
 def voronoi(img,centers,distance='euclidean'):
@@ -36,19 +37,33 @@ def voronoi(img,centers,distance='euclidean'):
             labels[y,x]=besti
     return labels
 
-def gvoronoi(dnaimg,labelednuclei=None,distance='euclidean'):
+def gvoronoi(labeled,distance='euclidean'):
     """
-    labeled = gvoronoi(dnaimg,labelednuclei,distance)
+    segmented = gvoronoi(labeled,labeled,distance)
+
+    Generalised Voronoi Transform
+
+    INPUT:
+    * labeled: an array, of a form similar to the return of scipy.ndimage.label()
+    * distance: one of 'euclidean', 'manhatan'
+
+    RETURN
+    segmented is of the same size and type as labeled and
+        segmented[y,x] is the label of the object at position y,x
+    """
+    if distance == 'euclidean':
+        L1,L2=distance_transform_edt(labeled== 0, return_distances=False,return_indices=True)
+    else:
+        raise Exception('gvoronoi: Distance "%s" not implemented' % distance)
+    return labeled[L1,L2]
+
+def gvoronoi_dna(dnaimg,distance='euclidean'):
+    """
+    labeled = gvoronoi_dna(dnaimg,distance)
 
     Generalised Voronoi Transform
     """
-    if labelednuclei is None:
-        dnaimg=median_filter(dnaimg,4)
-        T=otsu(dnaimg)
-        labelednuclei,_=label(dnaimg > T)
-    if distance == 'euclidean':
-        L1,L2=distance_transform_edt(labelednuclei == 0, return_distances=False,return_indices=True)
-    else:
-        raise Exception('gvoronoi: Distance "%s" not implemented' % distance)
-    return labelednuclei[L1,L2]
+    labelednuclei,_=nucleidetection.labelnuclei(dnaimg)
+    return gvoronoi(labelednuclei,distance)
+
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
