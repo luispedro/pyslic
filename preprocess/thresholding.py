@@ -41,6 +41,7 @@ def otsu(img):
 
     Calculate a threshold according to the Otsu method.
     """
+    # Calculated according to http://homepages.inf.ed.ac.uk/rbf/CVonline/
     hist=fullhistogram(img)
     Ng=len(hist)
     nB=cumsum(hist)
