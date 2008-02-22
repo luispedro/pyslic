@@ -27,10 +27,10 @@ class Image(object):
     procprotein_channel='procprotein'
     residualprotein_channel='resprotein'
 
-    __slots__ = ['label','features','regions','channels','channeldata','loaded']
+    __slots__ = ['label','scale','regions','channels','channeldata','loaded']
     def __init__(self):
         self.label=''
-        self.features=None
+        self.scale = None
         self.regions=None
         self.channels={}
         self.channeldata={}
