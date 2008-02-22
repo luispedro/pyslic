@@ -38,6 +38,9 @@ def computefeatures(img,featsets):
             features.append(f)
             i.unload()
         return features
+    scale=img.scale
+    if scale is None:
+        scale = .23
     preprocessimage(img,1,{})
     features=array([])
     procprotein=img.channeldata[Image.procprotein_channel]
@@ -60,7 +63,7 @@ def computefeatures(img,featsets):
         elif F == 'skl':
             feats=imgskelfeatures(procprotein)
         elif F == 'zer':
-            feats=zernike(procprotein,12,34.5)
+            feats=zernike(procprotein,12,34.5,scale)
         else:
             raise Exception('Unkown feature set: %s' % F)
         features = r_[features,feats]

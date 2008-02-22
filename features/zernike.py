@@ -83,7 +83,7 @@ def Znl(n,l,X,Y,P):
     return v 
 
 
-def zernike(img,D,radius,scale=.23):
+def zernike(img,D,radius,scale):
     """
      zvalues = zernike(img,D,radius) zernike moments through degree D
 
