@@ -4,6 +4,9 @@ from basics import fullhistogram, majority_filter
 from thresholding import rc
 from numpy import *
 from warnings import warn
+
+__all__ = ['preprocessimg','bgsub']
+
 def preprocessimage(image,regionid,options = {}):
     """
     Preprocess the image
