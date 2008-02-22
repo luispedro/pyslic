@@ -4,6 +4,12 @@ from classify import *
 
 __all__=['nfoldcrossvalidation']
 def nfoldcrossvalidation(features,labels,nfolds=10,train=learnclassifier,test=applyclassifier):
+    '''
+    Perform n-fold cross validation
+
+    cmatrix = nfoldcrossvalidation(features, labels, nfolds=10, train=learnclassifier, test=applyclassifier)
+    '''
+    labels=asarray(labels)
     classcounts={}
     for L in labels:
         classcounts[L] = classcounts.get(L,0) + 1
@@ -14,7 +20,7 @@ def nfoldcrossvalidation(features,labels,nfolds=10,train=learnclassifier,test=ap
         testingset=zeros(len(labels),bool)
 
         for L,C in classcounts.items():
-            idxs=where(labels==L)[0]
+            idxs,=where(labels==L)
             N=len(idxs)
             perfold=N/nfolds
             start=floor(perfold*fold)
