@@ -7,11 +7,9 @@ def zscore(features):
     Returns a copy of features which has been normalised to zscores 
     """
     mu=features.mean(0)
-    features-= mu
     sigma=features.std(0)
     sigma[sigma == 0] = 1
-    features /= sigma[sigma != 0]
-    return features
+    return (features - mu) / sigma
 
 normalise=zscore
 
