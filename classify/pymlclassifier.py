@@ -12,7 +12,10 @@ class PyMLSVM(object):
             self.s = multi.OneAgainstRest(svm.SVM())
         else:
             self.s = svm.SVM()
-        data=datafunc.VectorDataSet(feats,L=labels)
+        nlabels=[]
+        for L in labels:
+            nlabels.append(str(L))
+        data=datafunc.VectorDataSet(feats,L=nlabels)
         self.s.train(data)
         self.trained=True
 
@@ -22,6 +25,6 @@ class PyMLSVM(object):
             data=datafunc.VectorDataSet([feats])
             return array(self.s.classify(data,0))[0]
         else:
-            raise Exception('Not implemented')
+            return array([self.apply(feats[i]) for i in xrange(feats.shape[0])])
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
