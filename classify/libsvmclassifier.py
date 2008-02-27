@@ -11,7 +11,7 @@ class libsvmClassifier(object):
 
     def train(self,features,labels):
         problem=svm_problem(labels,features)
-        param=svm_parameter(C = 10,nr_weight = 2,weight_label = [1,0],weight = [10,1])
+        param=svm_parameter(C=1)
         param.kernel_type = RBF
         self.model=svm_model(problem,param)
         self.trained=True
