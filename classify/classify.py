@@ -1,4 +1,5 @@
 from libsvmclassifier import libsvmClassifier
+from pymlclassifier import PyMLSVM
 from normalise import normaliser,chkfinite
 from classifywrap import pretransformclassifier
 
@@ -10,7 +11,7 @@ def learnclassifier(featmatrix,y):
 
     Learn a classifier for the problem y[i]=f(featmatrix[i])
     """
-    classifier=pretransformclassifier([chkfinite(),normaliser()],libsvmClassifier())
+    classifier=pretransformclassifier([chkfinite(),normaliser()],PyMLSVM())
     classifier.train(featmatrix,y)
     return classifier
 
