@@ -1,3 +1,4 @@
+from __future__ import division
 from numpy import *
 from scipy.ndimage import histogram
 from .basics import fullhistogram
@@ -41,8 +42,9 @@ def otsu(img):
 
     Calculate a threshold according to the Otsu method.
     """
-    # Calculated according to http://homepages.inf.ed.ac.uk/rbf/CVonline/
+    # Calculated according to CVonline: http://homepages.inf.ed.ac.uk/rbf/CVonline/LOCAL_COPIES/MORSE/threshold.pdf
     hist=fullhistogram(img)
+    hist=asarray(hist,double) # This forces everything to be double precision
     Ng=len(hist)
     nB=cumsum(hist)
     nO=nB[-1]-nB
@@ -52,8 +54,10 @@ def otsu(img):
     bestT=0
 
     for T in xrange(1,Ng):
-        mu_B = (mu_B*nB[T-1] + T*hist[T-1]) / nB[T]
-        mu_O = (mu_O*nO[T-1] - T*hist[T-1]) / nO[T]
+        if nB[T] == 0: continue
+        if nO[T] == 0: break
+        mu_B = (mu_B*nB[T-1] + T*hist[T]) / nB[T]
+        mu_O = (mu_O*nO[T-1] - T*hist[T]) / nO[T]
         sigma_between=nB[T]*nO[T]*(mu_B-mu_O)*(mu_B-mu_O)
         if sigma_between > best:
             best = sigma_between
