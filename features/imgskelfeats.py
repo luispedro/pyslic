@@ -25,7 +25,7 @@
 from __future__ import division
 from numpy import *
 from scipy.ndimage import convolve, label
-from bbox import croptobbox
+from ..imageprocessing.bbox import croptobbox
 from mmthin import mmthin
 from convexhull import convexhull
 
