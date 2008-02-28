@@ -1,6 +1,7 @@
 from __future__ import division
+from numpy import *
 from scipy.ndimage import median_filter, label, center_of_mass
-from ..preprocess.thresholding import otsu
+from ..imageprocessing.thresholding import otsu
 
 __all__ = ['labelnuclei','nucleicof']
 

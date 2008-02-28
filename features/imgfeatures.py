@@ -28,7 +28,7 @@
 
 from __future__ import division
 from numpy import *
-from bweuler import bweuler
+from ..imageprocessing.bweuler import bweuler
 from scipy.ndimage import *
 
 __all__ = ['imgfeatures']

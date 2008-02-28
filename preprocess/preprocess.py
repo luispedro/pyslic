@@ -1,7 +1,7 @@
 from __future__ import division
 from ..image import Image
 from basics import fullhistogram, majority_filter
-from thresholding import rc
+from ..imageprocessing.thresholding import rc
 from numpy import *
 from warnings import warn
 
