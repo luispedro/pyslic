@@ -1,7 +1,10 @@
 from __future__ import division
 from numpy import *
 
-__all__ = ['accuracy','waccuracy']
+__all__ = ['accuracy','waccuracy','rowsto1']
+
+def rowsto1(cmatrix):
+    return (cmatrix.T / cmatrix.sum(1)).T
 
 def accuracy(cmatrix):
     '''
