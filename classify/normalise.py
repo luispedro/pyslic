@@ -11,9 +11,7 @@ def zscore(features):
     sigma[sigma == 0] = 1
     return (features - mu) / sigma
 
-normalise=zscore
-
-class normaliser(object):
+class zscore_normalise(object):
     '''
     Normalise to z-scores
 
@@ -31,6 +29,24 @@ class normaliser(object):
 
     def apply(self,features):
         return (features - self.mu)/self.sigma
+
+class interval_normalise(object):
+    '''
+    Linearly scale to the interval [-1,1] (per libsvm recommendation)
+
+    '''
+    __slots__=['mu','range']
+    def __init__(self,features=None):
+        if features:
+            self.train(features)
+
+    def train(self,features,labels):
+        self.mu=features.mean(0)
+        self.range=features.max(0)-features.min(0)
+        self.range[self.range == 0.]=1 # This makes the division a null op.
+
+    def apply(self,features):
+        return (features - self.mu)/self.range
 
 class chkfinite(object):
     '''
