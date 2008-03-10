@@ -47,7 +47,16 @@ def preprocessimage(image,regionid,options = {}):
 def thresholdfor(img,options):
     return rc(img,remove_zeros=True)
 
-def bgsub(img,options):
+def bgsub(img,options = None):
+    '''
+    bgsub(img,options=None)
+
+    Background subtract img (which must be a numpy-type array).
+
+    Changes are done inplace and the img is returned. Use the following idiom for operating on a copy:
+
+    B = bgsub(A.copy(),options)
+    '''
     hist=fullhistogram(img)
     M=round(img.mean())-1
     if M == 0:
