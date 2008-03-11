@@ -1,5 +1,5 @@
 from numpy import *
-__all__ = ['zscore','normaliser','chkfinite']
+__all__ = ['zscore','zscore_normalise','interval_normalise','chkfinite']
 def zscore(features):
     """
     features = zscore(features)

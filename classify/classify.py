@@ -1,6 +1,6 @@
 from libsvmclassifier import libsvmClassifier
 from pymlclassifier import PyMLSVM
-from normalise import normaliser,chkfinite
+from normalise import zscore_normalise,chkfinite
 from classifywrap import pretransformclassifier
 
 __ALL__ = ['learnclassifier','applyclassifier']
@@ -11,7 +11,7 @@ def learnclassifier(featmatrix,y):
 
     Learn a classifier for the problem y[i]=f(featmatrix[i])
     """
-    classifier=pretransformclassifier([chkfinite(),normaliser()],PyMLSVM())
+    classifier=pretransformclassifier([chkfinite(),zscore_normalise()],PyMLSVM())
     classifier.train(featmatrix,y)
     return classifier
 
