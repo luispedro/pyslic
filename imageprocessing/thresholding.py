@@ -36,7 +36,7 @@ def rc(img,remove_zeros=False):
     return res + mint
         
 
-def otsu(img):
+def otsu(img, remove_zeros=False):
     """
     T = otsu(img)
 
@@ -45,6 +45,8 @@ def otsu(img):
     # Calculated according to CVonline: http://homepages.inf.ed.ac.uk/rbf/CVonline/LOCAL_COPIES/MORSE/threshold.pdf
     hist=fullhistogram(img)
     hist=asarray(hist,double) # This forces everything to be double precision
+    if remove_zeros:
+        hist[0]=0
     Ng=len(hist)
     nB=cumsum(hist)
     nO=nB[-1]-nB
