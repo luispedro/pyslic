@@ -10,14 +10,14 @@ __ALL__=['libsvmClassifier']
 class libsvmClassifier(classifier):
     def __init__(self):
         classifier.__init__(self)
-        self.param = svm_parameter(kernel_type = RBF, C=512,gamma=0.0078125)
+        self.param = svm_parameter(kernel_type = RBF)
     
     def set_option(self,optname,value):
         setattr(self.param,optname,value)
 
     def _dotrain(self,features,labels):
         problem=svm_problem(labels,features)
-        self.model=svm_model(problem,param)
+        self.model=svm_model(problem,self.param)
 
     def _doapply(self,feats):
         return self.model.predict(feats)
