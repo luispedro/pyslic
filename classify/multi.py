@@ -11,6 +11,10 @@ class one_against_rest(classifier):
         self._classifiers = None
         self._base = base
 
+    @staticmethod
+    def _is_multiclass():
+        return True
+
     def _dotrain(self,features,labels):
         if self._nclasses == 2:
             self._base.train(features,labels)
@@ -42,6 +46,10 @@ class one_against_one(classifier):
         classifier.__init__(self)
         self._classifiers = None
         self._base = base
+
+    @staticmethod
+    def _is_multiclass():
+        return True
 
     def _dotrain(self,features,labels):
         nc=self._nclasses
