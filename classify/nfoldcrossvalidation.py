@@ -1,15 +1,20 @@
 from __future__ import division
 from numpy import *
-from classify import *
+from classify import defaultclassifier
+from classifier import normaliselabels
 
 __all__=['nfoldcrossvalidation']
-def nfoldcrossvalidation(features,labels,nfolds=10,train=learnclassifier,test=applyclassifier):
+def nfoldcrossvalidation(features,labels,nfolds=10,classifier=None):
     '''
     Perform n-fold cross validation
 
-    cmatrix = nfoldcrossvalidation(features, labels, nfolds=10, train=learnclassifier, test=applyclassifier)
+    cmatrix = nfoldcrossvalidation(features, labels, nfolds=10, classifier=None)
+
+    classifier should implement the train() and apply() methods
     '''
-    labels=asarray(labels)
+    if classifier is None:
+        classifier = defaultclassifier()
+    labels,labelnames=normaliselabels(labels)
     classcounts={}
     for L in labels:
         classcounts[L] = classcounts.get(L,0) + 1
@@ -29,8 +34,8 @@ def nfoldcrossvalidation(features,labels,nfolds=10,train=learnclassifier,test=ap
             testingset[idxs]=True
         trainingset= ~testingset
         
-        model=train(features[trainingset],labels[trainingset])
-        prediction=test(features[testingset],model)
+        classifier.train(features[trainingset],labels[trainingset])
+        prediction=classifier.apply(features[testingset])
         for p, r in zip(prediction,labels[testingset]):
             cmatrix[r,p] += 1
 

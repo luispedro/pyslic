@@ -1,9 +1,18 @@
 from libsvmclassifier import libsvmClassifier
 from pymlclassifier import PyMLSVM
-from normalise import zscore_normalise,chkfinite
+from normalise import zscore_normalise,chkfinite,interval_normalise
+from featureselection import sda_filter
 from classifywrap import pretransformclassifier
 
-__ALL__ = ['learnclassifier','applyclassifier']
+__ALL__ = ['learnclassifier','applyclassifier','defaultclassifier']
+
+def defaultclassifier():
+    '''
+    C = defaultclassifier()
+
+    Returns the default classifier
+    '''
+    return pretransformclassifier([chkfinite(),interval_normalise(),sda_filter()],libsvmClassifier())
 
 def learnclassifier(featmatrix,y):
     """
@@ -11,7 +20,7 @@ def learnclassifier(featmatrix,y):
 
     Learn a classifier for the problem y[i]=f(featmatrix[i])
     """
-    classifier=pretransformclassifier([chkfinite(),zscore_normalise()],PyMLSVM())
+    classifier=defaultclassifier()
     classifier.train(featmatrix,y)
     return classifier
 
