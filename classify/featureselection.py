@@ -151,7 +151,5 @@ def sda(features,labels):
                 continue
         break
 
-    output.sort()
+    output.sort(reverse=True)
     return array([x[1] for x in output])
-
-    
