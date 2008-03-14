@@ -1,20 +1,9 @@
 from __future__ import division
 from numpy import *
 from numpy.linalg import det
+from classifier import normaliselabels
 import scipy.stats
 import warnings
-
-def _normaliselabels(labels):
-    labelsdict={}
-    N=0
-    labelsu=[]
-    for L in labels:
-        if L not in labelsdict:
-            labelsdict[L]=N
-            labelsu.append(L)
-            N += 1
-    labels=map(labelsdict.get,labels)
-    return array(labels),labelsu
 
 TOLERANCE = 0
 SIGNIFICANCE_IN = .15
@@ -73,7 +62,7 @@ def sda(features,labels):
 
 
     N, m = features.shape
-    labels,labelsu = _normaliselabels(labels)
+    labels,labelsu = normaliselabels(labels)
     q=len(labelsu)
 
     # This is how the code in ml_stepdisc computes F_in (F_out)
