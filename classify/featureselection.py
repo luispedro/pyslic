@@ -1,7 +1,7 @@
 from __future__ import division
 from numpy import *
 from numpy.linalg import det
-from classifier import normaliselabels
+from classifier import normaliselabels, classifier
 import scipy.stats
 import warnings
 
@@ -58,6 +58,11 @@ def sda(features,labels):
     features_idx = sda(features,labels)
 
     Perform Stepwise Discriminant Analysis for feature selection
+
+    This implements the algorithm described in 
+    Jennrich, R.I. (1977), "Stepwise Regression" & "Stepwise Discriminant Analysis,"
+    both in Statistical Methods for Digital Computers, eds. 
+    K. Enslein, A. Ralston, and H. Wilf, New York; John Wiley & Sons, Inc.
     '''
 
 
@@ -142,3 +147,20 @@ def sda(features,labels):
 
     output.sort(reverse=True)
     return array([x[1] for x in output])
+
+class sda_filter(object):
+    __slots__ = ['idxs']
+
+    @staticmethod
+    def _is_multi_class():
+        return True
+
+    def __init__(self):
+        pass
+
+    def train(self,features,labels):
+        self.idxs=sda(features,labels)
+
+    def apply(self,features):
+        return features[:,self.idxs]
+
