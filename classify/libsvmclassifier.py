@@ -1,6 +1,6 @@
 from __future__ import division
 from numpy import array, asanyarray
-from classifier import classifier
+from classifier import classifier, classification_result
 try:
     from svm import *
 except:
@@ -10,14 +10,13 @@ __ALL__=['libsvmClassifier']
 class libsvmClassifier(classifier):
     def __init__(self):
         classifier.__init__(self)
-        self.param = None
+        self.param = svm_parameter(kernel_type = RBF, C=512,gamma=0.0078125)
+    
+    def set_option(self,optname,value):
+        setattr(self.param,optname,value)
 
     def _dotrain(self,features,labels):
         problem=svm_problem(labels,features)
-        if self.param:
-            param=self.param
-        else:
-            param=svm_parameter(kernel_type = RBF, C=1)
         self.model=svm_model(problem,param)
 
     def _doapply(self,feats):

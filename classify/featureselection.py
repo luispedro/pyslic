@@ -151,8 +151,7 @@ def sda(features,labels):
 class sda_filter(object):
     __slots__ = ['idxs']
 
-    @staticmethod
-    def _is_multi_class():
+    def is_multi_class(self):
         return True
 
     def __init__(self):

@@ -11,8 +11,7 @@ class one_against_rest(classifier):
         self._classifiers = None
         self._base = base
 
-    @staticmethod
-    def _is_multiclass():
+    def is_multi_class(self):
         return True
 
     def _dotrain(self,features,labels):
@@ -47,8 +46,7 @@ class one_against_one(classifier):
         self._classifiers = None
         self._base = base
 
-    @staticmethod
-    def _is_multiclass():
+    def _is_multiclass(self):
         return True
 
     def _dotrain(self,features,labels):
