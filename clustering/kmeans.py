@@ -8,9 +8,10 @@ def _euclidean(fmatrix,x):
     return sqrt( ( (fmatrix - x)**2 ).sum(1) )
 
 def _mahalabonis(fmatrix,x,icov):
-    diff=mat(fmatrix-x)
-    icov=mat(icov)
-    return sqrt( array( diff * cov * diff) )
+    diff=(fmatrix-x)
+    icov=(icov)
+    # The expression below seems to be faster than looping over the elements and summing 
+    return sqrt( dot(diff,dot(icov,diff.T)).diagonal() )
 
 def kmeans(fmatrix,K,distance='euclidean',max_iter=1000,**kwargs):
     '''
@@ -34,7 +35,7 @@ def kmeans(fmatrix,K,distance='euclidean',max_iter=1000,**kwargs):
         if icov is None:
             covmat=kwargs.get('covmat',None)
             if covmat is None:
-                covmat=cov(fmatrix)
+                covmat=cov(fmatrix.T)
             icov=linalg.inv(covmat)
         distfunction=lambda f,x: _mahalabonis(f,x,icov)
     else:
@@ -43,19 +44,13 @@ def kmeans(fmatrix,K,distance='euclidean',max_iter=1000,**kwargs):
     N,q = fmatrix.shape
     assignments = random.randint(0,K,(N,))
     prev = assignments
-
-    def computecentroids():
-        return array([fmatrix[assignments == C].mean(0) for C in xrange(K)])
-
-    centroids = computecentroids()
     for i in xrange(max_iter):
-        dists = array([_euclidean(fmatrix,C) for C in centroids])
+        centroids = array([fmatrix[assignments == C].mean(0) for C in xrange(K)])
+        dists = array([distfunction(fmatrix,C) for C in centroids])
         assignments = dists.argmin(0)
         if (assignments == prev).all():
             break
-        centroids = computecentroids()
         prev = assignments
     return assignments, centroids
         
-
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
