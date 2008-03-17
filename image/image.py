@@ -27,7 +27,8 @@ class Image(object):
     procprotein_channel='procprotein'
     residualprotein_channel='resprotein'
 
-    __slots__ = ['label','scale','regions','channels','channeldata','loaded']
+    __slots__ = ['label','scale','regions','channels','channeldata','loaded','__post_load_actions']
+
     def __init__(self):
         self.label=''
         self.scale = None
@@ -35,6 +36,7 @@ class Image(object):
         self.channels={}
         self.channeldata={}
         self.loaded=False
+        self.__post_load_actions = []
 
     def lazy_load(self):
         '''
@@ -43,9 +45,19 @@ class Image(object):
         if not self.loaded:
             self.load()
 
+    def append_post_load(self,action):
+        '''
+        Register a post load action
+        
+        action must be callable with a single parameter, the image.
+        '''
+        self.__post_load_actions.append(action)
+
     def load(self):
         '''
-        Loads the channel data files and regions
+        Loads the channel data files and regions.
+
+        Calls any post loading actions registered with append_post_load()
         '''
         for k,v in self.channels.items():
             if k != self.crop_channel: # Crop is handled like a region
@@ -56,6 +68,8 @@ class Image(object):
             if self.regions.max() == 255:
                 self.regions[self.regions == 255] = 1
         self.loaded = True
+        for action in self.__post_load_actions:
+            action(self)
 
     def unload(self):
         '''
