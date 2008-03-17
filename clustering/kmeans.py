@@ -1,5 +1,6 @@
 from __future__ import division
-from numpy import *
+from numpy import array, zeros, sqrt
+import random
 import scipy
 
 __all__ = ['kmeans']
@@ -42,14 +43,14 @@ def kmeans(fmatrix,K,distance='euclidean',max_iter=1000,**kwargs):
         raise 'Distance argument unknown (%s)' % distance
 
     N,q = fmatrix.shape
-    assignments = random.randint(0,K,(N,))
-    prev = assignments
+    centroids = random.sample(fmatrix,K)
+    prev = zeros(N)
     for i in xrange(max_iter):
-        centroids = array([fmatrix[assignments == C].mean(0) for C in xrange(K)])
         dists = array([distfunction(fmatrix,C) for C in centroids])
         assignments = dists.argmin(0)
         if (assignments == prev).all():
             break
+        centroids = array([fmatrix[assignments == C].mean(0) for C in xrange(K)])
         prev = assignments
     return assignments, centroids
         
