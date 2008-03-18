@@ -1,9 +1,9 @@
 from __future__ import division
-from numpy import array, zeros, sqrt
+from numpy import array, zeros, sqrt, inf
 import random
 import scipy
 
-__all__ = ['kmeans']
+__all__ = ['kmeans','repeated_kmeans']
 
 def _euclidean(fmatrix,x):
     return sqrt( ( (fmatrix - x)**2 ).sum(1) )
@@ -13,6 +13,17 @@ def _mahalabonis(fmatrix,x,icov):
     icov=(icov)
     # The expression below seems to be faster than looping over the elements and summing 
     return sqrt( dot(diff,dot(icov,diff.T)).diagonal() )
+
+def centroid_errors(fmatrix,assignments,centroids):
+    errors=[]
+    for k in xrange(len(centroids)):
+        errors.extend(fmatrix[assignments == k] - centroids[k])
+    return array(errors)
+
+def residual_sum_squares(fmatrix,assignments,centroids,distance='euclidean',**kwargs):
+    if distance != 'euclidean':
+        raise NotImplemented, "residual_sum_squares only implemented for 'euclidean' distance"
+    return (centroid_errors(fmatrix,assignments,centroids)**2).sum()
 
 def kmeans(fmatrix,K,distance='euclidean',max_iter=1000,**kwargs):
     '''
@@ -54,4 +65,22 @@ def kmeans(fmatrix,K,distance='euclidean',max_iter=1000,**kwargs):
         prev = assignments
     return assignments, centroids
         
+def repeated_kmeans(fmatrix,k,iterations,distance='euclidean',max_iter=1000,**kwargs):
+    '''
+    assignments,centroids = repeated_kmeans(fmatrix, k, repeats, distance='euclidean',max_iter=1000,**kwargs)
+
+    Runs kmeans repeats times and returns the best result as evaluated according to distance
+
+    @see kmeans
+    '''
+    if distance != 'euclidean':
+        raise NotImplemented, "repeated_kmeans is only implemented for 'euclidean' distance"
+    best=+inf
+    for i in xrange(iterations):
+        A,C=kmeans(fmatrix,k,distance,max_iter=max_iter,**kwargs)
+        rss=residual_sum_squares(fmatrix,A,C,distance,**kwargs)
+        if rss < best:
+            Ab,Cb=A,C
+            best=rss
+    return Ab,Cb
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
