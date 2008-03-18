@@ -29,7 +29,7 @@ from ..imageprocessing.bbox import croptobbox
 from mmthin import mmthin
 from convexhull import convexhull
 
-__all__ = ['imgskelfeatures']
+__all__ = ['imgskelfeatures', 'find_branch_points']
 
 def imgskelfeatures(protproc):
     """
