@@ -18,7 +18,7 @@ def convexhull(bwimg):
     # a more specialised approach (like a line sweep) would do better
     Y,X=where(bwimg)
     P=list(zip(Y,X))
-    if len(P) < 2:
+    if len(P) <= 3:
         return bwimg
     H=computeConvexHull(P)
     r,c=bwimg.shape

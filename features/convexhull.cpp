@@ -53,6 +53,12 @@ compute_convexHull(PyObject* self, PyObject* args) {
 	PyObject* input;
 	if (!PyArg_ParseTuple(args,"O",&input)) return 0;
 	const Py_ssize_t N = PyList_Size(input);
+    if (N <= 3) {
+        // The python wrapper should have stopped this from happening
+        Py_RETURN_NONE; 
+        //    Py_INCREF(input);
+        //    return input;
+    }
 	Point* P = new Point[N];
 	for (Py_ssize_t i = 0; i != N; ++i) {
 		PyObject* tup = PyList_GetItem(input,i);
