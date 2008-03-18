@@ -42,16 +42,17 @@ def hullfeatures(imageproc,imagehull=None):
     if imagehull is None:
         imagehull = convexhull(imageproc > 0)
 
-    Ahull = _bwarea(imagehull) ;
+    Ahull = _bwarea(imagehull)
     hullfract = double((imageproc > 0).sum())/Ahull
     Phull = _bwarea(bwperim(imagehull))
     hullshape = (Phull**2)/(4*pi*Ahull)
 
-    hull_mu00 = imgcentmoments(imagehull,0,0) ;
-    hull_mu11 = imgcentmoments(imagehull,1,1) ;
-    hull_mu02 = imgcentmoments(imagehull,0,2) ;
-    hull_mu20 = imgcentmoments(imagehull,2,0) ;
+    hull_mu00 = imgcentmoments(imagehull,0,0)
+    hull_mu11 = imgcentmoments(imagehull,1,1)
+    hull_mu02 = imgcentmoments(imagehull,0,2)
+    hull_mu20 = imgcentmoments(imagehull,2,0)
 
+    print hull_mu00, hull_mu11, hull_mu02, hull_mu20
 # Parameters of the 'image ellipse'
 #   (the constant intensity ellipse with the same mass and
 #   second order moments as the original image.)
@@ -64,7 +65,10 @@ def hullfeatures(imageproc,imagehull=None):
     hull_semiminor = sqrt((2 * (hull_mu20 + hull_mu02 - \
                     sqrt((hull_mu20 - hull_mu02)**2 + \
                     4 * hull_mu11**2)))/hull_mu00) 
-    hull_eccentricity = sqrt(hull_semimajor**2 - hull_semiminor**2) / hull_semimajor ;
+    if hull_semimajor != 0.:
+        hull_eccentricity = sqrt(hull_semimajor**2 - hull_semiminor**2) / hull_semimajor ;
+    else:
+        hull_eccentricity = 0.
     #names = [cellstr('convex_hull:fraction_of_overlap') cellstr('convex_hull:shape_factor') cellstr('convex_hull:eccentricity')] ;
     #slfnames = [cellstr('SLF1.14') cellstr('SLF1.15') cellstr('SLF1.16')] ;
     #values = [hullfract hullshape hull_eccentricity] ;
