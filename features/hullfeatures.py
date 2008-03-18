@@ -52,7 +52,6 @@ def hullfeatures(imageproc,imagehull=None):
     hull_mu02 = imgcentmoments(imagehull,0,2)
     hull_mu20 = imgcentmoments(imagehull,2,0)
 
-    print hull_mu00, hull_mu11, hull_mu02, hull_mu20
 # Parameters of the 'image ellipse'
 #   (the constant intensity ellipse with the same mass and
 #   second order moments as the original image.)
