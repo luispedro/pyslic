@@ -1,5 +1,6 @@
 from __future__ import division
-from matplotlib.nxutils import points_inside_poly
+from matplotlib.nxutils import points_inside_poly, pnpoly
+from ..imageprocessing.bbox import bbox
 from numpy import *
 import warnings
 
@@ -13,17 +14,19 @@ def convexhull(bwimg):
     """
     # This function is still a bottleneck.
     # Computing the convex hull (computeConvexHull) is now very fast (in C),
-    # but points_inside_poly is slow (this is the wrong use for this function)
-    # a more specialised approach would do better
-    X,Y=where(bwimg)
-    P=list(zip(X,Y))
+    # but iterating over all possible points and calling pnpoly() is slow
+    # a more specialised approach (like a line sweep) would do better
+    Y,X=where(bwimg)
+    P=list(zip(Y,X))
     if len(P) < 2:
         return bwimg
     H=computeConvexHull(P)
-    X,Y=bwimg.shape
-    X,Y=mgrid[:X,:Y]
-    res=points_inside_poly([(x,y) for x,y in zip(X.ravel(),Y.ravel())],H)
-    res=reshape(res,bwimg.shape)
+    r,c=bwimg.shape
+    min1,max1,min2,max2 = bbox(bwimg)
+    res=zeros((r,c))
+    for y in xrange(min1,max1+1):
+        for x in xrange(min2,max2+1):
+            res[y,x]=pnpoly(y,x,H)
     return res
 
 
