@@ -33,13 +33,13 @@ def bbox(img):
                 type_converters=converters.blitz)
         min1,min2,max1,max2=tuple(vals)
     except:
-        pos1=where(img.any(1))[0]
+        pos1,=where(img.any(1))
         if len(pos1) == 0:
             return 0,0,0,0
         min1=pos1[0]
         max1=pos1[-1]
 
-        pos2=where(img.any(0))[0]
+        pos2,=where(img.any(0))
         min2=pos2[0]
         max2=pos2[-1]
     return min1,max1,min2,max2
