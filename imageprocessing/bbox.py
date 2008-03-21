@@ -13,6 +13,7 @@ def bbox(img):
         from scipy import weave
         from scipy.weave import converters
         vals=array([max1,max2,min1,min2])
+        img=asarray(img,uint8)
         code='''
         int max1=vals(0);
         int max2=vals(1);
