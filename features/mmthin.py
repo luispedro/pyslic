@@ -24,6 +24,7 @@ from scipy.ndimage import binary_hit_or_miss
 from scipy.misc.pilutil import imshow
 
 __all__ = ['mmthin']
+
 def mmthin(binimg):
     """
     skel = mmthin(binimg)
@@ -78,12 +79,13 @@ def mmthin(binimg):
     acnum_elem = 0;
     total_op=0
 
+    image_exp = zeros((r+2, c+2),int8)
+    imagebuf = zeros((r+2,c+2),int8)
+    image_exp[1:r+1, 1:c+1] = binimg
     while True:
-        image_exp = zeros((r+2, c+2))
-        image_exp[1:r+1, 1:c+1] = binimg
-        newimg=hitmiss(image_exp,struct_elem[acnum_elem])
-        binimg -= newimg[1:r+1,1:c+1]
-        total_op += newimg.sum()
+        newimg=hitmiss(image_exp,struct_elem[acnum_elem],imagebuf)
+        image_exp -= newimg
+        total_op += fastany(newimg)
 
         acnum_elem +=  1;
         if acnum_elem == num_elem:
@@ -91,24 +93,33 @@ def mmthin(binimg):
                 break
             acnum_elem = 0
             total_op = 0
-    return binimg
+    binimg = image_exp[1:r+1, 1:c+1]
+    return binimg.copy()
 
-def hitmiss(binimg,struct_elem):
+def hitmiss(binimg,struct_elem,result = None):
     '''
     Implementation of hit-or-miss operation
+
+    result,ops = hitmiss(binimg, struct_elem, result = None)
+
+    @param result: A matrix of the same shape as binimg to hold the results.
+
+    Returns result and ops == result.sum() [it is just easier to compute it directly]
     '''
 # Adapted from ml_mmhitmiss and ported to python by Luis Pedro Coelho
 
     assert struct_elem.shape == (3,3)
     r,c=binimg.shape
-    changed_image = zeros((r,c))
+    if result is None:
+        result= empty((r,c))
     try:
         from scipy import weave
         from scipy.weave import converters
         code = '''
 #line 105 "mmthin.py"
-        for (int y = 0; y != r-2 ; ++y) {
-            for (int x = 0; x != c-2; ++x) {
+        for (int y = 0; y != r-1 ; ++y) {
+            for (int x = 0; x != c-1; ++x) {
+                result(y+1,x+1) = 0;
                 for (int w = 0; w != 3; ++w) {
                     for (int z = 0; z != 3; ++z) {
                         if (struct_elem(w,z) != binimg(y+w,x+z) && struct_elem(w,z) != 2) {
@@ -116,14 +127,13 @@ def hitmiss(binimg,struct_elem):
                         }
                     }
                 }
-                changed_image(y+1,x+1) = 1;
-
+                result(y+1,x+1) = 1;
                 next_position:  /* nothing */ ;
             }
         }
         '''
         weave.inline(code,
-            ['r','c','binimg','changed_image','struct_elem'],
+            ['r','c','binimg','result','struct_elem'],
             type_converters=converters.blitz
             )
     except Exception, e:
@@ -136,6 +146,33 @@ def hitmiss(binimg,struct_elem):
                         if struct_elem[w,z] == binimg[y+w,x+z] or struct_elem[w,z] == 2:
                             hits += 1
                 if hits == 9:
-                    changed_image[y+1,x+1]=1
-    return changed_image
+                    result[y+1,x+1]=1
+                else:
+                    results[y+1,x+1]=0
+    return result
+
+def fastany(A):
+    try:
+        from scipy import weave
+        from scipy.weave import converters
+        r,c=A.shape
+        code = '''
+#line 150 "mmthin.py"
+        return_val = 0;
+        for (int y = 0; y != r ; ++y) {
+            for (int x = 0; x != c; ++x) {
+                if (A(y,x) != 0) {
+                    return_val = 1;
+                    goto finished;
+                }
+            }
+        }
+        finished: /* do nothing*/ ;
+        '''
+        return weave.inline(code,
+            ['r','c','A'],
+            type_converters=converters.blitz
+            )
+    except Exception, e:
+        print 'SLOW: ', e
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
