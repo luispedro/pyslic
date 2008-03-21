@@ -44,8 +44,8 @@ unsigned inPlaceGraham(Point* P, unsigned N) {
 	for (int i = 0; i != h - 1; ++i) {
 		std::swap(P[i],P[i+1]);
 	}
-	int h2=inPlaceScan(P+h-2,N-h+2,true);
-	return h + h2;
+	int h_=inPlaceScan(P+h-2,N-h+2,true);
+	return h + h_ - 2;
 }
 
 PyObject*

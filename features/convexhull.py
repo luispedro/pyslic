@@ -2,6 +2,8 @@ from __future__ import division
 from matplotlib.nxutils import points_inside_poly, pnpoly
 from ..imageprocessing.bbox import bbox
 from numpy import *
+import Image, ImageDraw
+from scipy.misc import fromimage
 import warnings
 
 __all__ = ['convexhull','computeConvexHull']
@@ -12,23 +14,18 @@ def convexhull(bwimg):
 
     Compute the convex hull of the binary image and return it as a binary mask
     """
-    # This function is still a bottleneck.
-    # Computing the convex hull (computeConvexHull) is now very fast (in C),
-    # but iterating over all possible points and calling pnpoly() is slow
-    # a more specialised approach (like a line sweep) would do better
     Y,X=where(bwimg)
     P=list(zip(Y,X))
     if len(P) <= 3:
         return bwimg
     H=computeConvexHull(P)
-    r,c=bwimg.shape
-    min1,max1,min2,max2 = bbox(bwimg)
-    res=zeros((r,c))
-    for y in xrange(min1,max1+1):
-        for x in xrange(min2,max2+1):
-            res[y,x]=pnpoly(y,x,H)
-    return res
-
+    
+# This is kind of sucky code, but it works:
+    im=Image.new('L',bwimg.shape,0)
+    draw=ImageDraw.Draw(im)
+    draw.fill=1
+    draw.polygon(H,1,1)
+    return fromimage(im)
 
 def _isLeft(p0,p1,p2):
     """
@@ -55,9 +52,7 @@ def _inPlaceScan(P,reverse):
     for i in xrange(1,N):
         while h >= 2 and _isLeft(P[h-2],P[h-1],P[i]) >= 0:
             h -= 1
-        t=P[i]
-        P[i]=P[h]
-        P[h]=t
+        P[i],P[h]=P[h],P[i]
         h += 1
     return h
 def computeConvexHull(P):
@@ -72,11 +67,9 @@ def computeConvexHull(P):
         warnings.warn('C code for convex hull failed. Resorting to (slow) python (Error: %s)' % e)
         h=_inPlaceScan(P,False)
         for i in xrange(h-1):
-            t=P[i]
-            P[i]=P[i+1]
-            P[i+1]=t
+            P[i],P[i+1]=P[i+1],P[i]
         P2=P[h-2:]
         h_=_inPlaceScan(P2,True)
-        return P[:h]+P2[:h_]
+        return P[:h-2]+P2[:h_]
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
