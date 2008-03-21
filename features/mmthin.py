@@ -22,6 +22,7 @@
 from numpy import *
 from scipy.ndimage import binary_hit_or_miss
 from scipy.misc.pilutil import imshow
+from ..imageprocessing.bbox import bbox
 
 __all__ = ['mmthin']
 
@@ -75,13 +76,14 @@ def mmthin(binimg):
             [2,1,1]])
 
     struct_elem=[array(E) for E in struct_elem]
-    r,c=binimg.shape
+    min1,max1,min2,max2 = bbox(binimg)
+    r,c=(max1-min1+1,max2-min2+1)
     acnum_elem = 0;
     total_op=0
 
     image_exp = zeros((r+2, c+2),int8)
     imagebuf = zeros((r+2,c+2),int8)
-    image_exp[1:r+1, 1:c+1] = binimg
+    image_exp[1:r+1, 1:c+1] = binimg[min1:max1+1,min2:max2+1]
     while True:
         newimg=hitmiss(image_exp,struct_elem[acnum_elem],imagebuf)
         image_exp -= newimg
@@ -93,8 +95,8 @@ def mmthin(binimg):
                 break
             acnum_elem = 0
             total_op = 0
-    binimg = image_exp[1:r+1, 1:c+1]
-    return binimg.copy()
+    binimg[min1:max1+1,min2:max2+1] = image_exp[1:r+1, 1:c+1]
+    return binimg
 
 def hitmiss(binimg,struct_elem,result = None):
     '''
