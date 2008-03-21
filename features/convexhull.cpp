@@ -8,25 +8,25 @@ struct Point {
 
 inline
 bool forward_cmp(const Point& a, const Point& b) {
-	if (a.x == b.x) return a.y < b.y;
-	return a.x < b.x;
+	if (a.y == b.y) return a.x < b.x;
+	return a.y < b.y;
 }
 inline
 bool reverse_cmp(const Point& a, const Point& b) {
-	if (a.x == b.x) return a.y > b.y;
-	return a.x > b.x;
+	if (a.y == b.y) return a.x > b.x;
+	return a.y > b.y;
 }
 
 inline
-double isLeft(Point p0,Point p1, Point p2) { 
-	return (p2.x-p0.x)*(p1.y-p0.y) - (p1.x-p0.x)*(p2.y-p0.y);
+double isLeft(Point p0, Point p1, Point p2) { 
+	return (p1.y-p0.y)*(p2.x-p0.x) - (p2.y-p0.y)*(p1.x-p0.x);
 }
 
 unsigned inPlaceScan(Point* P, unsigned N, bool reverse) {
 	if (reverse) {
-		std::sort(P,P+N,forward_cmp);
-	} else {
 		std::sort(P,P+N,reverse_cmp);
+	} else {
+		std::sort(P,P+N,forward_cmp);
 	}
 	int h = 1;
 	for (int i = 1; i != N; ++i) {
@@ -62,10 +62,10 @@ compute_convexHull(PyObject* self, PyObject* args) {
 	Point* P = new Point[N];
 	for (Py_ssize_t i = 0; i != N; ++i) {
 		PyObject* tup = PyList_GetItem(input,i);
-		long x = PyInt_AsLong(PyTuple_GetItem(tup,0));
-		long y = PyInt_AsLong(PyTuple_GetItem(tup,1));
-		P[i].x=x;
+		long y = PyInt_AsLong(PyTuple_GetItem(tup,0));
+		long x = PyInt_AsLong(PyTuple_GetItem(tup,1));
 		P[i].y=y;
+		P[i].x=x;
 	}
 	unsigned h = inPlaceGraham(P,N);
 	PyObject* output = PyList_New(h);
@@ -75,8 +75,12 @@ compute_convexHull(PyObject* self, PyObject* args) {
 	}
 	for (unsigned i = 0; i != h; ++i) {
 		PyObject* tup = PyTuple_New(2);
-		PyTuple_SetItem(tup,0,PyInt_FromLong(P[i].x));
-		PyTuple_SetItem(tup,1,PyInt_FromLong(P[i].y));
+        if (!tup) {
+            PyErr_NoMemory();
+            return 0;
+        }
+		PyTuple_SetItem(tup,0,PyInt_FromLong(P[i].y));
+		PyTuple_SetItem(tup,1,PyInt_FromLong(P[i].x));
 		PyList_SetItem(output,i,tup);
 	}
 	delete [] P;
