@@ -74,9 +74,8 @@ def find_branch_points(img):
     """
     kernel = array([[0,1,0],[1,0,1],[0,1,0]])
     img=asarray(img,uint8)
-    branch_points = convolve(img,kernel,mode='constant')*img;
-    branch_points[branch_points < 3] = 0
-    return (branch_points > 0)
+    branch_points = img*convolve(img,kernel,mode='constant')
+    return (branch_points >= 3)
 
 def objskelfeats(objimg):
     """
