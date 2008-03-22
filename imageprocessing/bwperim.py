@@ -34,7 +34,6 @@ def bwperim(bw,n=4):
 
     if n != 4 and n != 8:
         raise UserWarning('bwperim: n must be 4 or 8')
-    out = bw.copy()
     rows,cols = bw.shape
 
     # Translate image by one pixel in all directions
@@ -62,8 +61,7 @@ def bwperim(bw,n=4):
               (east  == bw) & (south_east == bw) & \
               (south == bw) & (south_west == bw) & \
               (west  == bw) & (north_west == bw)
-    out[idx] = 0;
-    return out
+    return ~idx * bw
 
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
