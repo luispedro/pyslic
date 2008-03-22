@@ -23,7 +23,9 @@ from __future__ import division
 from ..imageprocessing.bwperim import bwperim
 from imgmoments import imgcentmoments
 from convexhull import convexhull
+
 from numpy import *
+from scipy.ndimage import center_of_mass
 
 __all__ = ['hullfeatures']
 
@@ -47,10 +49,11 @@ def hullfeatures(imageproc,imagehull=None):
     Phull = _bwarea(bwperim(imagehull))
     hullshape = (Phull**2)/(4*pi*Ahull)
 
-    hull_mu00 = imgcentmoments(imagehull,0,0)
-    hull_mu11 = imgcentmoments(imagehull,1,1)
-    hull_mu02 = imgcentmoments(imagehull,0,2)
-    hull_mu20 = imgcentmoments(imagehull,2,0)
+    cofy,cofx = center_of_mass(imagehull)
+    hull_mu00 = imgcentmoments(imagehull,0,0,cofy,cofx)
+    hull_mu11 = imgcentmoments(imagehull,1,1,cofy,cofx)
+    hull_mu02 = imgcentmoments(imagehull,0,2,cofy,cofx)
+    hull_mu20 = imgcentmoments(imagehull,2,0,cofy,cofx)
 
 # Parameters of the 'image ellipse'
 #   (the constant intensity ellipse with the same mass and
