@@ -176,5 +176,8 @@ def fastany(A):
             type_converters=converters.blitz
             )
     except Exception, e:
-        print 'SLOW: ', e
+        import warnings
+        warnings.warn('scipy.weave failed. Resorting to (slow) Python code.')
+        return A.any()
+        
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
