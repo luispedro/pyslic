@@ -16,7 +16,10 @@
 ## You should have received a copy of the GNU General Public License
 ## along with this file.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import division
 from numpy import *
+
+__all__ = ['bwperim']
 
 def bwperim(bw,n=4):
     """
@@ -30,7 +33,7 @@ def bwperim(bw,n=4):
     """
 
     if n != 4 and n != 8:
-        raise Exception('bwperim: n must be 4 or 8')
+        raise UserWarning('bwperim: n must be 4 or 8')
     out = bw.copy()
     rows,cols = bw.shape
 
@@ -45,7 +48,7 @@ def bwperim(bw,n=4):
     west[:,:-1]  = bw[:,1:]
     east[:,1:]   = bw[:,:-1]
     if n == 4:
-        idx = (north == bw) & (south == bw) & (west == bw) & (east == bw);
+        idx = (north == bw) & (south == bw) & (west == bw) & (east == bw)
     else:
         north_east = zeros((rows, cols))
         north_west = zeros((rows, cols))
@@ -58,7 +61,7 @@ def bwperim(bw,n=4):
         idx = (north == bw) & (north_east == bw) & \
               (east  == bw) & (south_east == bw) & \
               (south == bw) & (south_west == bw) & \
-              (west  == bw) & (north_west == bw);
+              (west  == bw) & (north_west == bw)
     out[idx] = 0;
     return out
 
