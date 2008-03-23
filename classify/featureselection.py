@@ -59,6 +59,9 @@ def sda(features,labels):
 
     Perform Stepwise Discriminant Analysis for feature selection
 
+    Pre filter the feature matrix to remove linearly dependent features
+    before calling this function. Behaviour is undefined otherwise.
+
     This implements the algorithm described in 
     Jennrich, R.I. (1977), "Stepwise Regression" & "Stepwise Discriminant Analysis,"
     both in Statistical Methods for Digital Computers, eds. 
