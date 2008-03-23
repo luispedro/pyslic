@@ -19,7 +19,7 @@ def _set_assignment(obj,assignments):
     for k,v in assignments:
         obj.set_option(k,v)
 
-class grid_search(object):
+class gridsearch(object):
     def __init__(self,base,**kwargs):
         self.params = kwargs
         self.base = base
