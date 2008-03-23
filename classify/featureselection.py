@@ -5,9 +5,9 @@ from classifier import normaliselabels, classifier
 import scipy.stats
 import warnings
 
-TOLERANCE = 0
-SIGNIFICANCE_IN = .15
-SIGNIFICANCE_OUT = .15
+_TOLERANCE = 0
+_SIGNIFICANCE_IN = .15
+_SIGNIFICANCE_OUT = .15
 
 def _sweep(A,k,flag):
     N,_=A.shape
@@ -70,8 +70,6 @@ def sda(features,labels):
     labels,labelsu = normaliselabels(labels)
     q=len(labelsu)
 
-    # This is how the code in ml_stepdisc computes F_in (F_out)
-
     mus=array([features[labels==i,:].mean(0) for i in xrange(q)])
     mu=features.mean(0)
     
@@ -106,9 +104,9 @@ def sda(features,labels):
                     T[i,j] += (features[n,i]-mu[i])*(features[n,j]-mu[j])
     ignoreidx = ( W.diagonal() == 0 )
     if ignoreidx.any():
+        idxs, = where(~ignoreidx)
         F=sda(features[:,~ignoreidx],labels)
-        return F + cumsum(ignoreidx)
-
+        return idxs[F]
     output=[]
     D=W.diagonal()
     df1 = q-1
@@ -124,19 +122,19 @@ def sda(features,labels):
             k=k[0]
             Fremove = (N-p-q+1)/(q-1)*(V_m-1)
             PrF = 1 - scipy.stats.f.cdf(Fremove,df1,df2)
-            if PrF > SIGNIFICANCE_OUT:
+            if PrF > _SIGNIFICANCE_OUT:
                 #print 'removing ',k, 'V(k)', 1./V_m, 'Fremove', Fremove
                 W=_sweep(W,k,1)
                 T=_sweep(T,k,1)
                 continue
-        ks = ( (W_d / D) > TOLERANCE)
+        ks = ( (W_d / D) > _TOLERANCE)
         if ks.any():
             V_m=V[ks].min()
             k,=where(V==V_m)
             k=k[0]
             Fenter = (N-p-q)/(q-1) * (1-V_m)/V_m
             PrF = 1 - scipy.stats.f.cdf(Fenter,df1,df2)
-            if PrF < SIGNIFICANCE_IN:
+            if PrF < _SIGNIFICANCE_IN:
                 #print 'adding ',k, 'V(k)', 1./V_m, 'Fenter', Fenter
                 W=_sweep(W,k,-1)
                 T=_sweep(T,k,-1)
@@ -148,6 +146,55 @@ def sda(features,labels):
     output.sort(reverse=True)
     return array([x[1] for x in output])
 
+def repeatedfeatures(featmatrix):
+    '''
+    idxs = repeatedfeatures(feature_matrix)
+
+    Returns a set of indices corresponding to repeated features in featmatrix.
+
+    @see remove_repeated_features
+    '''
+    featsig={}
+    results=[]
+    feat_sum=(featmatrix**2).sum(0)
+    ordering=feat_sum.argsort()
+    i = 0
+    #while i < len(ordering) and feat_sum[ordering[i]] == 0:
+    #    results.append(ordering[i])
+    #    i += 1
+
+    while i < len(ordering) - 1:
+        if feat_sum[ordering[i]] == feat_sum[ordering[i+1]]:
+            if (featmatrix[:,ordering[i]] == featmatrix[:,ordering[i+1]]).all():
+                results.append(ordering[i+1])
+        i += 1
+    return array(results)
+
+
+def _rank(A,tol=1e-8):
+    s = linalg.svd(A,compute_uv=0)
+    return (s > tol).sum()
+
+def linearindependentfeatures(featmatrix):
+    '''
+    Returns the indices of a set of linearly independent features (columns).
+
+    indices = linearindependentfeatures(features)
+    '''
+    independent=[]
+    R=_rank(featmatrix)
+    i=0
+    offset=0
+    while i < featmatrix.shape[1]:
+        R_=_rank(delete(featmatrix,i,1))
+        if R_ == R:
+            featmatrix=delete(featmatrix,i,1)
+            offset+=1
+        else:
+            independent.append(i+offset)
+            i += 1
+    return array(independent)
+        
 class sda_filter(object):
     __slots__ = ['idxs']
 
@@ -162,4 +209,32 @@ class sda_filter(object):
 
     def apply(self,features):
         return features[:,self.idxs]
+
+
+class remove_repeated_features(object):
+    __slots__ = ['repeats']
+
+    def is_multi_class(self):
+        return True
+    def __init__(self):
+        pass
+    def train(self,features,labels):
+        self.repeats=repeatedfeatures(features)
+
+    def apply(self,features):
+        return delete(features,self.repeats,1)
+        
+class remove_linear_dependent_features(object):
+    __slots__ = ['independent']
+
+    def is_multi_class(self):
+        return True
+    def __init__(self):
+        pass
+    def train(self,features,labels):
+        self.independent=linearindependentfeatures(features)
+
+    def apply(self,features):
+        return features[:,self.independent]
+        
 
