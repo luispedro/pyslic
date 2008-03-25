@@ -67,6 +67,6 @@ def nnmf(V,r,cost='norm2',max_iter=1e4,tol=1e-8,R=None):
             max_update = max(updateW.max(),updateH.max())
             if abs(1.-max_update) < tol:
                 break
-    return W,H,D
+    return W,H
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
