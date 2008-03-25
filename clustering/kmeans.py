@@ -27,7 +27,7 @@ def residual_sum_squares(fmatrix,assignments,centroids,distance='euclidean',**kw
 
 def kmeans(fmatrix,K,distance='euclidean',max_iter=1000,**kwargs):
     '''
-    assignmens, centroids = kmean(fmatrix, K, distance, icov=None, covmat=None)
+    assignmens, centroids = kmean(fmatrix, K, distance='euclidean', icov=None, covmat=None)
 
     K-Means Clustering
 
