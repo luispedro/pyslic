@@ -1,7 +1,7 @@
 from scipy.misc.pilutil import *
 from numpy import *
 
-__all__ = ['Image']
+__all__ = ['Image', 'setshowimage']
 
 def _open_file(fname):
     """
@@ -11,6 +11,16 @@ def _open_file(fname):
     if A.ndim == 3:
         A=A.mean(2)
     return A
+
+_showimage=imshow
+def setshowimage(f):
+    '''
+    Set the function that shows an image.
+
+    By default, uses scipy.misc.pilutil.imshow.
+    '''
+    global _showimage
+    _showimage = f
 
 class Image(object):
     """
@@ -100,6 +110,6 @@ class Image(object):
 
         See composite.
         '''
-        imshow(self.composite())
+        _showimage(self.composite())
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
