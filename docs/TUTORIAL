@@ -6,8 +6,17 @@ The dependencies are fairly standard python libraries:
 	- numpy
 	- scipy
 	- matplotlib
+    - PIL
 
 If a C++ compiler is found and useable, the code will run much faster, but it is not a strict dependency.
+
+==========================================
+CONVENTIONS
+==========================================
+
+ + Functions that use random numbers take a parameter R which can be used to initialise
+        random numbers. See utils.get_random for details.
+ + Arguments should not be modified unless expected (and stated in __doc__ string)
 
 ==========================================
 COMPUTING FEATURES
