@@ -24,14 +24,15 @@
 
 from __future__ import division
 import numpy as N
+import random
 
-__all__ = ['get_random']
+__all__ = ['get_random', 'get_pyrandom']
 
 def get_random(R):
     '''
     R = get_random(R)
 
-    Returns a RandomState from R
+    Returns a numpy.RandomState from R
     @param R can be one of:
         * None          : Returns the default numpy global state
         * integer       : Uses it as a seed for constructing a new random generator
@@ -42,5 +43,24 @@ def get_random(R):
     if type(R) == int:
         return N.random.RandomState(R)
     return R
+
+def get_pyrandom(R):
+    '''
+    R = get_pyrandom(R)
+
+    Returns a random.Random object based on R
+
+    @param R can be one of:
+        * None          : Returns the default python Random object
+        * integer       : Uses it as seed for constructing a new random generator
+        * RandomState   : Uses it as to generate a seed for a new random generator
+    '''
+    if R is None:
+        return random
+    if type(R) is int:
+        return random.Random(R)
+    if type(R) is N.random.RandomState:
+        return random.Random(R.randint(2**30))
+    raise TypeError,"get_pyrandom() does not know how to handle type %s." % type(R)
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
