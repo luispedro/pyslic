@@ -37,7 +37,7 @@ def objectfeatures(protimg,dnaimg=None,objects=None):
         objects = [objects]
 
     sofs = zeros((len(objects),11))
-    if dnaimg:
+    if dnaimg is not None:
         dnacofy,dnacofx=center_of_mass(dnaimg)
         bindna=(dnaimg > 0)
     for obji,obj in enumerate(objects):
@@ -51,7 +51,7 @@ def objectfeatures(protimg,dnaimg=None,objects=None):
         hfeats=hullfeatures(objimg,objhull)
 
         sofs[obji,0] = binobj.sum()
-        if dnaimg:
+        if dnaimg is not None:
             sofs[obji,1] = sqrt((cofy-dnacofy)**2+(cofx-dnacofx)**2)
             sofs[obji,2] = (binobj*bindna).sum()/sofs[obji,0]
         sofs[obji,3] = hfeats[2]
