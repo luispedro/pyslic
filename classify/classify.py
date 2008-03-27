@@ -17,6 +17,23 @@ def defaultclassifier():
     from numpy import arange
     return pretransformclassifier([chkfinite(),interval_normalise(),remove_linear_dependent_features(),sda_filter()],gridsearch(libsvmClassifier(),C=2.**arange(-4,10), gamma=2.**arange(-7,2)))
 
+def fastclassifier():
+    '''
+    C = fastclassifier()
+
+    Returns the classifier, which is faster than the defaultclassifier()
+
+    Currently, this means that this classifier does not perform a grid search for the best libsvm parameters
+    '''
+    from normalise import zscore_normalise,chkfinite,interval_normalise
+    from gridsearch import gridsearch
+    from classifywrap import pretransformclassifier
+    from libsvmclassifier import libsvmClassifier
+    from pymlclassifier import PyMLSVM
+    from featureselection import sda_filter, remove_repeated_features, remove_linear_dependent_features
+    from numpy import arange
+    return pretransformclassifier([chkfinite(),interval_normalise(),remove_linear_dependent_features(),sda_filter()],libsvmClassifier())
+
 def learnclassifier(featmatrix,y):
     """
     classifier=learnclassifier(featmatrix,y)
