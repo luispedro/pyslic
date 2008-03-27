@@ -1,18 +1,36 @@
 from __future__ import division
-from numpy import array, zeros, sqrt, inf
-import random
+from numpy import array, zeros, sqrt, inf, empty
+from ..utils import get_pyrandom
 import scipy
 
 __all__ = ['kmeans','repeated_kmeans']
 
-def _euclidean(fmatrix,x):
-    return sqrt( ( (fmatrix - x)**2 ).sum(1) )
+def _euclidean2(fmatrix,x):
+    try:
+        from scipy import weave
+        from scipy.weave import converters
+        N,q=fmatrix.shape
+        D=zeros(N)
+        code = '''
+        for (int i = 0; i != N; ++i) {
+            for (int j = 0; j != q; ++j) {
+                D(i) += (fmatrix(i,j) - x(j))*(fmatrix(i,j)-x(j));
+            }
+        }
+        '''
+        weave.inline(
+                code,
+                ['fmatrix','N','q','x','D'],
+                type_converters=converters.blitz)
+        return D
+    except:
+        return ((fmatrix - x)**2).sum(1)
 
-def _mahalabonis(fmatrix,x,icov):
+def _mahalabonis2(fmatrix,x,icov):
     diff=(fmatrix-x)
     icov=(icov)
     # The expression below seems to be faster than looping over the elements and summing 
-    return sqrt( dot(diff,dot(icov,diff.T)).diagonal() )
+    return dot(diff,dot(icov,diff.T)).diagonal()
 
 def centroid_errors(fmatrix,assignments,centroids):
     errors=[]
@@ -25,7 +43,7 @@ def residual_sum_squares(fmatrix,assignments,centroids,distance='euclidean',**kw
         raise NotImplemented, "residual_sum_squares only implemented for 'euclidean' distance"
     return (centroid_errors(fmatrix,assignments,centroids)**2).sum()
 
-def kmeans(fmatrix,K,distance='euclidean',max_iter=1000,**kwargs):
+def kmeans(fmatrix,K,distance='euclidean',max_iter=1000,R=None,**kwargs):
     '''
     assignmens, centroids = kmean(fmatrix, K, distance='euclidean', icov=None, covmat=None)
 
@@ -41,7 +59,7 @@ def kmeans(fmatrix,K,distance='euclidean',max_iter=1000,**kwargs):
     @param max_iter: Maximum number of iteration
     '''
     if distance == 'euclidean':
-        distfunction=_euclidean
+        distfunction=_euclidean2
     elif distance == 'mahalanobis':
         icov = kwargs.get('icov',None)
         if icov is None:
@@ -49,23 +67,51 @@ def kmeans(fmatrix,K,distance='euclidean',max_iter=1000,**kwargs):
             if covmat is None:
                 covmat=cov(fmatrix.T)
             icov=linalg.inv(covmat)
-        distfunction=lambda f,x: _mahalabonis(f,x,icov)
+        distfunction=lambda f,x: _mahalabonis2(f,x,icov)
     else:
         raise 'Distance argument unknown (%s)' % distance
+    R=get_pyrandom(R)
 
     N,q = fmatrix.shape
-    centroids = random.sample(fmatrix,K)
+    centroids = array(R.sample(fmatrix,K))
     prev = zeros(N)
+    dists = empty((K,N))
     for i in xrange(max_iter):
-        dists = array([distfunction(fmatrix,C) for C in centroids])
+        for ci,C in enumerate(centroids):
+            dists[ci,:] = distfunction(fmatrix,C)
         assignments = dists.argmin(0)
         if (assignments == prev).all():
             break
-        centroids = array([fmatrix[assignments == C].mean(0) for C in xrange(K)])
+        try:
+            from scipy import weave
+            from scipy.weave import converters
+            centroids[:]=0
+            counts=zeros(K)
+            code = '''
+            for (int i = 0; i != N; ++i) {
+                int c = assignments(i);
+                ++counts(c);
+                for (int j = 0; j != q; ++j) {
+                    centroids(c,j) += fmatrix(i,j);
+                }
+            }
+            for (int i = 0; i != K; ++i) {
+                for (int j = 0; j != q; ++j) {
+                    centroids(i,j) /= counts(i);
+                }
+            }
+            '''
+            weave.inline(
+                    code,
+                    ['fmatrix','centroids','N','q','K','assignments','counts'],
+                    type_converters=converters.blitz)
+        except Exception, e:
+            print 'scipy.weave.inline failed. Resorting to Python code (Exception was "%s")' % e
+            centroids = array([fmatrix[assignments == C].mean(0) for C in xrange(K)])
         prev = assignments
     return assignments, centroids
         
-def repeated_kmeans(fmatrix,k,iterations,distance='euclidean',max_iter=1000,**kwargs):
+def repeated_kmeans(fmatrix,k,iterations,distance='euclidean',max_iter=1000,R=None,**kwargs):
     '''
     assignments,centroids = repeated_kmeans(fmatrix, k, repeats, distance='euclidean',max_iter=1000,**kwargs)
 
@@ -77,7 +123,7 @@ def repeated_kmeans(fmatrix,k,iterations,distance='euclidean',max_iter=1000,**kw
         raise NotImplemented, "repeated_kmeans is only implemented for 'euclidean' distance"
     best=+inf
     for i in xrange(iterations):
-        A,C=kmeans(fmatrix,k,distance,max_iter=max_iter,**kwargs)
+        A,C=kmeans(fmatrix,k,distance,max_iter=max_iter,R=R,**kwargs)
         rss=residual_sum_squares(fmatrix,A,C,distance,**kwargs)
         if rss < best:
             Ab,Cb=A,C
