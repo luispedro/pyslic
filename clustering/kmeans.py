@@ -1,6 +1,7 @@
 from __future__ import division
 from numpy import array, zeros, sqrt, inf, empty
 from ..utils import get_pyrandom
+from ..classify.normalise import zscore
 import scipy
 
 __all__ = ['kmeans','repeated_kmeans']
@@ -50,7 +51,8 @@ def kmeans(fmatrix,K,distance='euclidean',max_iter=1000,R=None,**kwargs):
     K-Means Clustering
 
     @param distance can be one of:
-        'euclidean' : euclidean distance (default)
+        'euclidean'   : euclidean distance (default)
+        'seuclidean'  : standartised euclidean distance. This is equivalent to first normalising the features.
         'mahalanobis' : mahalanobis distance.
                 This can make use of the following keyword arguments:
                     'icov' (the inverse of the covariance matrix), 
@@ -59,6 +61,9 @@ def kmeans(fmatrix,K,distance='euclidean',max_iter=1000,R=None,**kwargs):
     @param max_iter: Maximum number of iteration
     '''
     if distance == 'euclidean':
+        distfunction=_euclidean2
+    elif distance == 'seuclidean':
+        fmatrix = zscore(fmatrix)
         distfunction=_euclidean2
     elif distance == 'mahalanobis':
         icov = kwargs.get('icov',None)
@@ -119,8 +124,11 @@ def repeated_kmeans(fmatrix,k,iterations,distance='euclidean',max_iter=1000,R=No
 
     @see kmeans
     '''
+    if distance == 'seuclidean':
+        fmatrix = zscore(fmatrix)
+        distance = 'euclidean'
     if distance != 'euclidean':
-        raise NotImplemented, "repeated_kmeans is only implemented for 'euclidean' distance"
+        raise NotImplementedError, "repeated_kmeans is only implemented for 'euclidean' or 'seuclidean' distance"
     best=+inf
     for i in xrange(iterations):
         A,C=kmeans(fmatrix,k,distance,max_iter=max_iter,R=R,**kwargs)
