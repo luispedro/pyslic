@@ -34,8 +34,8 @@ def preprocessimage(image,regionid,options = {}):
         mask=(imgscaled > T)
         mask=majority_filter(mask)
         residual=img.copy()
-        img[~mask]=0
-        residual[mask]=0
+        img *= mask.astype(bool)
+        residual *= ~mask
         return img,residual
     image.lazy_load()
     img=image.channeldata[Image.protein_channel]
@@ -59,12 +59,11 @@ def bgsub(img,options = None):
     '''
     hist=fullhistogram(img)
     M=round(img.mean())-1
-    if M == 0:
+    if M <= 0:
         T=0
     else:
         T=argmax(hist[:M])
-    img[img < T]=0
-    img=img-T
+    img -= minimum(img,T)
     return img
 
 def _scale(img):
