@@ -27,27 +27,18 @@ from convexhull import convexhull
 from numpy import *
 from scipy.ndimage import center_of_mass
 
-__all__ = ['hullfeatures']
+__all__ = ['hullfeatures','hullsizefeatures']
 
 def _bwarea(img):
     return (img > 0).sum()
 
-def hullfeatures(imageproc,imagehull=None):
-    """
-    Compute hull features:
-
-    hullfract:          bwarea/hullarea
-    hullshape:          roundness of hull
-    hull_eccentricity:  eccentricity of hull ellipse
-    """
-
+def _hull_computations(imageproc,imagehull = None):
+    # Just share code between the two functions below
     if imagehull is None:
         imagehull = convexhull(imageproc > 0)
 
     Ahull = _bwarea(imagehull)
-    hullfract = double((imageproc > 0).sum())/Ahull
     Phull = _bwarea(bwperim(imagehull))
-    hullshape = (Phull**2)/(4*pi*Ahull)
 
     cofy,cofx = center_of_mass(imagehull)
     hull_mu00 = imgcentmoments(imagehull,0,0,cofy,cofx)
@@ -67,13 +58,55 @@ def hullfeatures(imageproc,imagehull=None):
     hull_semiminor = sqrt((2 * (hull_mu20 + hull_mu02 - \
                     sqrt((hull_mu20 - hull_mu02)**2 + \
                     4 * hull_mu11**2)))/hull_mu00) 
+    return imagehull,Ahull, Phull, hull_semimajor, hull_semiminor
+
+def hullsizefeatures(imageproc,imagehull=None):
+    '''
+    Compute image size features
+    '''
+
+    _,Ahull, Phull, hull_semimajor, hull_semiminor = _hull_computations(imageproc,imagehull)
+    values=array([Ahull,sqrt(Ahull),Phull,hull_semimajor,hull_semiminor])
+    values=r_[values,1./(values+(values==0))]
+    return values
+
+hullsizefeatures.names = [
+'hullsize:area',
+'hullsize:sqrt(area)',
+'hullsize:perimeter',
+'hullsize:semimajor',
+'hullsize:semiminor',
+
+'hullsize:inv(area)',
+'hullsize:inv(sqrt(area))',
+'hullsize:inv(perimeter)',
+'hullsize:inv(semimajor)',
+'hullsize:inv(semiminor))'
+]
+
+def hullfeatures(imageproc,imagehull=None):
+    """
+    Compute hull features:
+
+    hullfract:          bwarea/hullarea
+    hullshape:          roundness of hull
+    hull_eccentricity:  eccentricity of hull ellipse
+    """
+
+    if imagehull is None:
+        imagehull = convexhull(imageproc > 0)
+
+    imagehull,Ahull, Phull, hull_semimajor, hull_semiminor = _hull_computations(imageproc,imagehull)
+    hullfract = double((imageproc > 0).sum())/Ahull
+    hullshape = (Phull**2)/(4*pi*Ahull)
+
     if hull_semimajor != 0.:
         hull_eccentricity = sqrt(hull_semimajor**2 - hull_semiminor**2) / hull_semimajor ;
     else:
         hull_eccentricity = 0.
-    #names = [cellstr('convex_hull:fraction_of_overlap') cellstr('convex_hull:shape_factor') cellstr('convex_hull:eccentricity')] ;
-    #slfnames = [cellstr('SLF1.14') cellstr('SLF1.15') cellstr('SLF1.16')] ;
-    #values = [hullfract hullshape hull_eccentricity] ;
     return array([hullfract,hullshape,hull_eccentricity])
+
+hullfeatures.names = ['convex_hull:fraction_of_overlap', 'convex_hull:shape_factor', 'convex_hull:eccentricity']
+hullfeatures.slf_names = ['SLF1.14', 'SLF1.15', 'SLF1.16']
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:

@@ -8,7 +8,7 @@ from texture import haralickfeatures
 from imgskelfeats import imgskelfeatures
 from noffeatures import noffeatures
 from imgfeatures import imgfeatures
-from hullfeatures import hullfeatures
+from hullfeatures import hullfeatures, hullsizefeatures
 from zernike import zernike
 
 __all__ = ['computefeatures']
@@ -17,6 +17,7 @@ def _featsfor(featset):
     featset=upper(featset)
     if featset == 'SLF13' or featset == 'SLF7DNA':
         return ['skl','nof','img','hul','zer','har','edg']
+    return [featset]
 
 def computefeatures(img,featsets):
     '''
@@ -54,6 +55,10 @@ def computefeatures(img,featsets):
             feats=feats.mean(0)
         elif F == 'hul':
             feats=hullfeatures(procprotein)
+        elif F == 'hullsize':
+            feats=hullsizefeatures(procprotein)
+        elif F == 'hullsizedna':
+            feats=hullsizefeatures(procdna)
         elif F == 'img':
             feats=imgfeatures(procprotein,procdna)
         elif F == 'mor':
