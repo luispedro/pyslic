@@ -14,8 +14,8 @@ from zernike import zernike
 __all__ = ['computefeatures']
 
 def _featsfor(featset):
-    featset=upper(featset)
-    if featset == 'SLF13' or featset == 'SLF7DNA':
+    ufeatset=upper(featset)
+    if ufeatset == 'SLF13' or ufeatset == 'SLF7DNA':
         return ['skl','nof','img','hul','zer','har','edg']
     return [featset]
 
