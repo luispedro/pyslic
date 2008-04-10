@@ -27,10 +27,10 @@ def objectfeatures(protimg,dnaimg=None,objects=None):
         if dnaimg is None:
             dnaimg = protimg.channeldata.get(Image.procdna_channel,None)
         else:
-            warnings.warn('Bizarre combination of arguments for objectfeatures')
+            warnings.warn('Bizarre combination of arguments for objectfeatures: both an Image and a separate DNA channel')
         protimg = protimg.channeldata[Image.procprotein_channel]
 
-    labeled,N = label(protimg)
+    labeled,N = label(protimg,ones((3,3)))
     if objects is None:
         objects = xrange(1,N+1)
     if type(objects) is int:
@@ -64,4 +64,3 @@ def objectfeatures(protimg,dnaimg=None,objects=None):
         sofs[obji,10] = no_of_branch_points/sofs[obji,6]
     return sofs
 
-    
