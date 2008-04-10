@@ -2,7 +2,47 @@ from __future__ import division
 from numpy import *
 from scipy.ndimage import histogram
 from .basics import fullhistogram
-__all__=['rc','otsu']
+
+__all__=['rc','otsu','softthreshold','hardthreshold']
+
+def softthreshold(img,T):
+    '''
+    softthreshold(img,T)
+
+
+    Implement a soft threshold:
+        img[i] = max(img[i]-T,0)
+
+    Processes the image inplace, return a reference to img.
+
+    Use
+    B = softthreshold(A.copy(),T)
+    to get a copy.
+
+    @see hardthreshold
+    '''
+    img -= minimum(img,T)
+    return img
+
+def hardthreshold(img,T):
+    '''
+    hardthreshold(img,T)
+
+
+    Implement a soft threshold:
+        img[i] = (img[i] if img[i] > T else 0)
+
+    Processes the image inplace, return a reference to img.
+
+    Use
+    B = hardthreshold(A.copy(),T)
+    to get a copy.
+
+    @see softthreshold
+    '''
+    img *= (img > T)
+    return img
+
 def rc(img,remove_zeros=False):
     """
     T = rc(img)
