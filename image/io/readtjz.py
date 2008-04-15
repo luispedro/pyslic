@@ -18,23 +18,32 @@ def getfileinsidezip(fname,inner):
     Returns the contents of the file inner inside the zip file zipname
     '''
     Z=zipfile.ZipFile(fname)
-    return Z.read(inner)
+    S=Z.read(inner)
+    Z.close()
+    return S
 
-def getimage(fname,inner):
-    tmp=tempfile.mkstemp('.jp2')
-    tmp2=tempfile.mkstemp('.png')
+def _getimage(fname,inner):
+    '''
+    Img = getimage(zipfilename,innername)
+
+    Reads an image inside a zip file
+    '''
+    jp2_fd,jp2_name=tempfile.mkstemp('.jp2')
+    png_fd,png_name=tempfile.mkstemp('.png')
     S=getfileinsidezip(fname,inner)
-    file(tmp[1],'w').write(S)
-    os.system("convert %s %s" % (tmp[1],tmp2[1]))
-    Img=imread(tmp2[1])
-    os.unlink(tmp[1])
-    os.unlink(tmp2[1])
+    file(jp2_name,'w').write(S)
+    os.system("convert %s %s" % (jp2_name,png_name))
+    Img=imread(png_name)
+    os.close(jp2_fd)
+    os.close(png_fd)
+    os.unlink(jp2_name)
+    os.unlink(png_name)
     return Img
 
 def readimageinzip(P):
     zip=os.path.dirname(P)
     F=os.path.basename(P)
-    return getimage(zip,F)
+    return _getimage(zip,F)
 
 def parsedir(base):
     Tjzs=glob('%s/*tjz' % base)
@@ -58,7 +67,6 @@ def readtjz_recursive(base):
     for root,_,_ in os.walk(base):
         images.extend(parsedir(root))
     return images
-    
 
 def breaklabel(label):
     T,N=label
