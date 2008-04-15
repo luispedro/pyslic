@@ -48,6 +48,33 @@ def preprocess_collection(imgs,P,unload=True):
     P.finish()
     return P
 
+
+def _smooth_S(S,grow_i=True,grow_j=True,d_ij=True,d_ij2=True):
+    from numpy import c_
+    X=numpy.ones_like(S).ravel()
+    if grow_i:
+        M=numpy.fromfunction(lambda i,j: i, S.shape)
+        X=c_[X,M.ravel()]
+    if grow_j:
+        M=numpy.fromfunction(lambda i,j: j, S.shape)
+        X=c_[X,M.ravel()]
+    if d_ij or d_ij2:
+        ci,cj=S.shape
+        ci /= 2
+        cj /= 2
+        M=numpy.fromfunction(lambda i,j: (i-ci)**2+(j-cj)**2,S.shape)
+        if d_ij2:
+            X=c_[X,M.ravel()]
+        if d_ij:
+            M=numpy.sqrt(M)
+            X=c_[X,M.ravel()]
+    # I would prefer to use something like the Lasso below.
+    W=numpy.linalg.lstsq(X,S.ravel())[0]
+    S_flat=numpy.dot(X,W)
+    S_flat=numpy.reshape(S_flat,S.shape)
+    return S_flat
+
+
 class FixIllumination(object):
     __slots__ = ['S','channel','sigma']
     def __init__(self,channel=Image.protein_channel,sigma=2):
@@ -67,11 +94,30 @@ class FixIllumination(object):
         self.S /= self.S.min()
         self.S = numpy.array(self.S,float)
         self.S = gaussian_filter(self.S,self.sigma)
+        self.S /= self.S.min()
 
     def process(self,img):
         img.lazy_load()
         P=img.channeldata[Image.protein_channel]
         P /= self.S
         img.channeldata[Image.protein_channel] = P
+
+class FixIlluminationRadial(FixIllumination):
+    '''
+    This is a collection processor that models an illumination
+    gradient from the centre of the image outwards.
+    '''
+    def finish(self):
+        FixIllumination.finish(self)
+        self.S=_smooth_S(self.S,grow_i=False,grow_j=False,d_ij=True,d_ij2=True)
+
+class FixIlluminationHVGradient(FixIllumination):
+    '''
+    This is a collection processor that models the illumination
+    uneveness as a combination of horizontal and vertical gradient.
+    '''
+    def finish(self):
+        FixIllumination.finish(self)
+        self.S=_smooth_S(self.S,grow_i=True,grow_j=True,d_ij=False,d_ij2=False)
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
