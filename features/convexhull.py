@@ -25,7 +25,7 @@ def convexhull(bwimg):
     draw=ImageDraw.Draw(im)
     draw.fill=1
     draw.polygon(H,1,1)
-    return fromimage(im)
+    return fromimage(im).T
 
 def _isLeft(p0,p1,p2):
     """
