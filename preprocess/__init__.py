@@ -1,2 +1,2 @@
 from preprocess import preprocessimage, bgsub
-from preprocesscollection import preprocess_collection, FixIllumination
+from preprocesscollection import preprocess_collection, FixIllumination, FixIlluminationHVGradient,FixIlluminationRadialGradient

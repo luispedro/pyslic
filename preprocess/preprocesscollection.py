@@ -27,7 +27,7 @@ import numpy
 from scipy.ndimage import gaussian_filter
 from ..image import Image
 
-__all__ = ['FixIllumination','preprocess_collection']
+__all__ = ['FixIllumination','FixIlluminationHVGradient','FixIlluminationRadialGradient','preprocess_collection']
 
 def preprocess_collection(imgs,P,unload=True):
     '''
@@ -76,6 +76,10 @@ def _smooth_S(S,grow_i=True,grow_j=True,d_ij=True,d_ij2=True):
 
 
 class FixIllumination(object):
+    '''
+    Fix illumination by computing the average illumination at each pixel in a collection of images
+    and then dividing the pixel values by that amount.
+    '''
     __slots__ = ['S','channel','sigma']
     def __init__(self,channel=Image.protein_channel,sigma=2):
         self.S=None
@@ -83,26 +87,50 @@ class FixIllumination(object):
         self.sigma=sigma
 
     def see(self,img):
+        '''
+        self.see(img)
+
+        Collect statistics on one image
+        '''
         img.lazy_load()
         P=img.channeldata[self.channel]
         if self.S is None:
             self.S = numpy.zeros(P.shape,numpy.float96)
         self.S += P
 
+    def __getstate__(self):
+        return (self.S,self.channel,self.sigma)
+
+    def __setstate__(self,state):
+        self.S,self.channel,self.sigma = state
+
     def finish(self):
+        '''
+        self.finish()
+
+        Signal to the object that all images have been see()n
+
+        @see see
+        '''
         assert self.S is not None
         self.S /= self.S.min()
         self.S = numpy.array(self.S,float)
-        self.S = gaussian_filter(self.S,self.sigma)
-        self.S /= self.S.min()
+        if self.sigma > 0:
+            self.S = gaussian_filter(self.S,self.sigma)
+            self.S /= self.S.min()
 
     def process(self,img):
+        '''
+        self.process(img)
+
+        Fix illumination of img
+        '''
         img.lazy_load()
         P=img.channeldata[Image.protein_channel]
         P /= self.S
         img.channeldata[Image.protein_channel] = P
 
-class FixIlluminationRadial(FixIllumination):
+class FixIlluminationRadialGradient(FixIllumination):
     '''
     This is a collection processor that models an illumination
     gradient from the centre of the image outwards.
