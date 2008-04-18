@@ -34,6 +34,7 @@ extern "C" {
 using namespace Magick;
 namespace {
 PyObject* array_from_image(Magick::Image& img) {
+    PyArrayObject* ret = 0;
     try {
         Geometry size = img.size();
         unsigned w = size.width();
@@ -44,22 +45,50 @@ PyObject* array_from_image(Magick::Image& img) {
         dimensions[1] = w;
         dimensions[2] = 3;
         const PixelPacket* pixels = img.getConstPixels(0,0,w,h);
-        PyArrayObject* ret = (PyArrayObject*)PyArray_FromDims(3,dimensions,PyArray_USHORT);
+
+        bool binarise = (img.depth() == 1);
+        bool colourimage = (img.type() != GRAYColorspace);
+        int type;
+        if (QuantumDepth == 8 || img.depth() == 8 || img.depth() == 1) {
+            type = PyArray_UBYTE;
+        } else if (QuantumDepth == 16) {
+            type = PyArray_USHORT;
+        } else {
+            PyErr_SetString(PyExc_EOFError,"Magick++ issue: Quantum depth is neither 8 nor 16.\nDon't know how to handle that.");
+            return 0;
+        }
+        ret = (PyArrayObject*)PyArray_FromDims(2+colourimage,dimensions,type);
         if (!ret) {
             PyErr_SetString(PyExc_MemoryError,"Out of Memory");
             return 0;
         }
+        /// I think I could use Image::write instead of looping myself, but this also works and is fast enough
         for (int i = 0; i != h; ++i) {    
             for (int j = 0; j != w; ++j) {    
                 const PixelPacket& p = pixels[i*w+j];
-                *reinterpret_cast<unsigned short*>(ret->data + (i*ret->strides[0]+j*ret->strides[1]+0*ret->strides[2])) = p.red;
-                *reinterpret_cast<unsigned short*>(ret->data + (i*ret->strides[0]+j*ret->strides[1]+1*ret->strides[2])) = p.green;
-                *reinterpret_cast<unsigned short*>(ret->data + (i*ret->strides[0]+j*ret->strides[1]+2*ret->strides[2])) = p.blue;
+                if (colourimage) {
+                    if (type == PyArray_USHORT) {
+                        *reinterpret_cast<unsigned char*>(ret->data + (i*ret->strides[0]+j*ret->strides[1]+0*ret->strides[2])) = (binarise ? !!p.red : p.red);
+                        *reinterpret_cast<unsigned char*>(ret->data + (i*ret->strides[0]+j*ret->strides[1]+1*ret->strides[2])) = (binarise ? !!p.green : p.green);
+                        *reinterpret_cast<unsigned char*>(ret->data + (i*ret->strides[0]+j*ret->strides[1]+2*ret->strides[2])) = (binarise ? !!p.blue : p.blue);
+                    } else {
+                        *reinterpret_cast<unsigned short*>(ret->data + (i*ret->strides[0]+j*ret->strides[1]+0*ret->strides[2])) = p.red;
+                        *reinterpret_cast<unsigned short*>(ret->data + (i*ret->strides[0]+j*ret->strides[1]+1*ret->strides[2])) = p.green;
+                        *reinterpret_cast<unsigned short*>(ret->data + (i*ret->strides[0]+j*ret->strides[1]+2*ret->strides[2])) = p.blue;
+                    }
+                } else {
+                    if (type == PyArray_USHORT) {
+                        *reinterpret_cast<unsigned char*>(ret->data + (i*ret->strides[0]+j*ret->strides[1])) = (binarise ? !!p.red : p.red);
+                    } else {
+                        *reinterpret_cast<unsigned short*>(ret->data + (i*ret->strides[0]+j*ret->strides[1])) = p.red;
+                    }
+                }
             }
         }
         return PyArray_Return(ret);
     } catch ( std::exception& error_ ) {
         PyErr_SetString(PyExc_EOFError,error_.what());
+        Py_DECREF(ret);
         return 0;
     }
 }
@@ -72,7 +101,14 @@ PyObject* readimg(PyObject* self, PyObject* args) {
     try {
         std::string fname = PyString_AsString(input);
         Image img;
-        img.read(fname);
+        try {
+            img.read(fname);
+        } catch ( WarningCoder &warning ) {
+            // Issuing warnings turned the program too verbose
+            //
+            //int status = PyErr_WarnEx( 0, ( std::string("ImageMagick Warning: ") + warning.what() ).c_str(), 1 );
+            //if (status < 0) return 0;
+        }
         return array_from_image(img);
     } catch ( std::exception& error_ ) {
         PyErr_SetString(PyExc_EOFError,error_.what());
