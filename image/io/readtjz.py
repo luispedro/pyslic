@@ -6,6 +6,7 @@ import os
 import tempfile
 import pyslic
 from glob import glob
+import readimg
 
 FILES_PER_TGZ=70
 
@@ -28,17 +29,8 @@ def _getimage(fname,inner):
 
     Reads an image inside a zip file
     '''
-    jp2_fd,jp2_name=tempfile.mkstemp('.jp2')
-    png_fd,png_name=tempfile.mkstemp('.png')
     S=getfileinsidezip(fname,inner)
-    file(jp2_name,'w').write(S)
-    os.system("convert %s %s" % (jp2_name,png_name))
-    Img=imread(png_name)
-    os.close(jp2_fd)
-    os.close(png_fd)
-    os.unlink(jp2_name)
-    os.unlink(png_name)
-    return Img
+    return readimg.readimgfromblob(S)
 
 def readimageinzip(P):
     zip=os.path.dirname(P)
