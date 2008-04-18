@@ -1,5 +1,6 @@
 from scipy.misc.pilutil import *
 from numpy import *
+import io.readimg
 
 __all__ = ['Image', 'setshowimage']
 
@@ -7,7 +8,7 @@ def _open_file_bw(fname):
     """
     Force a file to be B&W
     """
-    A=imread(fname)
+    A=io.readimg.readimg(fname)
     if A.ndim == 3:
         A=A.mean(2)
     return A
