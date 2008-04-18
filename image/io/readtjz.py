@@ -30,7 +30,8 @@ def _getimage(fname,inner):
     Reads an image inside a zip file
     '''
     S=getfileinsidezip(fname,inner)
-    return readimg.readimgfromblob(S)
+    Img=readimg.readimgfromblob(S)
+    return Img.mean(2)
 
 def readimageinzip(P):
     zip=os.path.dirname(P)
