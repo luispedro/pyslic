@@ -1,5 +1,6 @@
-from scipy.misc.pilutil import *
-from numpy import *
+import numpy
+from scipy.misc.pilutil import imshow
+from scipy.ndimage import label
 import io.readimg
 
 __all__ = ['Image', 'setshowimage']
@@ -92,13 +93,12 @@ class Image(object):
         Calls any post loading actions registered with append_post_load()
         '''
         for k,v in self.channels.items():
-            if k != self.crop_channel: # Crop is handled like a region
+            if k != self.crop_channel: # Crop is called "regions"
                 self.channeldata[k]=self.__loadfunction(v)
         if self.crop_channel in self.channels:
-            # These files often need to be fixed:
             self.regions = self.__loadfunction(self.channels[self.crop_channel])
-            if self.regions.max() == 255:
-                self.regions[self.regions == 255] = 1
+            # These files often need to be fixed 
+            self.regions,_ = label(self.regions)
         self.loaded = True
 
     def unload(self):
@@ -118,7 +118,7 @@ class Image(object):
         '''
         self.lazy_load()
         X,Y=self.channeldata[self.protein_channel].shape
-        composite=zeros((X,Y,3))
+        composite=numpy.zeros((X,Y,3))
         composite[:,:,1]=self.channeldata[(self.procprotein_channel if processed else self.protein_channel)]
         if self.dna_channel in self.channeldata:
             composite[:,:,0]=self.channeldata[(self.procdna_channel if processed else self.dna_channel)]
