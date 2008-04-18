@@ -109,7 +109,7 @@ const char * readimgfromblob_doc =
 
 PyMethodDef methods[] = {
   {"readimg",readimg, METH_VARARGS , readimg_doc },
-  {"readimgfromblob",readimgfromblob, METH_VARARGS , readimg_doc },
+  {"readimgfromblob",readimgfromblob, METH_VARARGS , readimgfromblob_doc },
   {NULL, NULL,0,NULL},
 };
 }
