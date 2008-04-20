@@ -44,12 +44,18 @@ def preprocessimage(image,regionid,options = {}):
         image.channeldata[Image.procdna_channel],_=preprocessimg(image.channeldata[Image.dna_channel])
 
 
-def thresholdfor(img,options):
-    return rc(img,remove_zeros=True)
+def thresholdfor(img,options = {}):
+    type = options.get('threshold.algorithm','rc')
+    if type == 'rc':
+        return rc(img,remove_zeros=True)
+    elif type == 'mean':
+        return img.mean()
+    else:
+        raise KeyError('Threshold option not recognised (%s).' % type)
 
-def bgsub(img,options = None):
+def bgsub(img,options = {}):
     '''
-    bgsub(img,options=None)
+    bgsub(img,options = None)
 
     Background subtract img (which must be a numpy-type array).
 
@@ -57,14 +63,20 @@ def bgsub(img,options = None):
 
     B = bgsub(A.copy(),options)
     '''
-    hist=fullhistogram(img)
-    M=round(img.mean())-1
-    if M <= 0:
-        T=0
+    type=options.get('bgsub.type','lowcommon')
+    if type == 'nobgsub':
+        return img
+    elif type == 'lowcommon':
+        hist=fullhistogram(img)
+        M=round(img.mean())-1
+        if M <= 0:
+            T=0
+        else:
+            T=argmax(hist[:M])
+        img -= minimum(img,T)
+        return img
     else:
-        T=argmax(hist[:M])
-    img -= minimum(img,T)
-    return img
+        raise KeyError('Background subtraction option not recognised (%s).' % type)
 
 def _scale(img):
     img=asarray(img,uint32)
