@@ -90,7 +90,7 @@ class Image(object):
 
         self.loaded = False
         self.regions = None
-        self.channeldata=[]
+        self.channeldata={}
 
     def set_load_function(self,f):
         '''
