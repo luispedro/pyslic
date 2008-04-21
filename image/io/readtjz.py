@@ -31,7 +31,9 @@ def _getimage(fname,inner):
     '''
     S=getfileinsidezip(fname,inner)
     Img=readimg.readimgfromblob(S)
-    return Img.mean(2)
+    if len(Img.shape) > 2:
+        return Img.mean(2)
+    return Img
 
 def readimageinzip(P):
     zip=os.path.dirname(P)
