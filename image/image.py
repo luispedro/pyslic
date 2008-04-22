@@ -65,7 +65,7 @@ class Image(object):
     procprotein_channel='procprotein'
     residualprotein_channel='resprotein'
 
-    __slots__ = ['label','scale','regions','channels','channeldata','loaded','__loadfunction']
+    __slots__ = ['label','id','scale','regions','channels','channeldata','loaded','__loadfunction']
 
     def __init__(self):
         '''
@@ -74,6 +74,7 @@ class Image(object):
         Fill the elements in channels to meaningful values.
         '''
         self.label=''
+        self.id=None
         self.scale = None
         self.channels={}
         self.__loadfunction = _open_file_bw
@@ -83,10 +84,10 @@ class Image(object):
         self.channeldata={}
 
     def __getstate__(self):
-        return (self.label,self.scale,self.channels,self.loaded,self.__loadfunction)
+        return (self.label,self.id,self.scale,self.channels,self.loaded,self.__loadfunction)
 
     def __setstate__(self,S):
-        self.label,self.scale,self.channels,self.loaded,self.__loadfunction = S
+        self.label,self.id,self.scale,self.channels,self.loaded,self.__loadfunction = S
 
         self.loaded = False
         self.regions = None
