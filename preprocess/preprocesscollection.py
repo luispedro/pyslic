@@ -80,11 +80,10 @@ class FixIllumination(object):
     Fix illumination by computing the average illumination at each pixel in a collection of images
     and then dividing the pixel values by that amount.
     '''
-    __slots__ = ['S','channel','sigma']
-    def __init__(self,channel=Image.protein_channel,sigma=2):
+    __slots__ = ['S','channel']
+    def __init__(self,channel=Image.protein_channel):
         self.S=None
         self.channel=channel
-        self.sigma=sigma
 
     def see(self,img):
         '''
@@ -114,10 +113,8 @@ class FixIllumination(object):
         '''
         assert self.S is not None
         self.S /= self.S.min()
+        # float96 is not always very well supported and we no longer need to sum up lots of numbers
         self.S = numpy.array(self.S,float)
-        if self.sigma > 0:
-            self.S = gaussian_filter(self.S,self.sigma)
-            self.S /= self.S.min()
 
     def process(self,img):
         '''
@@ -126,9 +123,9 @@ class FixIllumination(object):
         Fix illumination of img
         '''
         img.lazy_load()
-        P=img.channeldata[Image.protein_channel]
+        P=img.channeldata[self.channel]
         P /= self.S
-        img.channeldata[Image.protein_channel] = P
+        img.channeldata[self.channel] = P
 
 class FixIlluminationRadialGradient(FixIllumination):
     '''
@@ -147,5 +144,43 @@ class FixIlluminationHVGradient(FixIllumination):
     def finish(self):
         FixIllumination.finish(self)
         self.S=_smooth_S(self.S,grow_i=True,grow_j=True,d_ij=False,d_ij2=False)
+
+class FixIlluminationGaussianFilter(FixIllumination):
+    '''
+    This is a collection processor that models the illumination
+    uneveness as a combination of horizontal and vertical gradient.
+    '''
+    __slots__ = ['sigma']
+    def __init__(self,sigma=2):
+        FixIllumination.__init__(self)
+        self.sigma=sigma
+
+    def __getstate__(self):
+        base=FixIllumination.__getstate__(self)
+        return base+(self.sigma,)
+
+    def __setstate__(self,state):
+        FixIllumination.__setstate__(state[:-1])
+        self.sigma = state[-1]
+
+    def finish(self):
+        FixIllumination.finish(self)
+        if self.sigma > 0:
+            self.S = gaussian_filter(self.S,self.sigma)
+            self.S /= self.S.min()
+
+class ConcatPreprocessors(object):
+    __slots__ = ['preprocessors']
+    def __init__(self,*preprocessors):
+        self.preprocessors = preprocessors
+
+    def process(self,img):
+        '''
+        self.process(img)
+
+        Calls alls processors in self.preprocessors
+        '''
+        for P in self.preprocessors:
+            P.process(img)
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
