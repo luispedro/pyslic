@@ -44,15 +44,16 @@ PyObject* array_from_image(Magick::Image& img) {
         dimensions[0] = h;
         dimensions[1] = w;
         dimensions[2] = 3;
-        const PixelPacket* pixels = img.getConstPixels(0,0,w,h);
 
-        bool binarise = (img.depth() == 1);
-        bool colourimage = (img.type() != GRAYColorspace);
+        bool colourimage = (img.type() != GrayscaleType);
         int type;
+        StorageType pixeltype;
         if (QuantumDepth == 8 || img.depth() == 8 || img.depth() == 1) {
             type = PyArray_UBYTE;
+            pixeltype = CharPixel;
         } else if (QuantumDepth == 16) {
             type = PyArray_USHORT;
+            pixeltype = ShortPixel;
         } else {
             PyErr_SetString(PyExc_EOFError,"Magick++ issue: Quantum depth is neither 8 nor 16.\nDon't know how to handle that.");
             return 0;
@@ -62,28 +63,12 @@ PyObject* array_from_image(Magick::Image& img) {
             PyErr_SetString(PyExc_MemoryError,"Out of Memory");
             return 0;
         }
-        /// I think I could use Image::write instead of looping myself, but this also works and is fast enough
-        for (int i = 0; i != h; ++i) {    
-            for (int j = 0; j != w; ++j) {    
-                const PixelPacket& p = pixels[i*w+j];
-                if (colourimage) {
-                    if (type == PyArray_USHORT) {
-                        *reinterpret_cast<unsigned char*>(ret->data + (i*ret->strides[0]+j*ret->strides[1]+0*ret->strides[2])) = (binarise ? !!p.red : p.red);
-                        *reinterpret_cast<unsigned char*>(ret->data + (i*ret->strides[0]+j*ret->strides[1]+1*ret->strides[2])) = (binarise ? !!p.green : p.green);
-                        *reinterpret_cast<unsigned char*>(ret->data + (i*ret->strides[0]+j*ret->strides[1]+2*ret->strides[2])) = (binarise ? !!p.blue : p.blue);
-                    } else {
-                        *reinterpret_cast<unsigned short*>(ret->data + (i*ret->strides[0]+j*ret->strides[1]+0*ret->strides[2])) = p.red;
-                        *reinterpret_cast<unsigned short*>(ret->data + (i*ret->strides[0]+j*ret->strides[1]+1*ret->strides[2])) = p.green;
-                        *reinterpret_cast<unsigned short*>(ret->data + (i*ret->strides[0]+j*ret->strides[1]+2*ret->strides[2])) = p.blue;
-                    }
-                } else {
-                    if (type == PyArray_USHORT) {
-                        *reinterpret_cast<unsigned char*>(ret->data + (i*ret->strides[0]+j*ret->strides[1])) = (binarise ? !!p.red : p.red);
-                    } else {
-                        *reinterpret_cast<unsigned short*>(ret->data + (i*ret->strides[0]+j*ret->strides[1])) = p.red;
-                    }
-                }
-            }
+        if (colourimage) {
+            img.write(0,0,w,h,"R",pixeltype,ret->data);
+            img.write(0,0,w,h,"G",pixeltype,ret->data + ret->strides[2]);
+            img.write(0,0,w,h,"B",pixeltype,ret->data + 2*ret->strides[2]);
+        } else {
+            img.write(0,0,w,h,"I",pixeltype,ret->data);
         }
         return PyArray_Return(ret);
     } catch ( std::exception& error_ ) {
@@ -106,8 +91,8 @@ PyObject* readimg(PyObject* self, PyObject* args) {
         } catch ( WarningCoder &warning ) {
             // Issuing warnings turned the program too verbose
             //
-            //int status = PyErr_WarnEx( 0, ( std::string("ImageMagick Warning: ") + warning.what() ).c_str(), 1 );
-            //if (status < 0) return 0;
+            // int status = PyErr_WarnEx( 0, ( std::string("ImageMagick Warning: ") + warning.what() ).c_str(), 1 );
+            // if (status < 0) return 0;
         }
         return array_from_image(img);
     } catch ( std::exception& error_ ) {
@@ -122,7 +107,15 @@ PyObject* readimgfromblob(PyObject* self, PyObject* args) {
          return 0;
     }
     try {
-        Image img(Blob(PyString_AsString(input),PyString_Size(input)));
+        Image img;
+        try {
+            img.read(Blob(PyString_AsString(input),PyString_Size(input)));
+        } catch ( WarningCoder &warning ) {
+            // Issuing warnings turned the program too verbose
+            //
+            //int status = PyErr_WarnEx( 0, ( std::string("ImageMagick Warning: ") + warning.what() ).c_str(), 1 );
+            //if (status < 0) return 0;
+        }
         return array_from_image(img);
     } catch ( std::exception& error_ ) {
         PyErr_SetString(PyExc_EOFError,error_.what());
