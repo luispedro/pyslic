@@ -135,25 +135,51 @@ const char * readimg_doc =
     "img = readimg(fname)\n"
     "\n"
     "Read an image using Image Magick.\n"
-    "Always returns a 3-colour image.\n";
+    "\n"
+    "The returned array is either a uint8, or a uint16 array, depending on the image type.\n"
+    "\n"
+    "If the image is reported to be a colour image, then a 3-dimensional array is returned. "
+    "The last dimension encodes the red, green, and blue channels.\n"
+    "\n"
+    "@see readimgfromblob\n"
+    ;
 
 const char * readimgfromblob_doc = 
     "img = readimgfromblob(data)\n"
     "\n"
     "Read an image using Image Magick.\n"
-    "Always returns a 3-colour image.\n";
+    "\n"
+    "The returned array is either a uint8, or a uint16 array, depending on the image type.\n"
+    "\n"
+    "If the image is reported to be a colour image, then a 3-dimensional array is returned. "
+    "The last dimension encodes the red, green, and blue channels.\n"
+    "\n"
+    "@see readimg\n"
+    ;
 
 PyMethodDef methods[] = {
   {"readimg",readimg, METH_VARARGS , readimg_doc },
   {"readimgfromblob",readimgfromblob, METH_VARARGS , readimgfromblob_doc },
   {NULL, NULL,0,NULL},
 };
+
+const char * module_doc = 
+    "readimg: Read an image into a numpy array.\n"
+    "\n"
+    "The implementation of this module is based on ImageMagick. Therefore, it supports\n"
+    "all image formats that ImageMagick supports.\n"
+    "\n"
+    "\n"
+    "This module provides two functions:\n"
+    "   - readimg(filename): reads an image from a file\n"
+    "   - readimgfromblob(blob): reads an image from a blog (character string)\n"
+    ;
 }
 
 extern "C"
 void initreadimg()
   {
     import_array();
-    (void)Py_InitModule("readimg", methods);
+    (void)Py_InitModule3("readimg", methods, module_doc);
   }
 
