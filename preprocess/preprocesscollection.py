@@ -27,7 +27,7 @@ import numpy
 from scipy.ndimage import gaussian_filter
 from ..image import Image
 
-__all__ = ['FixIllumination','FixIlluminationHVGradient','FixIlluminationRadialGradient','preprocess_collection']
+__all__ = ['FixIllumination','FixIlluminationHVGradient','FixIlluminationRadialGradient','FixIlluminationHVRadialGradient','preprocess_collection']
 
 def preprocess_collection(imgs,P,unload=True):
     '''
@@ -144,6 +144,18 @@ class FixIlluminationHVGradient(FixIllumination):
     def finish(self):
         FixIllumination.finish(self)
         self.S=_smooth_S(self.S,grow_i=True,grow_j=True,d_ij=False,d_ij2=False)
+
+class FixIlluminationHVRadialGradient(FixIllumination):
+    '''
+    This is a collection processor that models the illumination
+    uneveness as a combination of horizontal, vertical and radial gradients.
+    
+    @see FixIlluminationHVGradient 
+    @see FixIlluminationRadialGradient
+    '''
+    def finish(self):
+        FixIllumination.finish(self)
+        self.S=_smooth_S(self.S,grow_i=True,grow_j=True,d_ij=True,d_ij2=True)
 
 class FixIlluminationGaussianFilter(FixIllumination):
     '''
