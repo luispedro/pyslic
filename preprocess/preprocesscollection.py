@@ -98,10 +98,10 @@ class FixIllumination(object):
         self.S += P
 
     def __getstate__(self):
-        return (self.S,self.channel,self.sigma)
+        return (self.S,self.channel)
 
     def __setstate__(self,state):
-        self.S,self.channel,self.sigma = state
+        self.S,self.channel = state
 
     def finish(self):
         '''
