@@ -3,7 +3,7 @@ from numpy import *
 from scipy.ndimage import histogram
 from .basics import fullhistogram
 
-__all__=['rc','otsu','softthreshold','hardthreshold']
+__all__=['rc','murphy_rc','otsu','softthreshold','hardthreshold']
 
 def softthreshold(img,T):
     '''
@@ -45,9 +45,11 @@ def hardthreshold(img,T):
 
 def rc(img,remove_zeros=False):
     """
-    T = rc(img)
+    T = rc(img, remove_zeros=False)
     
     Calculate a threshold according to the RC method.
+
+    @param remove_zeros: Whether to ignore zero valued pixels (default: False)
     """
     mint=img.min()
     maxt=img.max()
@@ -74,6 +76,42 @@ def rc(img,remove_zeros=False):
         res=(sum1[t]/sum2[t] + sum3[t+1]/sum4[t+1])/2
         t += 1
     return res + mint
+        
+
+def murphy_rc(img,remove_zeros=False):
+    """
+    T = murphy_rc(img)
+    
+    Calculate a threshold according to Murphy's adaptation of the RC method.
+
+    @param remove_zeros: Whether to ignore zero valued pixels (default: False)
+        Murphy's Matlab implementation always ignores zero valued pixels.
+    """
+    hist=fullhistogram(img)
+    if remove_zeros:
+        hist[0]=0
+    hist[-1]=0
+    hist=flipud(hist) #
+    mint=1
+    while not hist[mint]:
+        mint += 1
+        if mint == len(hist):
+            return 128
+    maxt=len(hist)-1
+
+    res = maxt
+    movingidx = mint
+    while (movingidx+1) <= res:
+        if movingidx > maxt-1:
+            break
+        sum1 = (arange(mint,movingidx+1) * hist[mint:movingidx+1]).sum()
+        sum2 = hist[mint:movingidx+1].sum()
+        sum3 = (arange(movingidx+1,maxt+1) * hist[movingidx+1:]).sum()
+        sum4 = hist[movingidx+1:].sum()
+
+        res = (sum1/sum2 + sum3/sum4)/2
+        movingidx += 1
+    return 256 - res
         
 
 def otsu(img, remove_zeros=False):
