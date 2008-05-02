@@ -41,6 +41,16 @@ def detect_ksr_dir(dir):
     f=os.listdir(dir)[0]
     return _ksrpat.match(f)
 
+def _fixlabel(L):
+    '''
+    L = _fixlabel(L)
+
+    Turns B02 into B2, while preserving B11
+    '''
+    if L[1] == '0':
+        return L[0]+L[2]
+    return L
+
 def read_ksr_dir(dir):
     '''
     images = read_ksr_dir(dirname)
@@ -65,8 +75,8 @@ def read_ksr_dir(dir):
         img=images.get((Well,Field),None)
         if img is None:
             img = Image()
-            img.label = Well
-            img.id = (Well,Field)
+            img.label = _fixlabel(Well)
+            img.id = (img.label,Field)
             images[(Well,Field)]=img
         img.channels[channelcode[int(Channel)]]=os.path.abspath(os.path.join(dir,f))
     return list(images.values())
