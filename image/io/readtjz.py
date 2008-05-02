@@ -40,6 +40,13 @@ def readimageinzip(P):
     F=os.path.basename(P)
     return _getimage(zip,F)
 
+def _getlabel(T):
+    T=os.path.basename(T)
+    T=T[:-len('000.flex.tjz')]
+    t1,t2=T[:3],T[3:]
+    return (int(t1),int(t2))
+
+
 def parsedir(base):
     Tjzs=glob('%s/*tjz' % base)
     Tjzs.sort()
@@ -53,20 +60,22 @@ def parsedir(base):
             d_channel='%s/Stack-%05d' % (t,2*i+1)
             img.channels[pyslic.Image.dna_channel]=d_channel
             img.channels[pyslic.Image.protein_channel]=p_channel
-            img.label=(t,i)
+            label=_getlabel(t)
+            img.label=label
+            img.id=(label,i)
             images.append(img)
     return images
 
 def readtjz_recursive(base):
+    '''
+    images = readtjz_recursive(basedir)
+
+    Look for all directories below basedir for TJZ files and return the images
+    inside them.
+
+    Returns a list of Image objects
+    '''
     images=[]
     for root,_,_ in os.walk(base):
         images.extend(parsedir(root))
     return images
-
-def breaklabel(label):
-    T,N=label
-    T=os.path.basename(T)
-    T=T[:-len('000.flex.tjz')]
-    t1,t2=T[:3],T[3:]
-    return (int(t1),int(t2),N)
-
