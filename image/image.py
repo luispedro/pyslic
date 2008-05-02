@@ -148,6 +148,8 @@ class Image(object):
         composite[:,:,1]=self.channeldata[(self.procprotein_channel if processed else self.protein_channel)]
         if self.dna_channel in self.channeldata:
             composite[:,:,0]=self.channeldata[(self.procdna_channel if processed else self.dna_channel)]
+        if self.autofluorescence_channel in self.channeldata:
+            composite[:,:,2]=self.channeldata[self.autofluorescence_channel]
         return composite
 
     def show(self,processed = False):
