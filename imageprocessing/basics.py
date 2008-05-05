@@ -24,7 +24,7 @@
 
 from __future__ import division
 from scipy.ndimage import histogram, convolve
-from numpy import asarray, ones, uint32, uint8, zeros
+from numpy import array, asarray, ones, uint32, uint8, zeros
 
 __all__ = ['fullhistogram','majority_filter']
 
