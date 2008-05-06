@@ -1,7 +1,7 @@
 from __future__ import division
 from numpy import *
 from scipy.ndimage import histogram
-from .basics import fullhistogram
+from .basics import fullhistogram, nonzeromin
 
 __all__=['rc','murphy_rc','otsu','softthreshold','hardthreshold']
 
@@ -97,7 +97,7 @@ def murphy_rc(img,remove_zeros=False):
     scale=255./(maxv-minv)
     img=((img+(img==0)*minv-minv)*scale+.4999).astype(uint8)
     T=rc(255-img,remove_zeros=False)
-    return (256 - T)/scale+minv
+    return (255 - T)/scale+minv
         
 
 def otsu(img, remove_zeros=False):
