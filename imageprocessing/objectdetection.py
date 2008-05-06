@@ -25,8 +25,8 @@
 from __future__ import division
 import numpy
 from scipy.ndimage import label, convolve
-from .basics import majority_filter
-
+from .basics import majority_filter, nonzeromin
+from .thresholding import otsu, rc, murphy_rc
 
 def mean_filter(img,size=3):
     '''
@@ -35,6 +35,8 @@ def mean_filter(img,size=3):
     computes
 
     meanimg[i,j] = img[i-size//2:i+size//2+1,j-size//2:j+size//2+1].mean()
+
+    i.e., meanimg[i,j] is the mean of the squared centred around (i,j)
     '''
     mask=numpy.ones((size,size))/size/size
     return convolve(img,mask)
@@ -57,10 +59,34 @@ def localthresholding(img,method='mean',size=8):
         raise ArgumentErrorType,"localthresholding: unknown method '%s'" % method
     return img > func(img,size)
 
-
-def multithreshold(img,ignore_zeros=True,firstThreshold=20,nrThresholds=5):
+def localglobal(img,remove_zeros=True,globalmethod='otsu',localmethod='mean',localsize=8):
     '''
-    labeled,N = multithreshold(img, ignore_zeros = True)
+    Perform both local and global thresholding.
+    
+    result[i,j] = (img[i,j] > global_threshold) * (img[i,j] > local_threshold[i,j])
+
+    @param img: The image
+    @param remove_zeros: Whether to ignore zero-valued pixels
+    @param globalmethod: Global method to use ('otsu', 'rc', or 'murphyrc')
+    @param localmethod: Which local method to use (@see localthresholding)
+    @param localsize: Size parameter for local thresholding (@see localthresholding)
+    '''
+    localobjects=localthresholding(img,method=localmethod,size=localsize)
+    if globalmethod == 'otsu':
+        T=otsu(img,remove_zeros=remove_zeros)
+    elif globalmethod == 'rc':
+        T=rc(img,remove_zeros=remove_zeros)
+    elif globalmethod == 'murphyrc':
+        T=murphy_rc(img,remove_zeros=remove_zeros)
+    else:
+        raise ArgumentErrorType,"localglobal: globalmethod '%s' not recognised." % globalmethod
+    globalobjects=img > T
+    return localobjects * globalobjects
+
+
+def multithreshold(img,remove_zeros=True,firstThreshold=20,nrThresholds=5):
+    '''
+    labeled,N = multithreshold(img, remove_zeros = True)
 
     Performs multi thresholding (which is a form of oversegmentation).
 
@@ -68,17 +94,11 @@ def multithreshold(img,ignore_zeros=True,firstThreshold=20,nrThresholds=5):
     the N detected objects (the return of this function is  similar to that of scipy.ndimage.label())
 
     @param img: The input image
-    @param ignore_zeros: Don't take zero pixels into account
+    @param remove_zeros: Don't take zero pixels into account
     '''
     output=numpy.zeros_like(img)
-    if ignore_zeros:
-        pmin=img.max()
-        r,c=img.shape
-        # This is the kind of loop that looks ripe for scipy.weave
-        for i in xrange(r):
-            for j in xrange(c):
-                if img[i,j] and img[i,j] < pmin:
-                    pmin = img[i,j]
+    if remove_zeros:
+        pmin=nonzeromin(img)
     else:
         pmin=img.min()
     thresholds=pmin+firstThreshold+(img.max()-pmin-firstThreshold)//nrThresholds*numpy.arange(nrThresholds)
