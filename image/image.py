@@ -74,7 +74,7 @@ class Image(object):
                 'channels',
                 'channeldata',
                 'loaded',
-                'loadfunction',
+                'load_function',
                 ]
 
     def __init__(self):
@@ -87,7 +87,7 @@ class Image(object):
         self.id=None
         self.scale = None
         self.channels={}
-        self.loadfunction = _open_file_bw
+        self.load_function = _open_file_bw
 
         self.loaded=False
         self.regions=None
@@ -95,13 +95,13 @@ class Image(object):
         self.attributes={}
 
     def __getstate__(self):
-        return (self.attributes,self.label,self.id,self.scale,self.channels,self.loaded,self.loadfunction)
+        return (self.attributes,self.label,self.id,self.scale,self.channels,self.loaded,self.load_function)
 
     def __setstate__(self,S):
         if len(S) == 7:
-            self.attributes,self.label,self.id,self.scale,self.channels,self.loaded,self.loadfunction = S
+            self.attributes,self.label,self.id,self.scale,self.channels,self.loaded,self.load_function = S
         else:
-            self.label,self.id,self.scale,self.channels,self.loaded,self.loadfunction = S
+            self.label,self.id,self.scale,self.channels,self.loaded,self.load_function = S
             self.attributes = {}
 
         self.loaded = False
@@ -118,7 +118,7 @@ class Image(object):
             (this assumes that the image really is B&W, it was just saved 
             as a colour image)
         '''
-        self.loadfunction = f
+        self.load_function = f
 
     def lazy_load(self):
         '''
@@ -135,9 +135,9 @@ class Image(object):
         '''
         for k,v in self.channels.items():
             if k != self.crop_channel: # Crop is called "regions"
-                self.channeldata[k]=self.loadfunction(v)
+                self.channeldata[k]=self.load_function(v)
         if self.crop_channel in self.channels:
-            self.regions = self.loadfunction(self.channels[self.crop_channel])
+            self.regions = self.load_function(self.channels[self.crop_channel])
             # These files often need to be fixed 
             self.regions,_ = label(self.regions)
         self.loaded = True
