@@ -7273,9 +7273,9 @@ def to_uint8(f):
             a = int32([-3,0,8,600])
             print to_uint8(a)
     """
-    from numpy import array, clip
+    from numpy import array, clip, uint8
 
-    img = array(clip(f,0,255)).astype('b')
+    img = array(clip(f,0,255),uint8)
     return img
 #
 # =====================================================================
