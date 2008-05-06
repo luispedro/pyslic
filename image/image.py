@@ -52,9 +52,9 @@ def setshowimage(f):
 
 class Image(object):
     """
-    class Image(object)
-
     Represents a multi-channel image.
+
+    Images are loaded in a lazy fashion.
     """
     dna_channel='dna'
     protein_channel='protein'
@@ -65,7 +65,17 @@ class Image(object):
     procprotein_channel='procprotein'
     residualprotein_channel='resprotein'
 
-    __slots__ = ['label','id','scale','regions','channels','channeldata','loaded','__loadfunction']
+    __slots__ = [
+                'attributes',
+                'label',
+                'id',
+                'scale',
+                'regions',
+                'channels',
+                'channeldata',
+                'loaded',
+                'loadfunction',
+                ]
 
     def __init__(self):
         '''
@@ -77,17 +87,22 @@ class Image(object):
         self.id=None
         self.scale = None
         self.channels={}
-        self.__loadfunction = _open_file_bw
+        self.loadfunction = _open_file_bw
 
         self.loaded=False
         self.regions=None
         self.channeldata={}
+        self.attributes={}
 
     def __getstate__(self):
-        return (self.label,self.id,self.scale,self.channels,self.loaded,self.__loadfunction)
+        return (self.attributes,self.label,self.id,self.scale,self.channels,self.loaded,self.loadfunction)
 
     def __setstate__(self,S):
-        self.label,self.id,self.scale,self.channels,self.loaded,self.__loadfunction = S
+        if len(S) == 7:
+            self.attributes,self.label,self.id,self.scale,self.channels,self.loaded,self.loadfunction = S
+        else:
+            self.label,self.id,self.scale,self.channels,self.loaded,self.loadfunction = S
+            self.attributes = {}
 
         self.loaded = False
         self.regions = None
@@ -103,7 +118,7 @@ class Image(object):
             (this assumes that the image really is B&W, it was just saved 
             as a colour image)
         '''
-        self.__loadfunction = f
+        self.loadfunction = f
 
     def lazy_load(self):
         '''
@@ -120,9 +135,9 @@ class Image(object):
         '''
         for k,v in self.channels.items():
             if k != self.crop_channel: # Crop is called "regions"
-                self.channeldata[k]=self.__loadfunction(v)
+                self.channeldata[k]=self.loadfunction(v)
         if self.crop_channel in self.channels:
-            self.regions = self.__loadfunction(self.channels[self.crop_channel])
+            self.regions = self.loadfunction(self.channels[self.crop_channel])
             # These files often need to be fixed 
             self.regions,_ = label(self.regions)
         self.loaded = True
