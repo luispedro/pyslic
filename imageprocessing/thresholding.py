@@ -87,31 +87,17 @@ def murphy_rc(img,remove_zeros=False):
     @param remove_zeros: Whether to ignore zero valued pixels (default: False)
         Murphy's Matlab implementation always ignores zero valued pixels.
     """
-    hist=fullhistogram(img)
     if remove_zeros:
-        hist[0]=0
-    hist[-1]=0
-    hist=flipud(hist) #
-    mint=1
-    while not hist[mint]:
-        mint += 1
-        if mint == len(hist):
-            return 128
-    maxt=len(hist)-1
-
-    res = maxt
-    movingidx = mint
-    while (movingidx+1) <= res:
-        if movingidx > maxt-1:
-            break
-        sum1 = (arange(mint,movingidx+1) * hist[mint:movingidx+1]).sum()
-        sum2 = hist[mint:movingidx+1].sum()
-        sum3 = (arange(movingidx+1,maxt+1) * hist[movingidx+1:]).sum()
-        sum4 = hist[movingidx+1:].sum()
-
-        res = (sum1/sum2 + sum3/sum4)/2
-        movingidx += 1
-    return 256 - res
+        minv=nonzeromin(img)
+    else:
+        minv=img.min()
+    maxv=img.max()
+    if minv == maxv:
+        return minv
+    scale=255./(maxv-minv)
+    img=((img+(img==0)*minv-minv)*scale+.4999).astype(uint8)
+    T=rc(255-img,remove_zeros=False)
+    return (256 - T)/scale+minv
         
 
 def otsu(img, remove_zeros=False):
