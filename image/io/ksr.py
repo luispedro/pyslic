@@ -28,9 +28,10 @@ import os.path
 import os
 import sys
 from ..image import Image
+from .read_cellomics_dib import read_cellomics_dib
 
 __all__ = ['read_ksr_dir','detect_ksr_dir']
-_ksrpat=re.compile('KSR_.*t([0-9]+)([A-H][0-9]{1,2})f([0-9]+)d([0-9])\.(tif|TIF)')
+_ksrpat=re.compile('KSR_.*t([0-9]+)([A-H][0-9]{1,2})f([0-9]+)d([0-9])\.(tif|TIF|DIB|dib)')
 
 def detect_ksr_dir(dir):
     '''
@@ -77,6 +78,8 @@ def read_ksr_dir(dir):
             img = Image()
             img.label = _fixlabel(Well)
             img.id = (img.label,Field)
+            if f.endswith('.DIB') or f.endswith('.dib'):
+                img.load_function=read_cellomics_dib
             images[(Well,Field)]=img
         img.channels[channelcode[int(Channel)]]=os.path.abspath(os.path.join(dir,f))
     return list(images.values())
