@@ -70,6 +70,8 @@ def read_cellomics_dib(input):
         raise IOError, 'Bits per pixel is not 16'
     img=numpy.zeros((width,height),numpy.dtype('<H'))
     img.data[:] =input.read(2*width*height) # This is very fast
-    return img
+
+    # The scan order needs to be fixed
+    return img[::-1,:]
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
