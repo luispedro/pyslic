@@ -29,6 +29,7 @@ import os
 import sys
 from ..image import Image
 from .read_cellomics_dib import read_cellomics_dib
+from warnings import warn
 
 __all__ = ['read_ksr_dir','detect_ksr_dir']
 _ksrpat=re.compile('KSR_.*t([0-9]+)([A-H][0-9]{1,2})f([0-9]+)d([0-9])\.(tif|TIF|DIB|dib)')
@@ -71,7 +72,7 @@ def read_ksr_dir(dir):
         T=int(T)
         Field=int(Field)
         if T != 1:
-            print "Don't know how to handle more than one time point, ignoring"
+            warn("Don't know how to handle more than one time point, ignoring timepoints with t > 1")
             continue
         img=images.get((Well,Field),None)
         if img is None:
