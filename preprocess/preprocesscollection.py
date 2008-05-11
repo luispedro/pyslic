@@ -27,7 +27,7 @@ import numpy
 from scipy.ndimage import gaussian_filter
 from ..image import Image
 
-__all__ = ['FixIllumination','FixIlluminationHVGradient','FixIlluminationRadialGradient','FixIlluminationHVRadialGradient','preprocess_collection']
+__all__ = ['FixIllumination','FixIlluminationHVGradient','FixIlluminationRadialGradient','FixIlluminationHVRadialGradient','ConcatPreprocessors','preprocess_collection']
 
 def preprocess_collection(imgs,P,unload=True):
     '''
@@ -186,13 +186,37 @@ class ConcatPreprocessors(object):
     def __init__(self,*preprocessors):
         self.preprocessors = preprocessors
 
+    def see(self,img):
+        '''
+        self.see(img)
+
+        Calls see() on alls processors in self.preprocessors
+        '''
+        for P in self.preprocessors:
+            P.see(img)
+
+    def finish(self):
+        '''
+        self.finish(img)
+
+        Calls finish() alls processors in self.preprocessors
+        '''
+        for P in self.preprocessors:
+            P.finish()
+
     def process(self,img):
         '''
         self.process(img)
 
-        Calls alls processors in self.preprocessors
+        Calls process(img) alls processors in self.preprocessors
         '''
         for P in self.preprocessors:
             P.process(img)
+
+    def __getstate__(self):
+        return self.preprocessors
+
+    def __setstate__(self,state):
+        self.preprocessors = state
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
