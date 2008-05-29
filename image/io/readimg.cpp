@@ -63,13 +63,9 @@ PyObject* array_from_image(Magick::Image& img) {
             PyErr_SetString(PyExc_MemoryError,"Out of Memory");
             return 0;
         }
-        if (colourimage) {
-            img.write(0,0,w,h,"R",pixeltype,ret->data);
-            img.write(0,0,w,h,"G",pixeltype,ret->data + ret->strides[2]);
-            img.write(0,0,w,h,"B",pixeltype,ret->data + 2*ret->strides[2]);
-        } else {
-            img.write(0,0,w,h,"I",pixeltype,ret->data);
-        }
+        const char* write_format = (colourimage ? "RGB" : "I");
+        img.write(0,0,w,h,write_format,pixeltype,ret->data);
+
         return PyArray_Return(ret);
     } catch ( std::exception& error_ ) {
         PyErr_SetString(PyExc_EOFError,error_.what());
