@@ -85,7 +85,8 @@ def murphy_rc(img,remove_zeros=False):
     @param remove_zeros: Whether to ignore zero valued pixels (default: False)
         Murphy's Matlab implementation always ignores zero valued pixels.
     """
-    return 255-rc(255-img,remove_zeros=remove_zeros)
+    pmax=img.max()
+    return pmax-rc(pmax-img,remove_zeros=remove_zeros)
 
 def otsu(img, remove_zeros=False):
     """
