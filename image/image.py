@@ -27,8 +27,9 @@ import numpy
 from scipy.misc.pilutil import imshow
 from scipy.ndimage import label
 import io.readimg
+from contextlib import contextmanager
 
-__all__ = ['Image', 'setshowimage']
+__all__ = ['Image', 'setshowimage','loadedimage']
 
 def _open_file_bw(fname):
     """
@@ -49,6 +50,21 @@ def setshowimage(f):
     global _showimage
     _showimage = f
 
+
+@contextmanager
+def loadedimage(img):
+    '''
+    with loadedimage(img) as img:
+        ...
+
+    On entry, loads the image if needed (equivalent to img.lazy_load()).
+    On exit, restores the previous state.
+    '''
+    wasloaded=img.loaded
+    img.lazy_load()
+    yield img
+    if not wasloaded:
+        img.unload()
 
 class Image(object):
     """
