@@ -23,10 +23,15 @@
 # send email to murphy@cmu.edu
 
 from __future__ import division
-import numpy as N
+import numpy
 import random
 
-__all__ = ['get_random', 'get_pyrandom']
+__all__ = [
+    'get_random',
+    'get_pyrandom',
+    'format_table',
+    'format_confusion_matrix',
+    ]
 
 def get_random(R):
     '''
@@ -39,9 +44,9 @@ def get_random(R):
         * RandomState   : returns R
     '''
     if R is None:
-        return N.random.mtrand._rand
+        return numpy.random.mtrand._rand
     if type(R) == int:
-        return N.random.RandomState(R)
+        return numpy.random.RandomState(R)
     return R
 
 def get_pyrandom(R):
@@ -59,8 +64,46 @@ def get_pyrandom(R):
         return random
     if type(R) is int:
         return random.Random(R)
-    if type(R) is N.random.RandomState:
+    if type(R) is numpy.random.RandomState:
         return random.Random(R.randint(2**30))
     raise TypeError,"get_pyrandom() does not know how to handle type %s." % type(R)
+
+
+def format_table(table,collabels,rowlabels,format='latex'):
+    '''
+    format_table(table,collabels,rowlabels,format='latex')
+
+    Format a table.
+
+    @param format: Currently support "latex"
+    '''
+    if format != 'latex':
+        raise AttributeError, 'format_table: only \'latex\' format supported'
+
+    table=numpy.asanyarray(table)
+    r,c=table.shape
+
+    eol="\\\\\n"
+    heading=' & ' + ' & '.join(collabels) + eol
+    content=''
+    for i in xrange(r):
+        header = (str(rowlabels[i]) if rowlabels else '')
+        row = header + ' & ' + ' & '.join(str(elem) for elem in table[i]) + eol
+        content += row
+
+    return '''
+    \\begin{tabular}
+    \\toprule
+        %(heading)s
+    \\midrule
+        %(content)s
+    \\bottomrule
+    ''' % locals()
+
+def format_confusion_matrix(cmatrix,labels,format='latex'):
+    '''
+    @see format_table
+    '''
+    return format_table(cmatrix,labels,labels,format)
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
