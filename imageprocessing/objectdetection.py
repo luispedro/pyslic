@@ -24,7 +24,7 @@
 
 from __future__ import division
 import numpy
-from scipy.ndimage import label, convolve
+from scipy.ndimage import label, convolve, median_filter
 from .basics import majority_filter, nonzeromin
 from .thresholding import otsu, rc, murphy_rc
 
