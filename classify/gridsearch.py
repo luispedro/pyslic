@@ -32,7 +32,7 @@ class gridsearch(object):
         best_trace=-1
         for assignement in _allassignments(self.params):
             _set_assignment(self.base,assignement)
-            S=nfoldcrossvalidation(features,labels,classifier=self.base)
+            S,_=nfoldcrossvalidation(features,labels,classifier=self.base)
             if S.trace() > best_trace:
                 self.best=assignement
                 best_trace=S.trace()
