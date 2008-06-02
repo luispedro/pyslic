@@ -1,11 +1,9 @@
-import sys
-sys.path.append('/home/luispedro/work')
 import zipfile
 from scipy.misc.pilutil import *
 import os
 import tempfile
-import pyslic
 from glob import glob
+from ..image import Image
 import readimg
 
 FILES_PER_TGZ=70
@@ -54,12 +52,12 @@ def parsedir(base):
     images=[]
     for t in Tjzs:
         for i in xrange(FILES_PER_TGZ/2):
-            img=pyslic.Image()
+            img=Image()
             img.set_load_function(readimageinzip)
             p_channel='%s/Stack-%05d' % (t,2*i)
             d_channel='%s/Stack-%05d' % (t,2*i+1)
-            img.channels[pyslic.Image.dna_channel]=d_channel
-            img.channels[pyslic.Image.protein_channel]=p_channel
+            img.channels[Image.dna_channel]=d_channel
+            img.channels[Image.protein_channel]=p_channel
             label=_getlabel(t)
             img.label=label
             img.id=(label,i)
