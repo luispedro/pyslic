@@ -2,7 +2,9 @@ from scipy.misc.pilutil import *
 from os import *
 import os.path
 from os.path import isdir
-from pyslic.image import Image
+from ..image import Image
+
+__all__ = ['loadimages','getlabels']
 
 def _validfilename(f):
     return f.endswith('.png') or f.endswith('.tif') or f.endswith('.bmp')
