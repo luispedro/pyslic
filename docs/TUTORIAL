@@ -2,13 +2,18 @@
 DEPENDENCIES
 ==========================================
 
-The dependencies are fairly standard python libraries:
+The dependencies are fairly standard libraries:
+
 	+ numpy
 	+ scipy
 	+ matplotlib
-    + PIL
+    + ImageMagick++
 
 If a C++ compiler is found and useable, the code will run much faster, but it is not a strict dependency.
+
+On ubuntu, you can use the following command to install dependencies:
+
+sudo aptitude install python-numpy python-scipy python-matplotlib libmagick++10
 
 ==========================================
 CONVENTIONS
