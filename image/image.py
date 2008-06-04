@@ -151,7 +151,12 @@ class Image(object):
         '''
         for k,v in self.channels.items():
             if k != self.crop_channel: # Crop is called "regions"
-                self.channeldata[k]=self.load_function(v)
+                if type(v) == list:
+                    self.channeldata[k]=[]
+                    for f in v:
+                        self.channeldata[k].append(self.load_function(f))
+                else:
+                    self.channeldata[k]=self.load_function(v)
         if self.crop_channel in self.channels:
             self.regions = self.load_function(self.channels[self.crop_channel])
             # These files often need to be fixed 
