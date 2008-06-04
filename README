@@ -1,0 +1,5 @@
+====================================================
+PySLIC: Python Subcellular Location Image Classifier
+====================================================
+
+This is a re-implementation in Python of the Murphy Lab image classification code.
