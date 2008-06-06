@@ -24,7 +24,7 @@
 
 from __future__ import division
 import numpy
-from scipy.ndimage import label, convolve, median_filter
+from scipy import ndimage
 from .basics import majority_filter, nonzeromin
 from .thresholding import otsu, rc, murphy_rc
 
@@ -38,8 +38,13 @@ def mean_filter(img,size=3):
 
     i.e., meanimg[i,j] is the mean of the squared centred around (i,j)
     '''
-    mask=numpy.ones((size,size))/size/size
-    return convolve(img,mask)
+    if len(img.shape) == 2:
+        mask=numpy.ones((size,size))/size/size
+    elif len(img.shape) == 3:
+        mask=numpy.ones((size,size,size))/size/size/size
+    else:
+        raise ValueError,'mean_filter: img is of wrong shape (can only handle 2d & 3d)'
+    return ndimage.convolve(img,mask)
 
 def localthresholding(img,method='mean',size=8):
     '''
@@ -54,7 +59,7 @@ def localthresholding(img,method='mean',size=8):
     if method == 'mean':
         func=mean_filter
     elif method == 'median':
-        func=median_filter
+        func=ndimage.median_filter
     else:
         raise ArgumentErrorType,"localthresholding: unknown method '%s'" % method
     return img > func(img,size)
@@ -67,7 +72,7 @@ def localglobal(img,remove_zeros=True,globalmethod='otsu',localmethod='mean',loc
 
     @param img: The image
     @param remove_zeros: Whether to ignore zero-valued pixels
-    @param globalmethod: Global method to use ('otsu', 'rc', or 'murphyrc')
+    @param globalmethod: Global method to use ('otsu', 'rc', or 'murphy_rc')
     @param localmethod: Which local method to use (@see localthresholding)
     @param localsize: Size parameter for local thresholding (@see localthresholding)
     '''
@@ -76,10 +81,10 @@ def localglobal(img,remove_zeros=True,globalmethod='otsu',localmethod='mean',loc
         T=otsu(img,remove_zeros=remove_zeros)
     elif globalmethod == 'rc':
         T=rc(img,remove_zeros=remove_zeros)
-    elif globalmethod == 'murphyrc':
+    elif globalmethod == 'murphy_rc':
         T=murphy_rc(img,remove_zeros=remove_zeros)
     else:
-        raise ArgumentErrorType,"localglobal: globalmethod '%s' not recognised." % globalmethod
+        raise ValueError,"localglobal: globalmethod '%s' not recognised." % globalmethod
     globalobjects=img > T
     return localobjects * globalobjects
 
@@ -105,13 +110,13 @@ def multithreshold(img,remove_zeros=True,firstThreshold=20,nrThresholds=5):
     Ts=[majority_filter(img>T) for T in thresholds]
     obj_count = 0
     Ts.append(Ts[0]*0)
-    labeled0,N0=label(Ts[0])
+    labeled0,N0=ndimage.label(Ts[0])
     for T1 in Ts[1:]:
-        labeled1,N1=label(T1)
+        labeled1,N1=ndimage.label(T1)
         for obj in xrange(N0):
             binimg=(labeled0 == (obj+1))
             objects1=(labeled1*binimg)
-            if not objects1.any() or label(objects1)[1] == 1:
+            if not objects1.any() or ndimage.label(objects1)[1] == 1:
                 obj_count += 1
                 output[binimg]=obj_count
         labeled0=labeled1
