@@ -155,6 +155,7 @@ class Image(object):
                     self.channeldata[k]=[]
                     for f in v:
                         self.channeldata[k].append(self.load_function(f))
+                    self.channeldata[k]=numpy.array(self.channeldata[k])
                 else:
                     self.channeldata[k]=self.load_function(v)
         if self.crop_channel in self.channels:
@@ -171,29 +172,43 @@ class Image(object):
         self.regions=None
         self.loaded=False
 
-
-    def composite(self,processed = False):
+    def nr_slices(self):
         '''
-        composite = img.composite(processed = False)
+        nr_slices = img.nr_slices()
+
+        Returns the number of z slices.
+        '''
+        if type(self.channels[self.protein_channel]) != list:
+            return 1
+        return len(self.channels[self.protein_channel])
+
+    def composite(self, idx = 0, processed = False):
+        '''
+        composite = img.composite(idx = 0, processed = False)
 
         Returns a multi colour image containing the different channels
         '''
         self.lazy_load()
-        X,Y=self.channeldata[self.protein_channel].shape
+        def getchannel(channel):
+            if type(self.channels[channel]) == list:
+                return self.channeldata[channel][idx,:,:]
+            return self.channeldata[channel]
+        dna=getchannel('protein')
+        X,Y=dna.shape
         composite=numpy.zeros((X,Y,3))
-        composite[:,:,1]=self.channeldata[(self.procprotein_channel if processed else self.protein_channel)]
+        composite[:,:,1]=getchannel(self.procprotein_channel if processed else self.protein_channel)
         if self.dna_channel in self.channeldata:
-            composite[:,:,0]=self.channeldata[(self.procdna_channel if processed else self.dna_channel)]
+            composite[:,:,0]=getchannel(self.procdna_channel if processed else self.dna_channel)
         if self.autofluorescence_channel in self.channeldata:
-            composite[:,:,2]=self.channeldata[self.autofluorescence_channel]
+            composite[:,:,2]=getchannel(self.autofluorescence_channel)
         return composite
 
-    def show(self,processed = False):
+    def show(self, idx = 0, processed = False):
         '''
         Shows the image composite
 
         See composite.
         '''
-        _showimage(self.composite(processed))
+        _showimage(self.composite(idx,processed))
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
