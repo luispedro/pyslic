@@ -22,7 +22,7 @@
 from __future__ import division
 from ..imageprocessing.bwperim import bwperim
 from imgmoments import imgcentmoments
-from convexhull import convexhull
+from ..imageprocessing.convexhull import convexhull
 
 from numpy import *
 from scipy.ndimage import center_of_mass

@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages, Extension
 
-convexhull = Extension('features/_convexhull', sources = ['features/convexhull.cpp'])
+convexhull = Extension('imageprocessing/_convexhull', sources = ['imageprocessing/convexhull.cpp'])
 
 magick_libraries= ['Magick++','Wand','Magick'] # This is gotten from magick++-config --libs
 readimg = Extension('image.io.readimg', sources = ['image/io/readimg.cpp'], libraries=magick_libraries) 
