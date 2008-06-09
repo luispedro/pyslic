@@ -1,19 +1,26 @@
 from __future__ import division
 from numpy import *
-from scipy.ndimage import median_filter, label, center_of_mass
-from ..imageprocessing.thresholding import otsu
+from scipy.ndimage import median_filter, label, center_of_mass, gaussian_filter
+from ..imageprocessing.thresholding import otsu, murphy_rc
 
 __all__ = ['labelnuclei','nucleicof']
 
-def labelnuclei(dnaimg,options=None):
+def labelnuclei(dnaimg,**options):
     '''
-    labeled,N = labeled_nuclei(dnaimg,options=None)
+    labeled,N = labeled_nuclei(dnaimg, **options)
 
     N equals the number of nuclei
     labeled is of the same shape as dnaimg and contains the labels of the nuclei
     '''
-    dnaimg=median_filter(dnaimg,4)
-    T=otsu(dnaimg)
+    sigma=options.get('sigma',10)
+    dnaimg=gaussian_filter(dnaimg,sigma)
+    thresholding=options.get('thresholding','otsu')
+    if thresholding == 'otsu':
+        T=otsu(dnaimg)
+    elif thresholding == 'murphy_rc':
+        T=murphy_rc(dnaimg)
+    else:
+        raise AttributeError, "Unknown thresholding method (%s)" % thresholding
     return label(dnaimg > T)
 
 def nucleicof(dnaimg,options=None):
