@@ -1,7 +1,7 @@
 from __future__ import division
 from numpy import *
 from scipy.ndimage import distance_transform_edt,label, median_filter
-from ..preprocess.thresholding import otsu
+from ..imageprocessing.thresholding import otsu
 import nucleidetection
 
 __all__ = ['voronoi','gvoronoi']
@@ -39,7 +39,7 @@ def voronoi(img,centers,distance='euclidean'):
 
 def gvoronoi(labeled,distance='euclidean'):
     """
-    segmented = gvoronoi(labeled,labeled,distance)
+    segmented = gvoronoi(labeled,distance)
 
     Generalised Voronoi Transform
 
