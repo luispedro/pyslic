@@ -41,6 +41,4 @@ Index: bbox.py
 
 ** Call the second parameter in thresholding methods ignore_zeros instead of remove_zeros
 
-** Use either murphyrc or murphy_rc, not both
-
-** Instead of Image.set_load_function(x), just have it be Image.load_function = x
+** Have image loading functions return subclasses of Image instead of doing it all on Image.load_function
