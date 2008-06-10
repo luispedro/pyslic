@@ -9,10 +9,22 @@ __all__ = ['BIC','AIC']
 
 
 def logP_onediagonalcovariance(fmatrix,assignments,centroids):
+# This doesn't really compute the log likelyhood, but something that is the log likelyhood
+# except for an additive constant 
     N,q=fmatrix.shape
     Rss=residual_sum_squares(fmatrix,assignments,centroids)
-    sigma2=Rss/(N-q)
-    return -.5*N *(q*log(sigma2) + log(2*pi)) + Rss/2./sigma2
+    return -.5*N*log(Rss/(N))
+    #sigma2=Rss/(N-q)
+    #return -.5*N *q*log(sigma2) + log(2*pi)) + Rss/2./sigma2
+
+def logP_onediagonalcovariance(fmatrix,assignments,centroids):
+# This doesn't really compute the log likelyhood, but something that is the log likelyhood
+# except for an additive constant 
+    N,q=fmatrix.shape
+    Rss=residual_sum_squares(fmatrix,assignments,centroids)
+    return -.5*N*log(Rss/(N))
+    #sigma2=Rss/(N-q)
+    #return -.5*N *q*log(sigma2) + log(2*pi)) + Rss/2./sigma2
 
 def logP_fullcovariance(fmatrix,assignments,centroids,covs=None,**kwargs):
     N,q=fmatrix.shape
@@ -43,13 +55,20 @@ def nrparameters_diagonalcovariance(fmatrix,k):
 
 def nrparameters_onediagonalcovariance(fmatrix,k):
     N,q=fmatrix.shape
-    return k*(1+N)
+    return k*q
 
 def BIC_onediagonalcovariance(fmatrix,assignements,centroids):
     N,q=fmatrix.shape
     k=len(centroids)
     L=logP_onediagonalcovariance(fmatrix,assignements,centroids)
     nrP=nrparameters_onediagonalcovariance(fmatrix,k)
+    return -2*L+nrP*log(N)
+
+def BIC_onediagonalcovariance(fmatrix,assignements,centroids):
+    N,q=fmatrix.shape
+    k=len(centroids)
+    L=logP_diagonalcovariance(fmatrix,assignements,centroids)
+    nrP=nrparameters_diagonalcovariance(fmatrix,k)
     return -2*L+nrP*log(N)
 
 def AIC_onediagonalcovariance(fmatrix,assignements,centroids):
