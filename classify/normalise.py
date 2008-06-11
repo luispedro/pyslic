@@ -101,14 +101,23 @@ class chkfinite(object):
         
 def _do_one_icdf_normalise(values):
     values=values.copy()
-    values_sorted=values.copy()
-    values_sorted.sort()
-    N=len(values_sorted)
-    for i,val in enumerate(values):
-        pos=bisect_right(values_sorted,val)
-        if pos == 0: pos = 1
-        values[i]=(pos-1)/float(N)
-    return values
+    N=len(values)
+    argsorted=values.argsort()
+    corrected=numpy.empty(N)
+    try:
+        from scipy import weave
+        from scipy.weave import converters
+        code='''
+        for (int i = 0; i != N; ++i) {
+            corrected(argsorted(i)) = i/double(N);
+        }
+        '''
+        weave.inline(code,
+            ['corrected','argsorted','N'],
+            type_converters=converters.blitz)
+    except:
+        corrected[argsorted]=arange(N)/N
+    return corrected
 
 def icdf_normalise(fmatrix):
     '''
