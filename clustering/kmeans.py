@@ -117,7 +117,7 @@ def kmeans(fmatrix,K,distance='euclidean',max_iter=1000,R=None,**kwargs):
             from scipy import weave
             from scipy.weave import converters
             centroids[:]=0
-            counts=zeros(K)
+            counts=zeros(K,numpy.uint32)
             code = '''
             for (int i = 0; i != N; ++i) {
                 int c = assignments(i);
