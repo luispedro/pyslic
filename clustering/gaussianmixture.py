@@ -29,109 +29,84 @@ from numpy.linalg import det, inv
 from kmeans import residual_sum_squares
 import scipy
 
-__all__ = ['BIC','AIC']
+__all__ = ['BIC','AIC','log_likelihood','nr_parameters']
 
-
-def logP_onediagonalcovariance(fmatrix,assignments,centroids):
-# This doesn't really compute the log likelyhood, but something that is the log likelyhood
-# except for an additive constant 
+def log_likelihood(fmatrix,assignments,centroids,model='one_variance',covs=None):
     N,q=fmatrix.shape
-    Rss=residual_sum_squares(fmatrix,assignments,centroids)
-    return -.5*N*log(Rss/(N))
-    #sigma2=Rss/(N-q)
-    #return -.5*N *q*log(sigma2) + log(2*pi)) + Rss/2./sigma2
+    if model == 'one_variance':
+        Rss=residual_sum_squares(fmatrix,assignments,centroids)
+        sigm2=Rss/N
+        return -N/2.*log(2*pi*Rss/N)-N/2
+    elif model == 'full_covariance':
+        res=-N*q/2.*log(2*pi)
 
-def logP_onediagonalcovariance(fmatrix,assignments,centroids):
-# This doesn't really compute the log likelyhood, but something that is the log likelyhood
-# except for an additive constant 
-    N,q=fmatrix.shape
-    Rss=residual_sum_squares(fmatrix,assignments,centroids)
-    return -.5*N*log(Rss/(N))
-    #sigma2=Rss/(N-q)
-    #return -.5*N *q*log(sigma2) + log(2*pi)) + Rss/2./sigma2
+        for k in xrange(len(centroids)):
+            diff=(fmatrix[assignments == k] - centroids[k])
+            if covs is None:
+                covm=cov(diff.T)
+            else:
+                covm=covs[k]
+            if covm.shape == ():
+                covm=mat([[covm]])
+            icov=mat(inv(covm))
+            diff=mat(diff)
+            Nk = diff.shape[0]
+            res += -Nk/2.*log(det(covm)) + \
+                 -.5 * (diff * icov * diff.T).diagonal().sum() 
+        return res
 
-def logP_fullcovariance(fmatrix,assignments,centroids,covs=None,**kwargs):
-    N,q=fmatrix.shape
-    res=-N*q/2.*log(2*pi)
+    raise ValueError, "log_likelihood: cannot handle model '%s'" % model
 
-    for k in xrange(len(centroids)):
-        diff=(fmatrix[assignments == k] - centroids[k])
-        if covs is None:
-            covm=cov(diff.T)
-        else:
-            covm=covs[k]
-        if covm.shape == ():
-            covm=mat([[covm]])
-        icov=mat(inv(covm))
-        diff=mat(diff)
-        Nk = diff.shape[0]
-        res += -Nk/2.*log(det(covm)) + \
-             -.5 * (diff * icov * diff.T).diagonal().sum() 
-    return res
     
-def nrparameters_fullcovariance(fmatrix,k):
+def nr_parameters(fmatrix,k,model='one_variance'):
     N,q=fmatrix.shape
-    return k*(N+q*q)
+    if model == 'one_variance':
+        return k*q
+    elif model == 'diagonal_covariance':
+        return k*(q+N)
+    elif model == 'full_covariance':
+        return k*(N+q*q)
 
-def nrparameters_diagonalcovariance(fmatrix,k):
-    N,q=fmatrix.shape
-    return k*(q+N)
+    raise ValueError, "nr_parameters: cannot handle model '%s'" % model
 
-def nrparameters_onediagonalcovariance(fmatrix,k):
-    N,q=fmatrix.shape
-    return k*q
-
-def BIC_onediagonalcovariance(fmatrix,assignements,centroids):
-    N,q=fmatrix.shape
-    k=len(centroids)
-    L=logP_onediagonalcovariance(fmatrix,assignements,centroids)
-    nrP=nrparameters_onediagonalcovariance(fmatrix,k)
-    return -2*L+nrP*log(N)
-
-def BIC_onediagonalcovariance(fmatrix,assignements,centroids):
+_BIC = 0
+_AIC = 1
+def _compute(type,fmatrix,assignements,centroids,model='one_variance',covs=None):
     N,q=fmatrix.shape
     k=len(centroids)
-    L=logP_diagonalcovariance(fmatrix,assignements,centroids)
-    nrP=nrparameters_diagonalcovariance(fmatrix,k)
-    return -2*L+nrP*log(N)
+    log_like = log_likelihood(fmatrix,assignements,centroids,model,covs)
+    n_param = nr_parameters(fmatrix,k,model)
+    if type == _BIC:
+        return -2*log_like + n_param * log(N)
+    elif type == _AIC:
+        return -2*log_like + 2 * n_param
 
-def AIC_onediagonalcovariance(fmatrix,assignements,centroids):
-    N,q=fmatrix.shape
-    k=len(centroids)
-    L=logP_onediagonalcovariance(fmatrix,assignements,centroids)
-    nrP=nrparameters_onediagonalcovariance(fmatrix,k)
-    return -2*L+2*nrP
-
-def BIC(fmatrix,assignements,centroids,model='onevariance'):
+def BIC(fmatrix,assignements,centroids,model='one_variance',covs=None):
     '''
     B = BIC(fmatrix,assignements,centroids,model)
 
     Compute Bayesian Information Criterion
 
     model can be one of:
-        * 'onevariance': All features share the same variance parameter sigma2
+        * 'one_variance': All features share the same variance parameter sigma^2
+        * 'full_covariance': Estimate a full covariance matrix or use covs[i] for centroid[i]
 
     @see AIC
     '''
-    if model == 'onevariance':
-        return BIC_onediagonalcovariance(fmatrix,assignements,centroids)
-    else:
-        raise NotImplementedError, "BIC only supports model 'onevariance'"
+    return _compute(_BIC,fmatrix,assignements,centroids,model,covs)
 
-def AIC(fmatrix,assignements,centroids,model='onevariance'):
+def AIC(fmatrix,assignements,centroids,model='one_variance'):
     '''
     A = AIC(fmatrix,assignements,centroids,model)
 
     Compute Akaike Information Criterion
 
     model can be one of:
-        * 'onevariance': All features share the same variance parameter sigma2
+        * 'one_variance': All features share the same variance parameter sigma^2
+        * 'full_covariance': Estimate a full covariance matrix or use covs[i] for centroid[i]
 
     @see BIC
     '''
-    if model == 'onevariance':
-        return AIC_onediagonalcovariance(fmatrix,assignements,centroids)
-    else:
-        raise NotImplementedError, "BIC only supports model 'onevariance'"
+    return _compute(_AIC,fmatrix,assignements,centroids,model,covs)
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
