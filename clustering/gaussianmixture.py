@@ -26,17 +26,30 @@ from __future__ import division
 import numpy
 from numpy import log, pi, array
 from numpy.linalg import det, inv
-from kmeans import residual_sum_squares
+from kmeans import residual_sum_squares, centroid_errors
 import scipy
 
 __all__ = ['BIC','AIC','log_likelihood','nr_parameters']
 
 def log_likelihood(fmatrix,assignments,centroids,model='one_variance',covs=None):
     N,q=fmatrix.shape
+    k=len(centroids)
     if model == 'one_variance':
         Rss=residual_sum_squares(fmatrix,assignments,centroids)
-        sigm2=Rss/N
+        #sigma2=Rss/N
         return -N/2.*log(2*pi*Rss/N)-N/2
+    elif model == 'diagonal_covariance':
+        errors=centroid_errors(fmatrix,assignments,centroids)
+        errors *= errors
+        errors = errors.sum(1)
+        Rss=numpy.zeros(k)
+        counts=numpy.zeros(k)
+        for i in xrange(fmatrix.shape[0]):
+            c=assignments[i]
+            Rss[c] += errors[i]
+            counts[c] += 1
+        sigma2s=Rss/(counts+(counts==0))
+        return -N/2.*log(2*pi)-N/2.-1/2.*numpy.sum(counts*numpy.log(sigma2s))
     elif model == 'full_covariance':
         res=-N*q/2.*log(2*pi)
 
@@ -63,9 +76,9 @@ def nr_parameters(fmatrix,k,model='one_variance'):
     if model == 'one_variance':
         return k*q+1
     elif model == 'diagonal_covariance':
-        return k*(q+N)
+        return k*(q+1)
     elif model == 'full_covariance':
-        return k*(N+q*q)
+        return k*+q*q
 
     raise ValueError, "nr_parameters: cannot handle model '%s'" % model
 
