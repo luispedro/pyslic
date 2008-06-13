@@ -61,7 +61,7 @@ def log_likelihood(fmatrix,assignments,centroids,model='one_variance',covs=None)
 def nr_parameters(fmatrix,k,model='one_variance'):
     N,q=fmatrix.shape
     if model == 'one_variance':
-        return k*q
+        return k*q+1
     elif model == 'diagonal_covariance':
         return k*(q+N)
     elif model == 'full_covariance':
@@ -95,7 +95,7 @@ def BIC(fmatrix,assignements,centroids,model='one_variance',covs=None):
     '''
     return _compute(_BIC,fmatrix,assignements,centroids,model,covs)
 
-def AIC(fmatrix,assignements,centroids,model='one_variance'):
+def AIC(fmatrix,assignements,centroids,model='one_variance',covs=None):
     '''
     A = AIC(fmatrix,assignements,centroids,model)
 
