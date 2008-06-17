@@ -24,7 +24,7 @@
 
 from __future__ import division
 import numpy
-from scipy.misc.pilutil import imshow
+from scipy.misc.pilutil import imshow, bytescale
 from scipy.ndimage import label
 import io.readimg
 from contextlib import contextmanager
@@ -190,12 +190,12 @@ class Image(object):
         '''
         self.lazy_load()
         def getchannel(channel):
-            if type(self.channels[channel]) == list:
-                return self.channeldata[channel][idx,:,:]
-            return self.channeldata[channel]
-        dna=getchannel('protein')
-        X,Y=dna.shape
-        composite=numpy.zeros((X,Y,3))
+            if type(self.channels[Image.protein_channel]) == list:
+                return bytescale(self.channeldata[channel][idx,:,:])
+            return bytescale(self.channeldata[channel])
+        prot=getchannel(self.protein_channel)
+        X,Y=prot.shape
+        composite=numpy.zeros((X,Y,3),numpy.uint8)
         composite[:,:,1]=getchannel(self.procprotein_channel if processed else self.protein_channel)
         if self.dna_channel in self.channeldata:
             composite[:,:,0]=getchannel(self.procdna_channel if processed else self.dna_channel)

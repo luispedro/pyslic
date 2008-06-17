@@ -3,6 +3,7 @@ import image
 from image import Image
 import preprocess
 import classify
+import clustering
 import utils
 from .preprocess import preprocessimage, bgsub
 __all__ = ['image',
@@ -10,5 +11,6 @@ __all__ = ['image',
         'preprocess',
         'computefeatures',
         'classify',
+        'clustering',
         'utils',
         ]
