@@ -32,6 +32,11 @@ import scipy
 __all__ = ['BIC','AIC','log_likelihood','nr_parameters']
 
 def log_likelihood(fmatrix,assignments,centroids,model='one_variance',covs=None):
+    '''
+    log_like = log_likelihood(feature_matrix, assignments, centroids, model='one_variance', covs=None)
+
+    Compute the log likelihood of feature_matrix[i] being generated from centroid[i]
+    '''
     N,q=fmatrix.shape
     k=len(centroids)
     if model == 'one_variance':
@@ -49,7 +54,7 @@ def log_likelihood(fmatrix,assignments,centroids,model='one_variance',covs=None)
             Rss[c] += errors[i]
             counts[c] += 1
         sigma2s=Rss/(counts+(counts==0))
-        return -N/2.*log(2*pi)-N/2.-1/2.*numpy.sum(counts*numpy.log(sigma2s))
+        return -N/2.*log(2*pi)-N/2.-1/2.*numpy.sum(counts*numpy.log(sigma2s+(counts==0)))
     elif model == 'full_covariance':
         res=-N*q/2.*log(2*pi)
 
