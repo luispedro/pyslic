@@ -1,6 +1,6 @@
 from __future__ import division
 
-__ALL__ = ['learnclassifier','applyclassifier','defaultclassifier']
+__ALL__ = ['learnclassifier','fastclassifier','applyclassifier','defaultclassifier']
 
 def defaultclassifier():
     '''
