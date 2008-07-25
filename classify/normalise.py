@@ -82,7 +82,7 @@ class interval_normalise(object):
     def __getstate__(self):
         return self.mu,self.range
     def __setstate__(self,state):
-        mu,range = state
+        self.mu,self.range = state
 
 class chkfinite(object):
     '''

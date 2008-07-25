@@ -24,7 +24,6 @@ def normaliselabels(labels):
     return array(normalised),names
 
 class classifier(object):
-    __slots__ = ['_trained','_labelnames','_nclasses']
     def __init__(self):
         self._trained = False
 
@@ -42,11 +41,6 @@ class classifier(object):
             return self._labelnames[int(self._doapply(features))]
         else:
             return array([self._labelnames[int(self._doapply(features[i]))] for i in xrange(features.shape[0])])
-
-    def __getstate__(self):
-        return self._trained,self._labelnames,self._nclasses
-    def __setstate__(self,state):
-        self._trained,self._labelnames,self._nclasses = state
 
 class results_to_labels(classifier):
     def __init__(self):

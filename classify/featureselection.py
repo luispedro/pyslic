@@ -214,9 +214,9 @@ class sda_filter(object):
         return features[:,self.idxs]
 
     def __getstate__(self):
-        return ()
+        return (self.idxs,)
     def __setstate__(self,state):
-        pass
+        self.idxs, = state
 
 
 class remove_repeated_features(object):
