@@ -43,6 +43,11 @@ class classifier(object):
         else:
             return array([self._labelnames[int(self._doapply(features[i]))] for i in xrange(features.shape[0])])
 
+    def __getstate__(self):
+        return self._trained,self._labelnames,self._nclasses
+    def __setstate__(self,state):
+        self._trained,self._labelnames,self._nclasses = state
+
 class results_to_labels(classifier):
     def __init__(self):
         pass

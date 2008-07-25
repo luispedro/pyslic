@@ -213,6 +213,11 @@ class sda_filter(object):
     def apply(self,features):
         return features[:,self.idxs]
 
+    def __getstate__(self):
+        return ()
+    def __setstate__(self,state):
+        pass
+
 
 class remove_repeated_features(object):
     __slots__ = ['repeats']
@@ -226,6 +231,11 @@ class remove_repeated_features(object):
 
     def apply(self,features):
         return delete(features,self.repeats,1)
+    def __getstate__(self):
+        return (self.repeats,)
+    def __setstate__(self,state):
+        self.repeats, = state
+
         
 class remove_linear_dependent_features(object):
     __slots__ = ['independent']
@@ -239,5 +249,9 @@ class remove_linear_dependent_features(object):
 
     def apply(self,features):
         return features[:,self.independent]
-        
+    def __getstate__(self):
+        return (self.independent,)
+    def __setstate__(self,state):
+        self.independent, = state
+
 

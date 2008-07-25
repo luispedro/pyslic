@@ -79,6 +79,11 @@ class interval_normalise(object):
     def apply(self,features):
         return (features - self.mu)/self.range
 
+    def __getstate__(self):
+        return self.mu,self.range
+    def __setstate__(self,state):
+        mu,range = state
+
 class chkfinite(object):
     '''
     Fill NaN & Inf values
