@@ -5,11 +5,12 @@ from classify import defaultclassifier
 from classifier import normaliselabels
 
 __all__=['nfoldcrossvalidation']
-def nfoldcrossvalidation(features,labels,nfolds=10,classifier=None):
+def nfoldcrossvalidation(features,labels,nfolds=10,classifier=None, return_predictions=False):
     '''
     Perform n-fold cross validation
 
-    cmatrix,labelnames = nfoldcrossvalidation(features, labels, nfolds=10, classifier=None)
+    cmatrix,labelnames = nfoldcrossvalidation(features, labels, nfolds=10, classifier=None, return_predictions=False)
+    cmatrix,labelnames,predictions = nfoldcrossvalidation(features, labels, nfolds=10, classifier=None, return_predictions=False)
 
     cmatrix will be a N x N matrix, where N is the number of classes
     cmatrix[i,j] will be the number of times that an element of class i was classified as class j
@@ -18,12 +19,14 @@ def nfoldcrossvalidation(features,labels,nfolds=10,classifier=None):
 
     @param features: a feature matrix or list of feature vectors
     @param labels: an array of labels, where label[i] is the label corresponding to features[i]
+    @param return_predictions: whether to return predictions
 
     classifier should implement the train() and apply() methods
     '''
     if classifier is None:
         classifier = defaultclassifier()
     labels,labelnames=normaliselabels(labels)
+    predictions=labels*0-1
 
     features = numpy.asanyarray(features)
 
@@ -48,9 +51,12 @@ def nfoldcrossvalidation(features,labels,nfolds=10,classifier=None):
         
         classifier.train(features[trainingset],labels[trainingset])
         prediction=classifier.apply(features[testingset])
+        predictions[testingset]=prediction
         for p, r in zip(prediction,labels[testingset]):
             cmatrix[r,p] += 1
 
+    if return_predictions:
+        return cmatrix, labelnames, predictions
     return cmatrix, labelnames
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
