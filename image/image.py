@@ -182,6 +182,17 @@ class Image(object):
             return 1
         return len(self.channels[self.protein_channel])
 
+    def get(self,channelid):
+        '''
+        ch = img.get(channelid)
+
+        Equivalent of
+            img.lazy_load()
+            ch = img.channeldata[channelid]
+        '''
+        self.lazy_load()
+        return self.channeldata[channelid]
+
     def composite(self, idx = 0, processed = False):
         '''
         composite = img.composite(idx = 0, processed = False)
