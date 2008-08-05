@@ -86,6 +86,7 @@ def kmeans(fmatrix,K,distance='euclidean',max_iter=1000,R=None,**kwargs):
                 If neither is passed, then the function computes the covariance from the feature matrix
     @param max_iter: Maximum number of iteration
     '''
+    fmatrix=numpy.asanyarray(fmatrix)
     if distance == 'euclidean':
         distfunction=_euclidean2
     elif distance == 'seuclidean':
