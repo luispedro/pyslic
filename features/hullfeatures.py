@@ -63,6 +63,12 @@ def _hull_computations(imageproc,imagehull = None):
 def hullsizefeatures(imageproc,imagehull=None):
     '''
     Compute image size features
+
+    Area
+    sqrt(Area)
+    Perimeter
+    Hull Semi-major axis
+    Hull Semi-minor axis
     '''
 
     _,Ahull, Phull, hull_semimajor, hull_semiminor = _hull_computations(imageproc,imagehull)
