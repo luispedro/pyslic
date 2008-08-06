@@ -14,6 +14,7 @@ numpyutils.setup(name='PySLIC',
       url='http://murphylab.cbi.cmu.edu/',
       packages=setuptools.find_packages(),
       ext_modules = [convexhull,readimg],
+      test_suite='nose.collector',
       )
 
 
