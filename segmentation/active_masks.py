@@ -114,7 +114,7 @@ def active_masks_dna(f,thresh=None,R=None):
     '''
     Regions = active_masks_dna(f,thresh=None,R=None)
 
-    Calls active_masks(f,...) with appropriate parameters for dna images.
+    Calls active_masks(f,...) with appropriate parameters for DNA images.
     
     Inputs:
     f:      The image
