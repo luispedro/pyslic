@@ -6,6 +6,7 @@ import classify
 import clustering
 import utils
 from .preprocess import preprocessimage, bgsub
+from .imageprocessing import thresholding
 __all__ = ['image',
         'Image',
         'preprocess',
@@ -13,4 +14,5 @@ __all__ = ['image',
         'classify',
         'clustering',
         'utils',
+        'thresholding',
         ]
