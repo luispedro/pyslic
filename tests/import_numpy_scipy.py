@@ -7,6 +7,8 @@ def test_imports():
     Please install numpy.
     Under linux, the package is often called python-numpy.'''
 
+    
+    
     try:
         import scipy
     except:
@@ -14,6 +16,17 @@ def test_imports():
 
     Please install scipy.
     Under linux, the package is often called python-scipy.'''
+    
+    
+    try:
+        import matplotlib
+    except:
+        print '''matplotlib not present!
+
+    Please install matplotlib.'''
+
+
+
     try:
         import scipy.weave
     except:
@@ -23,6 +36,8 @@ def test_imports():
 
     This is not strictly necessary, but it will make feature calculation faster (by 2~3 orders of magnitude).'''
 
+    
+    
     try:
         scipy.weave.inline('')
     except:
