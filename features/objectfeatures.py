@@ -5,7 +5,7 @@ from ..imageprocessing.bweuler import bweuler
 from scipy.ndimage import *
 from .hullfeatures import hullfeatures
 from .mmthin import mmthin
-from .convexhull import convexhull
+from ..imageprocessing.convexhull import convexhull
 from .imgskelfeats import find_branch_points
 import warnings
 
