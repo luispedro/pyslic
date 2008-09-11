@@ -7,7 +7,7 @@ magick_libraries= ['Magick++','Wand','Magick'] # This is gotten from magick++-co
 readimg = numpyutils.Extension('image.io.readimg', sources = ['image/io/readimg.cpp'], libraries=magick_libraries) 
 
 numpyutils.setup(name='PySLIC',
-      version='0.3',
+      version='0.3.1',
       description='Subcellular Location Image Classifier',
       author='Murphy Lab',
       author_email='murphy@mcu.edu',
