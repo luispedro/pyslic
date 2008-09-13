@@ -83,7 +83,7 @@ def mmthin(binimg):
 
     image_exp = zeros((r+2, c+2),int8)
     imagebuf = zeros((r+2,c+2),int8)
-    image_exp[1:r+1, 1:c+1] = binimg[min1:max1+1,min2:max2+1]
+    image_exp[1:r+1, 1:c+1] = binimg[min1:max1,min2:max2]
     while True:
         newimg=hitmiss(image_exp,struct_elem[acnum_elem],imagebuf)
         image_exp -= newimg
@@ -95,7 +95,7 @@ def mmthin(binimg):
                 break
             acnum_elem = 0
             total_op = 0
-    binimg[min1:max1+1,min2:max2+1] = image_exp[1:r+1, 1:c+1]
+    binimg[min1:max1,min2:max2] = image_exp[1:r+1, 1:c+1]
     return binimg
 
 def hitmiss(binimg,struct_elem,result = None):
