@@ -47,8 +47,8 @@ def objectfeatures(protimg,dnaimg=None,objects=None):
         min1,max1,min2,max2=bbox(binobj)
         if min1 > 0: min1 -= 1
         if min2 > 0: min2 -= 1
-        binobjc = binobj[min1:max1+2,min2:max2+2]
-        protobj = protimg[min1:max1+2,min2:max2+2]
+        binobjc = binobj[min1:max1+1,min2:max2+1] # leave a small margin for bweuler()
+        protobj = protimg[min1:max1+1,min2:max2+1]
         objimg = protimg * binobj
         cofy,cofx = center_of_mass(objimg)
         objskel = mmthin(binobjc)

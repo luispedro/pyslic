@@ -77,7 +77,7 @@ def mmthin(binimg):
 
     struct_elem=[array(E) for E in struct_elem]
     min1,max1,min2,max2 = bbox(binimg)
-    r,c=(max1-min1+1,max2-min2+1)
+    r,c=(max1-min1,max2-min2)
     acnum_elem = 0;
     total_op=0
 

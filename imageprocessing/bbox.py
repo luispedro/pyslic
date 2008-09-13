@@ -22,8 +22,8 @@ def bbox(img):
                 if (img(y,x) > 0) {
                     if (y < vals(0)) vals(0) = y;
                     if (x < vals(1)) vals(1) = x;
-                    if (y > vals(2)) vals(2) = y;
-                    if (x > vals(3)) vals(3) = x;
+                    if (y > vals(2)) vals(2) = y+1;
+                    if (x > vals(3)) vals(3) = x+1;
                 }
             }
         }
@@ -33,16 +33,18 @@ def bbox(img):
                 ['vals','img'],
                 type_converters=converters.blitz)
         min1,min2,max1,max2=tuple(vals)
+        if min1 > max1: # special case: image is all zeros
+            return 0,0,0,0
     except:
         pos1,=where(img.any(1))
         if len(pos1) == 0:
             return 0,0,0,0
         min1=pos1[0]
-        max1=pos1[-1]
+        max1=pos1[-1]+1
 
         pos2,=where(img.any(0))
         min2=pos2[0]
-        max2=pos2[-1]
+        max2=pos2[-1]+1
     return min1,max1,min2,max2
 
 def croptobbox(img):
