@@ -7,7 +7,7 @@ import nucleidetection
 __all__ = ['voronoi','gvoronoi']
 def voronoi(img,centers,distance='euclidean'):
     '''
-    labeled = voronoi(img,centers,distance)
+    labeled = voronoi(img,centers,distance='euclidean')
 
     distance can be one of
         'euclidean' : use euclidean distance (default)
@@ -39,7 +39,7 @@ def voronoi(img,centers,distance='euclidean'):
 
 def gvoronoi(labeled,distance='euclidean'):
     """
-    segmented = gvoronoi(labeled,distance)
+    segmented = gvoronoi(labeled,distance='euclidean')
 
     Generalised Voronoi Transform
 
