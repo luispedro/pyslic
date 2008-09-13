@@ -11,32 +11,27 @@ from ..imageprocessing.convexhull import convexhull
 from .imgskelfeats import find_branch_points
 import warnings
 
-def objectfeatures(protimg,dnaimg=None,objects=None):
+def objectfeatures(img,region=None):
     '''
-    values=objectfeatures(img,labeled=None,objects=None)
+    values=objectfeatures(img,region=None)
 
-    protimg is the preprocessed protein image
-    dnaimg is the preprocessed dna image
-        if not given, then dna dependent fields will be zero
-    
     This implements the object features described in
     "Object Type Recognition for Automated Analysis of Protein Subcellular Location"
     by Ting Zhao, Meel Velliste, Michael V. Boland, and Robert F. Murphy
     in IEEE Transaction on Image Processing
     '''
 
-    if type(protimg) is Image:
-        if dnaimg is None:
-            dnaimg = protimg.channeldata.get(Image.procdna_channel,None)
+    protimg = img.channeldata[Image.procprotein_channel]
+    dnaimg = img.channeldata.get(Image.procdna_channel,None)
+    if region is not None:
+        if img.regions is None:
+            assert region == 1, 'objectfeatures called with region != 1, but img.regions is None!'
         else:
-            warnings.warn('Bizarre combination of arguments for objectfeatures: both an Image and a separate DNA channel')
-        protimg = protimg.channeldata[Image.procprotein_channel]
+            protimg = protimg * (img.regions == region)
+            dnaimg = dnaimg * (img.regions == region)
 
     labeled,N = ndimage.label(protimg,ones((3,3)))
-    if objects is None:
-        objects = xrange(1,N+1)
-    if type(objects) is int:
-        objects = [objects]
+    objects = xrange(1,N+1)
 
     sofs = zeros((len(objects),11))
     if dnaimg is not None:
