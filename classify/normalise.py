@@ -26,6 +26,7 @@ from __future__ import division
 import numpy
 from numpy import *
 from bisect import bisect_right
+import ncreduce
 
 __all__ = ['zscore','zscore_normalise','interval_normalise','chkfinite','icdf_normalise']
 
@@ -36,7 +37,7 @@ def zscore(features):
     Returns a copy of features which has been normalised to zscores 
     """
     mu=features.mean(0)
-    sigma=features.std(0)
+    sigma=ncreduce.std(features,0)
     sigma[sigma == 0] = 1
     return (features - mu) / sigma
 
@@ -55,7 +56,7 @@ class zscore_normalise(object):
 
     def train(self,features,labels):
         self.mu=features.mean(0)
-        self.sigma=features.std(0)
+        self.sigma=ncreduce.std(features,0)
         self.sigma[self.sigma == 0.]=1 # This makes the division a null op.
 
     def apply(self,features):
