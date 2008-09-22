@@ -113,11 +113,13 @@ def objskelfeats(objimg):
     branch_points = find_branch_points(objskel)
     no_of_branch_points = branch_points.sum()
     return array([skellen,skel_hull_area_ratio,skel_obj_area_ratio, skel_obj_fluor_ratio,no_of_branch_points/skellen])
-    #    names = {'obj_skel_len' ...
-    #            'obj_skel_hull_area_ratio' ...
-    #            'obj_skel_obj_area_ratio' ...
-    #            'obj_skel_obj_fluor_ratio' ...
-    #            'obj_skel_branch_per_len'};
+
+imgskelfeatures.names = [
+    'obj_skel_len',
+    'obj_skel_hull_area_ratio',
+    'obj_skel_obj_area_ratio',
+    'obj_skel_obj_fluor_ratio',
+    'obj_skel_branch_per_len']
         
 
 

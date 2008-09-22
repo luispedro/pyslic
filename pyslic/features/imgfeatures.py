@@ -31,14 +31,37 @@ from numpy import *
 from ..imageprocessing.bweuler import bweuler
 from scipy.ndimage import *
 
-__all__ = ['imgfeatures']
+__all__ = ['imgfeatures','imgfeaturesdna']
 
 def _norm2(V):
     return sqrt( (V**2).sum() )
 
-def imgfeatures(imageproc,dnaproc):
+def imgfeatures(imageproc):
     """
-    values = imgfeatures(imageproc,dnaproc)
+    values = imgfeatures(imageproc)
+
+   calculates features for imageproc
+   where imageproc contains the pre-processed fluorescence image, 
+   Pre-processed means that the image has been cropped and had 
+   pixels of interest selected (via a threshold, for instance).
+
+   Features calculated include:
+     - Number of objects
+     - Euler number of the image (# of objects - # of holes)
+     - Average of the object sizes
+     - Variance of the object sizes
+     - Ratio of the largest object to the smallest
+     - Average of the object distances from the COF
+     - Variance of the object distances from the COF
+     - Ratio of the largest object distance to the smallest
+
+    @see imgfeaturesdna
+    """
+
+    return imgfeaturesdna(imageproc,None)
+def imgfeaturesdna(imageproc,dnaproc):
+    """
+    values = imgfeaturesdna(imageproc,dnaproc)
 
    calculates features for imageproc
    where imageproc contains the pre-processed fluorescence image, 
@@ -77,9 +100,6 @@ def imgfeatures(imageproc,dnaproc):
     euler_nr = bweuler(bwimage)
     values.append(euler_nr)
 
-    #names = [names cellstr('object:number') cellstr('object:EulerNumber')] ;
-    #slfnames = [slfnames cellstr('SLF1.1') cellstr('SLF1.2')] ;
-
     # Calculate the center of fluorescence of IMAGE
     cof = array(center_of_mass(imageproc))
 
@@ -91,19 +111,6 @@ def imgfeatures(imageproc,dnaproc):
     #    of each object to the center of fluorescence
     obj_distances = [] ;
     obj_dnadistances = [] ;
-
-
-    ###################################################################################################
-    # GP 08/08/01
-    # Calls gp_imgmoments, which calls a C implementation of the code commented
-    # out below; the C version runs approx. 100X faster (10,000#)
-    #
-    #[img_moment00, img_moment10, img_moment01, obj_size] = ml_moments_1(int32(imageproc),... 
-    #                                     int32(imagelabeled));
-    #
-    #obj_sizes = obj_size(1,2:end);
-    # /GP
-    ###################################################################################################
 
     moment_length = obj_number  + 1
     img_moment00 = zeros(moment_length);
@@ -163,12 +170,6 @@ def imgfeatures(imageproc,dnaproc):
     obj_size_var = obj_sizes.var()
     obj_size_ratio = obj_sizes.max()/obj_sizes.min() 
 
-    #names = [names cellstr('object_size:average') ...
-    #        cellstr('object_size:variance') ...
-    #        cellstr('object_size:ratio')] ;
-    #slfnames = [slfnames cellstr('SLF1.3') ...
-    #        cellstr('SLF1.4') ...
-    #        cellstr('SLF1.5')] ;
     values.append(obj_size_avg)
     values.append(obj_size_var) 
     values.append(obj_size_ratio)
@@ -182,12 +183,6 @@ def imgfeatures(imageproc,dnaproc):
     else:
         obj_dist_ratio = 0
 
-    #names = [names cellstr('object_distance:average') ... 
-    #        cellstr('object_distance:variance') ...
-    #        cellstr('object_distance:ratio')] ;
-    #slfnames = [slfnames cellstr('SLF1.6') ... 
-    #        cellstr('SLF1.7') ...
-    #        cellstr('SLF1.8')] ;
     values.append(obj_dist_avg)
     values.append(obj_dist_var)
     values.append(obj_dist_ratio)
@@ -201,12 +196,6 @@ def imgfeatures(imageproc,dnaproc):
             obj_dnadist_ratio = obj_dnadistances.max()/obj_dnamindist 
         else:
             obj_dnadist_ratio = 0 ;
-        #names = [names cellstr('DNA_object_distance:average') ...
-        #                   cellstr('DNA_object_distance:variance') ...
-        #                   cellstr('DNA_object_distance:ratio')] ;
-        #slfnames = [slfnames cellstr('SLF2.17') ...
-        #                   cellstr('SLF2.18') ...
-        #                   cellstr('SLF2.19')] ;
         values.append(obj_dnadist_avg)
         values.append(obj_dnadist_var)
         values.append(obj_dnadist_ratio)
@@ -226,15 +215,44 @@ def imgfeatures(imageproc,dnaproc):
             dna_image_area_ratio = dna_area/image_area ;
             image_dna_overlap = image_overlap/image_area ;
         
-        #names = [names cellstr('DNA/image:distance') ...
-        #        cellstr('DNA/image:area_ratio') ...
-        #        cellstr('DNA/image:overlap')] ;
-        #slfnames = [slfnames cellstr('SLF2.20') ...
-        #        cellstr('SLF2.21') ...
-        #        cellstr('SLF2.22')] ;
         values.append(dna_image_distance)
         values.append(dna_image_area_ratio)
         values.append(image_dna_overlap)
     return values
 
+imgfeatures.names = [
+    'object:number',
+    'object:EulerNumber',
+    'object_size:average',
+    'object_size:variance',
+    'object_size:ratio',
+    'object_distance:average',
+    'object_distance:variance',
+    'object_distance:ratio']
+imgfeatures.slfnames = [
+    'SLF1.1',
+    'SLF1.2',
+    'SLF1.3',
+    'SLF1.4',
+    'SLF1.5',
+    'SLF1.6',
+    'SLF1.7',
+    'SLF1.8']
+
+
+imgfeaturesdna.names = imgfeatures.names + [
+    'DNA_object_distance:average',
+    'DNA_object_distance:variance',
+    'DNA_object_distance:ratio',
+    'DNA/image:distance',
+    'DNA/image:area_ratio',
+    'DNA/image:overlap']
+
+imgfeaturesdna.slfnames = imgfeatures.slfnames + [
+    'SLF2.17',
+    'SLF2.18',
+    'SLF2.19',
+    'SLF2.20',
+    'SLF2.21',
+    'SLF2.22']
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:

@@ -82,6 +82,21 @@ def haralickfeatures(img,directions = [0,45,90,135]):
 
     return feats
 
+haralickfeatures.names=[
+    'angular_second_moment',
+    'contrast','correlation',
+    'sum_of_squares',
+    'inverse_diff_moment',
+    'sum_avg',
+    'sum_var',
+    'sum_entropy',
+    'entropy',
+    'diff_var',
+    'diff_entropy',
+    'info_measure_corr_1',
+    'info_measure_corr_2']
+haralickfeatures.slfnames = [ ('SLF3.%d' % n) for n in xrange(66,66+13)]
+
 def entropy(p):
     try:
         from scipy import weave
