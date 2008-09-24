@@ -3,3 +3,28 @@ PySLIC: Python Subcellular Location Image Classifier
 ====================================================
 
 This is a re-implementation in Python of the Murphy Lab image classification code.
+
+==========================================
+DEPENDENCIES
+==========================================
+
+The dependencies are fairly standard libraries:
+
+	+ numpy
+	+ scipy
+    + ImageMagick++
+    + Python Imaging Library
+
+On ubuntu, you can use the following command to install dependencies:
+
+sudo aptitude install python-numpy python-scipy python-imaging libmagick++10
+
+------------------
+Soft Dependencies
+------------------
+
+Soft dependencies are worked around if not present, but there is a perfomance cost.
+
+    * If a C++ compiler is found and useable, the code will run much faster, but it is not a strict dependency.
+    * If ncreduce is installed (http://luispedro.org/software/ncreduce), it will be used by pyslic.classify.
+

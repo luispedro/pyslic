@@ -44,3 +44,10 @@ def test_imports():
         print '''Scipy.weave.inline() failed.
 
     This is not strictly necessary, but it will make feature calculation faster (by 2~3 orders of magnitude).'''
+
+    try:
+        import ncreduce
+    except:
+        print '''import ncreduce failed.
+
+    Ncreduce is needed for use of classification only.'''
