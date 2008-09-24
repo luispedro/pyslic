@@ -23,11 +23,12 @@
 # send email to murphy@cmu.edu
 
 from __future__ import division
-from numpy import *
-from scipy.ndimage import convolve, label
+import numpy
+from scipy import ndimage
 from ..imageprocessing.bbox import croptobbox
 from mmthin import mmthin
 from ..imageprocessing.convexhull import convexhull
+import pickle
 
 __all__ = ['imgskelfeatures', 'find_branch_points']
 
@@ -36,31 +37,36 @@ def imgskelfeatures(protproc):
     values = imgskelfeatures(protproc)
     Compute skeleton features for protproc
 
-   where protproc contains the pre-processed fluorescence image, 
-   Pre-processed means that the image has been cropped and had 
-   pixels of interest selected (via a threshold, for instance).
+    where protproc contains the pre-processed fluorescence image, 
+    Pre-processed means that the image has been cropped and had 
+    pixels of interest selected (via a threshold, for instance).
     """
-    values = [] ;
+    values = []
 
     # Find objects in the image
-    imagelabeled,N = label(protproc > 0)
+    labeled,N = ndimage.label(protproc > 0)
     if N == 0:
-        return zeros(5,double)
-    for i in xrange(1,N+1):
+        return numpy.zeros(5,double)
+    objects = ndimage.find_objects(labeled)
+    for i,slice in enumerate(objects):
         # Get an image of the single object
-        objimage = protproc * (imagelabeled == i)
+        objimage = protproc[slice] * (labeled[slice] == (i+1))
         # Compute skeleton features
-        skelfeats=objskelfeats(objimage)
+        skelfeats=_objskelfeats(objimage)
         values.append(skelfeats)
 
     # Average the skeleton features over the whole cell
-    values=array(values)
+    values=numpy.array(values)
     values=values.mean(0)
-    # SLF names
-    slfnames = []
-    for feat_no in xrange(1,6):
-        slfnames.append('SLF7.%s' % (feat_no+79))
     return values
+
+imgskelfeatures.slfnames = [
+    'SLF7.81',
+    'SLF7.82',
+    'SLF7.83',
+    'SLF7.84',
+    'SLF7.85',
+    'SLF7.86']
 
 
 def find_branch_points(img):
@@ -72,23 +78,23 @@ def find_branch_points(img):
 
     Ported from ml_find_branch_points.m
     """
-    kernel = array([[0,1,0],[1,0,1],[0,1,0]])
-    img=asarray(img,uint8)
-    branch_points = img*convolve(img,kernel,mode='constant')
+    kernel = numpy.array([[0,1,0],[1,0,1],[0,1,0]])
+    img=numpy.asarray(img,numpy.uint8)
+    branch_points = img*ndimage.convolve(img,kernel,mode='constant')
     return (branch_points >= 3)
 
-def objskelfeats(objimg):
+def _objskelfeats(objimg):
     """
-    feats = objskelfeats(objimg)
+    feats = _objskelfeats(objimg)
 
     Calculate skeleton features for the object OBJIMG.
     """
-    objimg = croptobbox(objimg)
+    objimg = objimg
     objbin = objimg > 0
     objsize = objbin.sum()
 
     if objsize == 0:
-        return array([0,0,0,0,0])
+        return numpy.zeros(5)
 
     objskel = mmthin(objbin);
     skellen = (objskel > 0).sum()
@@ -112,7 +118,7 @@ def objskelfeats(objimg):
 
     branch_points = find_branch_points(objskel)
     no_of_branch_points = branch_points.sum()
-    return array([skellen,skel_hull_area_ratio,skel_obj_area_ratio, skel_obj_fluor_ratio,no_of_branch_points/skellen])
+    return numpy.array([skellen,skel_hull_area_ratio,skel_obj_area_ratio, skel_obj_fluor_ratio,no_of_branch_points/skellen])
 
 imgskelfeatures.names = [
     'obj_skel_len',
