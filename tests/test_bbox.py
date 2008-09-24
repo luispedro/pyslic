@@ -20,3 +20,11 @@ def test_bbox():
     assert b1==7
     assert a2==2
     assert b2==9
+
+    img[7,7]=1
+    a1,b1,a2,b2=bbox(img)
+    assert a1==4
+    assert b1==8
+    assert a2==2
+    assert b2==9
+

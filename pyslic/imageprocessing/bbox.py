@@ -46,8 +46,8 @@ def bbox(img):
                 if (img(y,x) > 0) {
                     if (y < vals(0)) vals(0) = y;
                     if (x < vals(1)) vals(1) = x;
-                    if (y > vals(2)) vals(2) = y+1;
-                    if (x > vals(3)) vals(3) = x+1;
+                    if (y >= vals(2)) vals(2) = y+1;
+                    if (x >= vals(3)) vals(3) = x+1;
                 }
             }
         }
