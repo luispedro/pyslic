@@ -24,7 +24,6 @@
 
 from __future__ import division
 import numpy
-import scipy
 from numpy import array, zeros, sqrt, inf, empty
 
 from ..utils import get_pyrandom

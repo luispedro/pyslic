@@ -1,10 +1,9 @@
 import zipfile
-from scipy.misc.pilutil import *
 import os
 import tempfile
 from glob import glob
 from ..image import Image
-import readimg
+from . import readimg
 
 __all__ = ['readtjz_recursive','readtjz']
 

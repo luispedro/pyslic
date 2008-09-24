@@ -1,4 +1,3 @@
-from scipy.misc.pilutil import *
 from os import *
 import os.path
 from os.path import isdir
