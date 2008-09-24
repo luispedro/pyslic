@@ -32,8 +32,17 @@ readimg = numpyutils.Extension('pyslic.image.io.readimg', sources = ['pyslic/ima
 packages=setuptools.find_packages()
 packages.remove('tests')
 
+def test_pyversion():
+    import sys
+    maj,min,_,_,_ = sys.version_info
+    if (maj,min) < (2,5):
+        print "Your Python interpreter is too old for Pyslic.\nUpgrade to 2.5 or newer.\n"
+        sys.exit(1)
+
+test_pyversion()
+
 numpyutils.setup(name='PySLIC',
-      version='0.3.1',
+      version='0.4',
       description='Subcellular Location Image Classifier',
       author='Murphy Lab',
       author_email='murphy@mcu.edu',

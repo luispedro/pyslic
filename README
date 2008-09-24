@@ -19,6 +19,8 @@ python setup.py install --prefix=<SOME_PATH_TO_INSTALL_TO>
 DEPENDENCIES
 ==========================================
 
+This needs Python 2.5 to run.
+
 The dependencies are fairly standard libraries:
 
 	+ numpy
