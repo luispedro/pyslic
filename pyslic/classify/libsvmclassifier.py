@@ -43,7 +43,7 @@ class libsvmClassifier(classifier):
         classifier.__init__(self)
         if _svm is None:
             raise RunTimeError('SVM Library not found. Cannot use this classifier.')
-        self.param = _svm.svm_parameter(kernel_type = RBF)
+        self.param = _svm.svm_parameter(kernel_type = svm.RBF)
     
     def set_option(self,optname,value):
         setattr(self.param,optname,value)
