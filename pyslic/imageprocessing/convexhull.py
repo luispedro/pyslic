@@ -1,5 +1,4 @@
 from __future__ import division
-from matplotlib.nxutils import points_inside_poly, pnpoly
 from ..imageprocessing.bbox import bbox
 from numpy import *
 import Image, ImageDraw

@@ -19,11 +19,11 @@ def test_imports():
     
     
     try:
-        import matplotlib
+        import Image, ImageDraw
     except:
-        print '''matplotlib not present!
+        print '''Python Imaging Library (PIL) not present!
 
-    Please install matplotlib.'''
+    Please install PIL.'''
 
 
 
