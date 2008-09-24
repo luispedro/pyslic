@@ -1,4 +1,5 @@
-# Copyright (C) 2006  Murphy Lab
+# -*- coding: utf-8 -*-
+# Copyright (C) 2006--2008  Murphy Lab
 # Carnegie Mellon University
 #
 # This program is free software; you can redistribute it and/or modify
@@ -20,6 +21,7 @@
 # send email to murphy@cmu.edu
 
 # 19 Dec 98 - M.V. Boland
+# Ported to Python by Luís Pedro Coelho <lpc@cmu.edu>
 
 from __future__ import division
 from math import *
