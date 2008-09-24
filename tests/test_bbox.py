@@ -1,4 +1,4 @@
-from ..imageprocessing.bbox import bbox
+from pyslic.imageprocessing.bbox import bbox
 import numpy
 def test_bbox():
     img=numpy.zeros((10,10))
