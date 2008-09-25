@@ -36,11 +36,15 @@ def preprocessimage(image,regionid,options = {}):
     Preprocess the image
 
     image should be an Image object
-    regionid should be an integer
-    options is a dictionary:
-        'bgsub.way' can be 'ml' (default) or 'mb' and controls whether the region is selected prior to
-                    to preprocessing
-        '3d.mode': can be 'perslice' (default, and currently only option)
+    regionid should be an integer, which indexes into image.region
+
+    options is a dictionary. The following options are accepted:
+
+        + 'bgsub.way': One of
+            - 'ml' (default) 
+            - 'mb' and controls whether the region is selected prior to preprocessing
+         + '3d.mode': On of
+            - 'perslice' (default): process each slice separately
     """
     def preprocessimg(img):
         if len(img.shape) > 2:
