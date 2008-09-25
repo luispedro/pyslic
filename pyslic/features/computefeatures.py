@@ -51,11 +51,20 @@ def computefeatures(img,featsets,progress=None):
 
     features = computefeatures(img,featsets,progress=None)
 
-    Compute features on img.
+    Compute features defined by featsets on image img.
 
-    featsets can be either a list of feature groups (currently recognised:
-        'skl' 'nof' 'img' 'hul' 'zer' 'har' 'edg') or a feature set name
-        (currently recognised 'SLF7dna', 'mcell')
+    featsets can be either a list of feature groups.
+    Feature groups:
+        + 'har': 13 Haralick features [in matslic]
+        + 'har3d': 26 Haralick features (actually this works in 2D as well)
+        + 'skl': Skeleton features [in matslic] (syn: 'skel')
+        + 'img': Image features [in matslic]
+        + 'hul': Hull features [in matslic] (syn: 'hull')
+        + 'edg': Edge features [in matslic] (syn: 'edge')
+        + 'zer': Zernike moments [in matslic]
+    Feature set names:
+        + 'SLF7dna'
+        + 'mcell': field level features
 
     img can be a list of images. In this case, a two-dimensional feature vector will be returned, where
     f[i,j] is the j-th feature of the i-th image. Also, in this case, imgs will be unload after feature calculation.
@@ -82,12 +91,15 @@ def computefeatures(img,featsets,progress=None):
     resprotein=img.channeldata[Image.residualprotein_channel]
     procdna=img.channeldata.get(Image.procdna_channel)
     for F in featsets:
-        if F == 'edg':
+        if F in ['edg','edge']:
             feats=edgefeatures(procprotein)
         elif F == 'har':
             feats=haralickfeatures(procprotein)
             feats=feats.mean(0)
-        elif F == 'hul':
+        elif F == 'har3d':
+            feats=haralickfeatures(procprotein)
+            feats=numpy.r_[feats.mean(0),feats.ptp(0)]
+        elif F in ['hul', 'hull']:
             feats=hullfeatures(procprotein)
         elif F == 'hullsize':
             feats=hullsizefeatures(procprotein)
@@ -99,7 +111,7 @@ def computefeatures(img,featsets,progress=None):
             feats=morphologicalfeatures(procprotein)
         elif F == 'nof':
             feats=noffeatures(procprotein,resprotein)
-        elif F == 'skl':
+        elif F in ['skl', 'skel']:
             feats=imgskelfeatures(procprotein)
         elif F == 'zer':
             feats=zernike(procprotein,12,34.5,scale)

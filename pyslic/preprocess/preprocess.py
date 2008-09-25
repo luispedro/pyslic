@@ -40,8 +40,22 @@ def preprocessimage(image,regionid,options = {}):
     options is a dictionary:
         'bgsub.way' can be 'ml' (default) or 'mb' and controls whether the region is selected prior to
                     to preprocessing
+        '3d.mode': can be 'perslice' (default, and currently only option)
     """
     def preprocessimg(img):
+        if len(img.shape) > 2:
+            assert len(img.shape) == 3, "Cannot handle images of more than 3 dimensions."
+            if options.get('3d.mode','perslice') == 'perslice':
+                nr_slices=img.shape[0]
+                out_proc=img.copy()
+                out_res=img.copy()
+                for z in xrange(nr_slices):
+                    proc,res=preprocessimg(img[z])
+                    out_proc[z]=proc
+                    out_res[z]=res
+                return out_proc,out_res
+            else:
+                raise Exception('pyslic.preprocessimg: Do not know how to handle 3d.mode: %s' % options['3d.mode'])
         img=img.copy()
         cropimg=image.regions
         if cropimg is not None:

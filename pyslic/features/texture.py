@@ -27,16 +27,22 @@ from numpy import *
 
 __all__ = ['haralickfeatures','computecooccurence']
 
-def haralickfeatures(img,directions = [0,45,90,135]):
+def haralickfeatures(img):
     """
     Computes Haralick texture features for img.
+        
 
     Returns a 13-vector of doubles
     """
     if img.max() > 256:
         img = asarray(double(img) * 256./img.max(),uint8)
-    feats=zeros((len(directions),13))
-    for di,dir in enumerate(directions):
+
+    nr_dirs = 4
+    if len(img.shape) == 3:
+        nr_dirs = 13
+
+    feats=zeros((nr_dirs,13))
+    for dir in xrange(nr_dirs):
         p=computecooccurence(img,dir)
         if p.size == 0: continue
         N,_=p.shape
@@ -73,26 +79,28 @@ def haralickfeatures(img,directions = [0,45,90,135]):
 
         i,j=mgrid[:N,:N]
 
-        feats[di,0]=(p**2).sum()
-        feats[di,1]=(k**2*px_minus_y).sum()
+        feats[dir,0]=(p**2).sum()
+        feats[dir,1]=(k**2*px_minus_y).sum()
 
-        feats[di,2]=1./sx/sy * ((i*j*p).sum() - ux*uy)
+        feats[dir,2]=1./sx/sy * ((i*j*p).sum() - ux*uy)
 
-        feats[di,3]=((k-ux)**2*px).sum()
-        feats[di,4]=(1./(1+(i-j)**2)*p).sum()
-        feats[di,5]=(arange(2*N)*px_plus_y).sum()
+        feats[dir,3]=((k-ux)**2*px).sum()
+        feats[dir,4]=(1./(1+(i-j)**2)*p).sum()
+        feats[dir,5]=(arange(2*N)*px_plus_y).sum()
 
-        feats[di,7]=entropy(px_plus_y)
+        feats[dir,7]=entropy(px_plus_y)
         # There is some confusion w.r.t. this feature.
-        # This is the formular in Haralick's paper, but some sources
-        #  consider it a typo that feats[di,7] is used and argue that the
-        #  intended feature is obtained by substituting feats[di,5].
-        # This version is the one in MurphyLab's Matlab implementation
-        feats[di,6]=((arange(2*N)-feats[di,7])**2*px_plus_y).sum()
+        # This is the formula in Haralick's paper, but some sources
+        #  consider it a typo that feats[dir,7] is used and argue that the
+        #  intended feature is obtained by substituting feats[dir,5].
+        #
+        # feats[dir,5] is probably the right one to use.
+        # This version is the one in MurphyLab's Matlab (arguably incorrect) implementation
+        feats[dir,6]=((arange(2*N)-feats[dir,7])**2*px_plus_y).sum()
                                                                  
-        feats[di,8]=entropy(p.ravel())
-        feats[di,9]=px_minus_y.var() # This is wrongly implemented in ml_texture
-        feats[di,10]=entropy(px_minus_y)
+        feats[dir,8]=entropy(p.ravel())
+        feats[dir,9]=px_minus_y.var() # This is wrongly implemented in ml_texture
+        feats[dir,10]=entropy(px_minus_y)
         
         HX=entropy(px)
         HY=entropy(py)
@@ -101,8 +109,8 @@ def haralickfeatures(img,directions = [0,45,90,135]):
         HXY1=-(p*log2(crosspxpy)).sum()
         HXY2=entropy(crosspxpy.ravel())
 
-        feats[di,11]=(feats[di,8]-HXY1)/max(HX,HY)
-        feats[di,12]=sqrt(1-exp(-2*(HXY2-feats[di,8])))
+        feats[dir,11]=(feats[dir,8]-HXY1)/max(HX,HY)
+        feats[dir,12]=sqrt(1-exp(-2*(HXY2-feats[dir,8])))
 
     return feats
 
@@ -142,54 +150,66 @@ def entropy(p):
         p=p[p != 0]
         return scipy.stats.entropy(p)/log(2) # scipy.stats.entropy is natural log based!
 
+_dir_deltas = [
+    (1,0,0),
+    (1,1,0),
+    (0,1,0),
+    (1,-1,0),
+    (0,0,1),
+    (1,0,1),
+    (0,1,1),
+    (1,1,1),
+    (1,-1,1),
+    (1,0,-1),
+    (0,1,-1),
+    (1,1,-1),
+    (1,-1,-1),
+]
 def computecooccurence(img,dir,remove_zeros=True):
-    assert dir in [0,45,90,135]
+    assert dir >= 0
+    assert dir < len(_dir_deltas)
+    assert dir < 5 or len(img.shape) == 3
     Ng=img.max()+1 # 1 for value 0
     comap = zeros((Ng,Ng))
-    N,M=img.shape
-    dx,dy=0,0
-    if dir == 0:
-        dx=1
-    elif dir == 45:
-        dx=1
-        dy=-1
-    elif dir == 90:
-        dy=-1
-    elif dir == 135:
-        dx=-1
-        dy=-1
-    else:
-        assert False
+    if len(img.shape) == 2:
+        img = img.reshape((1,)+img.shape)
+    N0,N1,N2=img.shape
+    dx,dy,dz=_dir_deltas[dir]
     try:
         from scipy import weave
         from scipy.weave import converters
         code = '''
-#line 90 "texture.py"
-        int ny,nx;
-        for (int y = 0; y != N; ++y) {
-            for (int x = 0; x != M; ++x) {
-                ny=y+dy;
-                nx=x+dx;
-                if (nx < 0 || ny < 0 || ny >= N || nx >= M) continue;
-                int p=img(y,x);
-                int n=img(ny,nx);
-                ++comap(p,n);
+#line 180 "texture.py"
+        int nz,ny,nx;
+        for (int z = 0; z != N0; ++z) {
+            for (int y = 0; y != N1; ++y) {
+                for (int x = 0; x != N2; ++x) {
+                    nz=z+dz;
+                    ny=y+dy;
+                    nx=x+dx;
+                    if (nz < 0 || nx < 0 || ny < 0 || nz >= N0 || ny >= N1 || nx >= N2) continue;
+                    int p=img(z,y,x);
+                    int n=img(nz,ny,nx);
+                    ++comap(p,n);
+                }
             }
         }
         '''
         weave.inline(code,
-            ['N','M','dx','dy','comap','img'],
+            ['N0','N1','N2','dz','dy','dx','comap','img'],
             type_converters=converters.blitz)
     except:
-        for y in xrange(N):
-            for x in xrange(M):
-                ny=y+dy
-                nx=x+dx
-                if ny < 0 or nx < 0 or ny >= N or nx >= M:
-                    continue
-                p=img[y,x]
-                n=img[ny,nx]
-                comap[p,n] += 1
+        for z in xrange(N0):
+            for y in xrange(N1):
+                for x in xrange(N2):
+                    nz=z+dz
+                    ny=y+dy
+                    nx=x+dx
+                    if nz < 0 or ny < 0 or nx < 0 or nz > N0 or ny >= N1 or nx >= N2:
+                        continue
+                    p=img[z,y,x]
+                    n=img[nz,ny,nx]
+                    comap[p,n] += 1
     comap = comap + comap.T
     if remove_zeros:
         comap=comap[1:,1:]

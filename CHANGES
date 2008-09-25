@@ -1,0 +1,8 @@
+=================
+CHANGES
+=================
+
+Since version 0.4:
+------------------
+    * imgskelfeatures is much faster (5~10 times)
+    * added 3d texture features
