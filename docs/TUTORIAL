@@ -1,14 +1,16 @@
 ==========================================
-CONVENTIONS
+PySLIC TUTORIAL
 ==========================================
+
+CONVENTIONS
+-----------
 
  + Functions that use random numbers take a parameter R which can be used to initialise
         random numbers. See utils.get_random for details.
  + Arguments should not be modified unless expected (and stated in __doc__ string)
 
-==========================================
 IMAGE TYPE
-==========================================
+----------
 
 The Image type (pyslic.Image) is the basic type of pyslic.
 
@@ -34,9 +36,8 @@ For example, to load a directory full of images:
 This creates a list *imgs* where each element is an image.
 
 
-==========================================
 COMPUTING FEATURES
-==========================================
+------------------
 
 There are two ways to compute features:
 	* Through computefeatures()
@@ -52,7 +53,7 @@ USING COMPUTEFEATURES
 from pyslic import Image, computefeatures
 
 image=Image()
-# Set up the images
+# Set up the image
 image.channels[Image.protein_channel]='/images/image-prot.png'
 image.channels[Image.dna_channel]='/images/image-dna.png'
 image.channels[Image.crop_channel]='/images/image-crop.png'
