@@ -22,10 +22,11 @@
 # For additional information visit http://murphylab.web.cmu.edu or
 # send email to murphy@cmu.edu
 
+from __future__ import division
+import numpy
 from string import upper
 from ..image import Image
 from ..preprocess import preprocessimage
-from numpy import *
 
 from edgefeatures import edgefeatures
 from texture import haralickfeatures
@@ -45,31 +46,38 @@ def _featsfor(featset):
         return ['har','img','edg','skl']
     return [featset]
 
-def computefeatures(img,featsets):
+def computefeatures(img,featsets,progress=None):
     '''
+
+    features = computefeatures(img,featsets,progress=None)
+
     Compute features on img.
 
     featsets can be either a list of feature groups (currently recognised:
         'skl' 'nof' 'img' 'hul' 'zer' 'har' 'edg') or a feature set name
         (currently recognised 'SLF7dna', 'mcell')
 
-    img can be a list of images. In this case, a list of feature vectors will be returned.
-        Also, in this case, imgs will be unload after feature calculation.
+    img can be a list of images. In this case, a two-dimensional feature vector will be returned, where
+    f[i,j] is the j-th feature of the i-th image. Also, in this case, imgs will be unload after feature calculation.
+
+    @param progress: if progress is not None, then it should be an integer. Every progress images, an output message will be printed.
     '''
     if type(featsets) == str:
         featsets = _featsfor(featsets)
     if type(img) == list:
         features=[]
-        for i in img:
-            f=computefeatures(i,featsets)
+        for i,im in enumerate(img):
+            f=computefeatures(im,featsets)
             features.append(f)
-            i.unload()
-        return features
+            im.unload()
+            if progress is not None and (i % progress) == 0:
+                print 'Processed %s images...' % i
+        return numpy.array(features)
     scale=img.scale
     if scale is None:
         scale = .23
     preprocessimage(img,1,{})
-    features=array([])
+    features=numpy.array([])
     procprotein=img.channeldata[Image.procprotein_channel]
     resprotein=img.channeldata[Image.residualprotein_channel]
     procdna=img.channeldata.get(Image.procdna_channel)
@@ -97,7 +105,7 @@ def computefeatures(img,featsets):
             feats=zernike(procprotein,12,34.5,scale)
         else:
             raise Exception('Unknown feature set: %s' % F)
-        features = r_[features,feats]
+        features = numpy.r_[features,feats]
     return features
 
 def featurenames(featsets):
