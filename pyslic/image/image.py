@@ -71,6 +71,32 @@ class Image(object):
     Represents a multi-channel image.
 
     Images are loaded in a lazy fashion.
+
+    Class variables:
+        * label: a label
+        * id: an id.
+            'label' & 'id' are for the user (i.e., class Image will not use them/change them). Generally, 
+            in a given collection 'id' is unique, but 'label' is shared across many images in the same class.
+
+        * channels: this is a dictionary from channel-id to filename
+
+        * channeldata: Once the image is loaded, this is a dictionary from channel-id to image array
+
+        * loaded: Boolean, whether the image has been loaded.
+        * load_function: a function that takes a filename and returns an array.
+        * post_load: a list of functions that are called post-loading. They are called with self as their single argument.
+            This is useful for implementing normalisation, for example.
+                
+        * scale: scale of the image in microns/pixel.
+        * regions: saves the segmentation of the image as a labeled map of regions.
+
+        * attributes: this is a dictionary for the user's use.
+
+    Pickling
+    --------
+
+    Images can be pickled, but image data *does not* go with the pickling. Pickling an image is always the same as pickling its
+    unloaded version.
     """
     dna_channel='dna'
     protein_channel='protein'
@@ -81,17 +107,6 @@ class Image(object):
     procprotein_channel='procprotein'
     residualprotein_channel='resprotein'
 
-    __slots__ = [
-                'attributes',
-                'label',
-                'id',
-                'scale',
-                'regions',
-                'channels',
-                'channeldata',
-                'loaded',
-                'load_function',
-                ]
 
     def __init__(self):
         '''
@@ -109,6 +124,7 @@ class Image(object):
         self.regions=None
         self.channeldata={}
         self.attributes={}
+        self.post_load=[]
 
     def __getstate__(self):
         return (self.attributes,self.label,self.id,self.scale,self.channels,self.loaded,self.load_function)
@@ -163,6 +179,8 @@ class Image(object):
             # These files often need to be fixed 
             self.regions,_ = label(self.regions)
         self.loaded = True
+        for post in self.post_load:
+            post(self)
 
     def unload(self):
         '''

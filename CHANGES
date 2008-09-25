@@ -6,3 +6,4 @@ Since version 0.4:
 ------------------
     * imgskelfeatures is much faster (5~10 times)
     * added 3d texture features
+    * add support for post_load actions in pyslic.Image
