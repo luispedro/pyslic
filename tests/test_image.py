@@ -25,12 +25,49 @@
 from __future__ import division
 import numpy
 import pyslic
+import pickle
 from pyslic.image.io import readimg
+import os
 from os.path import dirname
 basedir=dirname(__file__)
+protimg=(basedir+'/data/protimg.bmp')
 
 def test_readimg():
-    img = readimg(basedir+'/data/protimg.bmp')
+    img = readimg(protimg)
     assert img.shape == (1024, 1344)
 
+def _buildimg():
+    img = pyslic.Image()
+    img.channels[img.protein_channel] = protimg
+    return img
+
+def test_image_load():
+    img = _buildimg()
+    assert img.protein_channel not in img.channeldata
+    img.load()
+    assert img.loaded
+
+    assert img.dna_channel not in img.channeldata
+    img_direct = readimg(protimg)
+    assert numpy.all(img_direct == img.channeldata[img.protein_channel])
+
+    img.unload()
+    assert not img.loaded
+    assert img.protein_channel not in img.channeldata
+    assert img.dna_channel not in img.channeldata
+
+def test_image_pickle():
+    img = _buildimg()
+    pickle_filename='/tmp/pyslic.test.img.pp'
+    pickle.dump(img,file(pickle_filename,'w'))
+    img2=pickle.load(file(pickle_filename))
+    assert img.channels[img.protein_channel] == img2.channels[img.protein_channel]
+    assert not img2.loaded
+    img.load()
+    pickle.dump(img,file(pickle_filename,'w'))
+    img2=pickle.load(file(pickle_filename))
+    assert not img2.loaded
+    assert img2.protein_channel not in img2.channeldata
+    assert img2.dna_channel not in img2.channeldata
+    os.unlink(pickle_filename)
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
