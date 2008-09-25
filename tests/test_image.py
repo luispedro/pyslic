@@ -30,7 +30,7 @@ from pyslic.image.io import readimg
 import os
 from os.path import dirname
 basedir=dirname(__file__)
-protimg=(basedir+'/data/protimg.bmp')
+protimg=(basedir+'/data/protimg.jp2')
 
 def test_readimg():
     img = readimg(protimg)
