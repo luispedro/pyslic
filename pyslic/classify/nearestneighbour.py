@@ -22,11 +22,30 @@
 # For additional information visit http://murphylab.web.cmu.edu or
 # send email to murphy@cmu.edu
 
-from accuracy import accuracy, waccuracy, rowsto1
-from classify import *
-from libsvmclassifier import libsvmClassifier
-from classifywrap import concattransformers, pretransformclassifier
-from nfoldcrossvalidation import nfoldcrossvalidation
-import normalise
-from normalise import *
-from nearestneighbour import NNClassifier
+from __future__ import division
+import numpy
+from .classifier import classifier, classification_result
+
+__all__ = ['NNClassifier']
+
+class NNClassifier(classifier):
+    '''
+    Nearest Neighbour Classifier
+    ----------------------------
+
+    Implements a nearest neighbour classifier. Currently, uses the simplest
+    implementation with O(N) classification time.
+    '''
+    def __init__(self):
+        classifier.__init__(self)
+    
+    def _dotrain(self,features,labels):
+        self.training=features.copy()
+        self.labels=labels.copy()
+
+    def _doapply(self,feats):
+        dists = ((self.training-feats)**2).sum(1)
+        idx = dists.argmin()
+        return self.labels[idx]
+
+# vim: set ts=4 sts=4 sw=4 expandtab smartindent:
