@@ -29,7 +29,7 @@ from classify import defaultclassifier
 from classifier import normaliselabels
 
 __all__=['nfoldcrossvalidation']
-def nfoldcrossvalidation(features,labels,nfolds=10,classifier=None, return_predictions=False):
+def nfoldcrossvalidation(features,labels,nfolds=None,classifier=None, return_predictions=False):
     '''
     Perform n-fold cross validation
 
@@ -43,6 +43,7 @@ def nfoldcrossvalidation(features,labels,nfolds=10,classifier=None, return_predi
 
     @param features: a feature matrix or list of feature vectors
     @param labels: an array of labels, where label[i] is the label corresponding to features[i]
+    @param nfolds: Nr of folds.
     @param return_predictions: whether to return predictions
 
     classifier should implement the train() and apply() methods
@@ -57,6 +58,14 @@ def nfoldcrossvalidation(features,labels,nfolds=10,classifier=None, return_predi
     classcounts={}
     for L in labels:
         classcounts[L] = classcounts.get(L,0) + 1
+
+    min_class_count = min(classcounts.values())
+    if nfolds is None:
+        nfolds = min(10,min_class_count)
+    elif min_class_count < nfolds:
+        from warnings import warn
+        warn('pyslic.classify.nfoldcrossvalidation: Reducing the nr. of folds to %s (minimum class size).' % min_class_count)
+        nfolds=min_class_count
     
     nclasses=len(classcounts)
     cmatrix=zeros((nclasses,nclasses))
