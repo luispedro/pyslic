@@ -37,7 +37,7 @@ try:
 except:
     pass
 
-__ALL__=['libsvmClassifier']
+__all__=['libsvmClassifier']
 class libsvmClassifier(classifier):
     def __init__(self):
         classifier.__init__(self)
