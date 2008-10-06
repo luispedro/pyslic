@@ -51,3 +51,7 @@ def test_imports():
         print '''import ncreduce failed.
 
     Ncreduce is needed for use of classification only.'''
+
+if __name__ == '__main__':
+    test_imports()
+
