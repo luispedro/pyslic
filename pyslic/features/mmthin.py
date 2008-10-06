@@ -25,7 +25,6 @@
 
 from numpy import *
 from scipy.ndimage import binary_hit_or_miss
-from scipy.misc.pilutil import imshow
 from ..imageprocessing.bbox import bbox
 
 __all__ = ['mmthin']

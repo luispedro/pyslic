@@ -24,7 +24,6 @@
 
 from __future__ import division
 import numpy
-from scipy.misc.pilutil import imshow, bytescale
 from scipy.ndimage import label
 import io.readimg
 from contextlib import contextmanager
@@ -40,7 +39,10 @@ def _open_file_bw(fname):
         A=A.mean(2)
     return A
 
-_showimage=imshow
+def _showimage(img):
+    from scipy.misc.pilutil import imshow
+    imshow(img)
+
 def setshowimage(f):
     '''
     Set the function that shows an image.
@@ -220,8 +222,8 @@ class Image(object):
         self.lazy_load()
         def getchannel(channel):
             if type(self.channels[Image.protein_channel]) == list:
-                return bytescale(self.channeldata[channel][idx,:,:])
-            return bytescale(self.channeldata[channel])
+                return self.channeldata[channel][idx,:,:]
+            return self.channeldata[channel]
         prot=getchannel(self.protein_channel)
         X,Y=prot.shape
         composite=numpy.zeros((X,Y,3),numpy.uint8)
