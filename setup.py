@@ -24,11 +24,11 @@
 
 import setuptools
 import numpy.distutils.core as numpyutils
+from pyslic.image.io.setup import readimg_args
 
 convexhull = numpyutils.Extension('pyslic/imageprocessing/_convexhull', sources = ['pyslic/imageprocessing/convexhull.cpp'])
 
-magick_libraries= ['Magick++','Wand','Magick'] # This is gotten from magick++-config --libs
-readimg = numpyutils.Extension('pyslic.image.io.readimg', sources = ['pyslic/image/io/readimg.cpp'], libraries=magick_libraries) 
+readimg = numpyutils.Extension('pyslic.image.io.readimg', sources = ['pyslic/image/io/readimg.cpp'], **readimg_args())
 packages=setuptools.find_packages()
 packages.remove('tests')
 
@@ -42,7 +42,7 @@ def test_pyversion():
 test_pyversion()
 
 numpyutils.setup(name='PySLIC',
-      version='0.4.1',
+      version='0.4.2',
       description='Subcellular Location Image Classifier',
       author='Murphy Lab',
       author_email='murphy@mcu.edu',

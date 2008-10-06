@@ -19,14 +19,18 @@ python setup.py install --prefix=<SOME_PATH_TO_INSTALL_TO>
 DEPENDENCIES
 ==========================================
 
-This needs Python 2.5 to run.
+------------------
+Hard Dependencies
+------------------
+
+These are needed for Python 2.5 to run.
 
 The dependencies are fairly standard libraries:
 
 	+ numpy
-	+ scipy
-    + ImageMagick++
+	+ scipy (some processors may need to use the new version, 0.7---currently unstable)
     + Python Imaging Library
+    + ImageMagick++ (The C++ bindings to ImageMagick)
 
 On ubuntu, you can use the following command to install dependencies:
 
