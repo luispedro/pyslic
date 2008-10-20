@@ -121,7 +121,14 @@ def bgsub(img,options = {}):
         raise KeyError('Background subtraction option not recognised (%s).' % type)
 
 def _scale(img):
-    img=asarray(img,uint32)
+    '''
+    scaled = _scale(img)
+
+    Returns a scaled version of img, where
+        scaled.min() ~= 0
+        scaled.max() ~= 255
+    '''
+    img=asarray(img,int32)
     M=img.max()
     m=img.min()
     return (img-m)*255/(M-m)
