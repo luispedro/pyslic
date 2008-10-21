@@ -21,10 +21,11 @@
 
 from __future__ import division
 from numpy import *
-from scipy.ndimage import sobel, convolve
+from scipy import ndimage
+from ..imageprocessing import sobeledge
 import math
 
-atan2=vectorize(math.atan2)
+_atan2=vectorize(math.atan2)
 
 def edgefeatures(protproc):
     """
@@ -61,7 +62,7 @@ def edgefeatures(protproc):
     """  
         
     binimg=(protproc > 0)
-    edges = sobel(protproc) > 100
+    edges = sobeledge(protproc) > 100
     A = edges.sum()/binimg.sum()
     #A = bwarea(edge(imageproc,'canny',[]))/bwarea(im2bw(imageproc)) ;
 
@@ -71,12 +72,12 @@ def edgefeatures(protproc):
 
     # Calculation of the gradient from two orthogonal directions
     protproc=asarray(protproc.copy(),int16)
-    iprocN = convolve(protproc,N)
-    iprocW = convolve(protproc,W)
+    iprocN = ndimage.convolve(protproc,N)
+    iprocW = ndimage.convolve(protproc,W)
 
     # Calculate the magnitude and direction of the gradient
     iprocmag = sqrt(iprocN**2 + iprocW**2)
-    iproctheta = atan2(iprocN, iprocW)
+    iproctheta = _atan2(iprocN, iprocW)
 
     # Change by MV:
     # Identify pixels in iprocmag that are not 0
