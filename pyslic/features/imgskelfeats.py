@@ -46,7 +46,7 @@ def imgskelfeatures(protproc):
     # Find objects in the image
     labeled,N = ndimage.label(protproc > 0)
     if N == 0:
-        return numpy.zeros(5,double)
+        return numpy.zeros(5,numpy.float64)
     objects = ndimage.find_objects(labeled)
     for i,slice in enumerate(objects):
         # Get an image of the single object
