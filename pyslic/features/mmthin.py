@@ -23,6 +23,8 @@
 # For additional information visit http://murphylab.web.cmu.edu or
 # send email to murphy@cmu.edu
 
+from __future__ import division
+import numpy
 from numpy import *
 from scipy.ndimage import binary_hit_or_miss
 from ..imageprocessing.bbox import bbox
@@ -116,12 +118,12 @@ def hitmiss(binimg,struct_elem,result = None):
     assert struct_elem.shape == (3,3)
     r,c=binimg.shape
     if result is None:
-        result= empty((r,c))
+        result= numpy.empty((r,c))
     try:
         from scipy import weave
         from scipy.weave import converters
         code = '''
-#line 105 "mmthin.py"
+#line 127 "mmthin.py"
         for (int y = 0; y != r-1 ; ++y) {
             for (int x = 0; x != c-1; ++x) {
                 result(y+1,x+1) = 0;
