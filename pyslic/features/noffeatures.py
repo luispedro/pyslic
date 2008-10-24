@@ -30,8 +30,10 @@ def noffeatures(procimg,nofimg):
     """
     obj_fluor = procimg.sum()
     nonobj_fluor = nofimg.sum()
-    nonobj_feat = nonobj_fluor / (obj_fluor + nonobj_fluor)
-    return nonobj_feat
+    total_fluor = (obj_fluor + nonobj_fluor)
+    if total_fluor == 0:
+        return 1.
+    return nonobj_fluor/total_fluor
 
 noffeatures.names = 'fract_nonobj_fluor'
 noffeatures.slf_names = ['SLF7.79']

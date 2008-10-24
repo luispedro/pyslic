@@ -9,3 +9,13 @@ def test_imgfeatcalc():
     Img.channels[Img.dna_channel]=basedir+'/data/dnaimg.jp2'
     F=pyslic.computefeatures(Img,'SLF7dna')
     assert F.size == 90
+
+def test_zero_image():
+    img=pyslic.Image()
+    img.channeldata[img.protein_channel] = numpy.zeros((10,10))
+    img.loaded=True
+    img.channels[img.protein_channel]='<special>'
+    F=pyslic.computefeatures(img,'SLF7dna')
+    assert F.size == 90
+    assert numpy.isnan(F).sum() == 0
+

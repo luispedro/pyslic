@@ -20,6 +20,7 @@
 # send email to murphy@cmu.edu
 
 from __future__ import division
+import numpy
 from ..imageprocessing.bwperim import bwperim
 from imgmoments import imgcentmoments
 from ..imageprocessing.convexhull import convexhull
@@ -103,14 +104,15 @@ def hullfeatures(imageproc,imagehull=None):
         imagehull = convexhull(imageproc > 0)
 
     imagehull,Ahull, Phull, hull_semimajor, hull_semiminor = _hull_computations(imageproc,imagehull)
+    if Ahull == 0: return numpy.array([0,0,0])
     hullfract = double((imageproc > 0).sum())/Ahull
     hullshape = (Phull**2)/(4*pi*Ahull)
 
     if hull_semimajor != 0.:
-        hull_eccentricity = sqrt(hull_semimajor**2 - hull_semiminor**2) / hull_semimajor ;
+        hull_eccentricity = sqrt(hull_semimajor**2 - hull_semiminor**2) / hull_semimajor
     else:
         hull_eccentricity = 0.
-    return array([hullfract,hullshape,hull_eccentricity])
+    return numpy.array([hullfract,hullshape,hull_eccentricity])
 
 hullfeatures.names = ['convex_hull:fraction_of_overlap', 'convex_hull:shape_factor', 'convex_hull:eccentricity']
 hullfeatures.slf_names = ['SLF1.14', 'SLF1.15', 'SLF1.16']
