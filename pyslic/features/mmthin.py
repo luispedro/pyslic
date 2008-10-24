@@ -25,8 +25,7 @@
 
 from __future__ import division
 import numpy
-from numpy import *
-from scipy.ndimage import binary_hit_or_miss
+from scipy import ndimage
 from ..imageprocessing.bbox import bbox
 
 __all__ = ['mmthin']
@@ -80,14 +79,14 @@ def mmthin(binimg):
             [0,1,1],
             [2,1,1]])
 
-    struct_elem=[array(E) for E in struct_elem]
+    struct_elem=[numpy.array(E) for E in struct_elem]
     min1,max1,min2,max2 = bbox(binimg)
     r,c=(max1-min1,max2-min2)
     acnum_elem = 0;
     total_op=0
 
-    image_exp = zeros((r+2, c+2),int8)
-    imagebuf = zeros((r+2,c+2),int8)
+    image_exp = numpy.zeros((r+2, c+2),numpy.int8)
+    imagebuf = numpy.zeros((r+2,c+2),numpy.int8)
     image_exp[1:r+1, 1:c+1] = binimg[min1:max1,min2:max2]
     while True:
         newimg=hitmiss(image_exp,struct_elem[acnum_elem],imagebuf)
@@ -114,11 +113,10 @@ def hitmiss(binimg,struct_elem,result = None):
     Returns result and ops == result.sum() [it is just easier to compute it directly]
     '''
 # Adapted from ml_mmhitmiss and ported to python by Luis Pedro Coelho
-
     assert struct_elem.shape == (3,3)
     r,c=binimg.shape
     if result is None:
-        result= numpy.empty((r,c))
+        result= numpy.zeros((r,c))
     try:
         from scipy import weave
         from scipy.weave import converters
@@ -155,7 +153,7 @@ def hitmiss(binimg,struct_elem,result = None):
                 if hits == 9:
                     result[y+1,x+1]=1
                 else:
-                    results[y+1,x+1]=0
+                    result[y+1,x+1]=0
     return result
 
 def fastany(A):
