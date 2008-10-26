@@ -35,11 +35,14 @@ from noffeatures import noffeatures
 from imgfeatures import imgfeatures, imgfeaturesdna
 from hullfeatures import hullfeatures, hullsizefeatures
 from zernike import zernike
+from tas import tas, pftas
 
 __all__ = ['computefeatures','featurenames']
 
 def _featsfor(featset):
     ufeatset=upper(featset)
+    if ufeatset == 'ALL':
+        return ['skl','nof','img','hul','zer','har','edg','pftas']
     if ufeatset == 'SLF13' or ufeatset == 'SLF7DNA':
         return ['skl','nof','img','hul','zer','har','edg']
     if ufeatset == 'MCELL':
@@ -62,6 +65,8 @@ def computefeatures(img,featsets,progress=None):
         + 'hul': Hull features [in matslic] (syn: 'hull')
         + 'edg': Edge features [in matslic] (syn: 'edge')
         + 'zer': Zernike moments [in matslic]
+        + 'tas' : Threshold Adjacency Statistics
+        + 'pftas' : Parameter-free Threshold Adjacency Statistics
     Feature set names:
         + 'SLF7dna'
         + 'mcell': field level features
@@ -87,6 +92,7 @@ def computefeatures(img,featsets,progress=None):
         scale = .23
     preprocessimage(img,1,{})
     features=numpy.array([])
+    protein=img.channeldata[Image.protein_channel]
     procprotein=img.channeldata[Image.procprotein_channel]
     resprotein=img.channeldata[Image.residualprotein_channel]
     procdna=img.channeldata.get(Image.procdna_channel)
@@ -115,6 +121,10 @@ def computefeatures(img,featsets,progress=None):
             feats=imgskelfeatures(procprotein)
         elif F == 'zer':
             feats=zernike(procprotein,12,34.5,scale)
+        elif F == 'tas':
+            feats=tas(protein)
+        elif F == 'pftas':
+            feats=pftas(procprotein)
         else:
             raise Exception('Unknown feature set: %s' % F)
         features = numpy.r_[features,feats]
@@ -149,6 +159,10 @@ def featurenames(featsets):
         elif F == 'zer':
             feats=(procprotein)
             names.extend(zernike.names)
+        elif F == 'tas':
+            names.extend(tas.names)
+        elif F == 'pftas':
+            names.extend(pftas.names)
         else:
             raise Exception('Unknown feature set: %s' % F)
     return names

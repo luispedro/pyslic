@@ -1,5 +1,6 @@
 import numpy
 import pyslic
+import pyslic.features.tas
 from os.path import dirname
 basedir=dirname(__file__)
 
@@ -19,3 +20,15 @@ def test_zero_image():
     assert F.size == 90
     assert numpy.isnan(F).sum() == 0
 
+def test_tas():
+    img=basedir+'/data/protimg.jp2'
+    img=pyslic.image.io.readimg(img)
+
+    IMG=pyslic.Image()
+    IMG.channeldata[IMG.protein_channel]=img
+    IMG.loaded=True
+    IMG.channels[IMG.protein_channel]='<special>'
+    assert len(pyslic.features.tas.tas(img)) == 18
+    assert len(pyslic.features.tas.pftas(img)) == 18
+
+    assert numpy.all(pyslic.features.tas.tas(img) == pyslic.computefeatures(IMG,['tas']))
