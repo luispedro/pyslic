@@ -39,7 +39,10 @@ def defaultclassifier():
     from pymlclassifier import PyMLSVM
     from featureselection import sda_filter, remove_repeated_features, remove_linear_dependent_features
     from numpy import arange
-    return pretransformclassifier([chkfinite(),interval_normalise(),remove_linear_dependent_features(),sda_filter()],gridsearch(libsvmClassifier(),C=2.**arange(-4,10), gamma=2.**arange(-7,2)))
+    return pretransformclassifier(
+                    [chkfinite(),interval_normalise(),remove_linear_dependent_features(),sda_filter()], # pre-process
+                    gridsearch(libsvmClassifier(),C=2.**arange(-4,10), gamma=2.**arange(-7,2)) # classify
+                    )
 
 def fastclassifier():
     '''

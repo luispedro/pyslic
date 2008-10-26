@@ -39,11 +39,12 @@ except:
 
 __all__=['libsvmClassifier']
 class libsvmClassifier(classifier):
-    def __init__(self):
+    def __init__(self,probability = False):
         classifier.__init__(self)
         if _svm is None:
             raise RuntimeError('SVM Library not found. Cannot use this classifier.')
-        self.param = _svm.svm_parameter(kernel_type = svm.RBF)
+        self.param = _svm.svm_parameter(kernel_type = svm.RBF, probability = probability)
+        self.output_probability = False
     
     def set_option(self,optname,value):
         setattr(self.param,optname,value)
@@ -53,6 +54,8 @@ class libsvmClassifier(classifier):
         self.model=_svm.svm_model(problem,self.param)
 
     def _doapply(self,feats):
+        if self.output_probability:
+            return self.model.predict_probability(feats)
         return self.model.predict(feats)
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
