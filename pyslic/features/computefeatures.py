@@ -24,6 +24,7 @@
 
 from __future__ import division
 import numpy
+from scipy import ndimage
 from string import upper
 from ..image import Image
 from ..preprocess import preprocessimage
@@ -49,7 +50,10 @@ def _featsfor(featset):
         return ['har','img','edg','skl']
     return [featset]
 
-def computefeatures(img,featsets,progress=None):
+_Default_Haralick_Scale = 1.15
+_Default_Haralick_Bins = 32
+
+def computefeatures(img,featsets,progress=None,**kwargs):
     '''
 
     features = computefeatures(img,featsets,progress=None)
@@ -100,6 +104,14 @@ def computefeatures(img,featsets,progress=None):
         if F in ['edg','edge']:
             feats=edgefeatures(procprotein)
         elif F == 'har':
+            img=procprotein
+            har_scale = kwargs.get('haralick.scale',_Default_Haralick_Scale)
+            if scale != har_scale:
+                img = img.copy()
+                img = ndimage.zoom(img, scale/_Default_Haralick_Scale)
+            bins = kwargs.get('haralick.bins',_Default_Haralick_Bins)
+            if bins != 256:
+                img = numpy.array(img.astype(float) * bins / (img.max()-img.min()),numpy.uint8)
             feats=haralickfeatures(procprotein)
             feats=feats.mean(0)
         elif F == 'har3d':
