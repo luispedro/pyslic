@@ -169,10 +169,12 @@ def computecooccurence(img,dir,remove_zeros=True):
     assert dir >= 0
     assert dir < len(_dir_deltas)
     assert dir < 5 or len(img.shape) == 3
-    Ng=img.max()+1 # 1 for value 0
-    comap = zeros((Ng,Ng))
     if len(img.shape) == 2:
         img = img.reshape((1,)+img.shape)
+    if img.min() < 0:
+        img = img - img.min()
+    Ng=img.max()+1
+    comap = zeros((Ng,Ng))
     N0,N1,N2=img.shape
     dx,dy,dz=_dir_deltas[dir]
     try:
