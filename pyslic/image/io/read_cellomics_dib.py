@@ -31,7 +31,7 @@ def read_cellomics_dib(input):
     '''
     Reads an image in Cellomics DIB format.
 
-    Returns numpy uint16 array.
+    Returns a numpy uint16 array.
 
     Cellomics DIB format is slightly different than Window DIB format,
     as the data is 16-bit greyscale (as opposed to colour). Therefore,
@@ -69,7 +69,7 @@ def read_cellomics_dib(input):
     if bitsppixel != 16:
         raise IOError, 'Bits per pixel is not 16'
     img=numpy.zeros((width,height),numpy.dtype('<H'))
-    img.data[:] =input.read(2*width*height) # This is very fast
+    img.data[:]=input.read(2*width*height) # This is very fast
 
     # The scan order needs to be fixed
     return img[::-1,:]
