@@ -23,8 +23,10 @@
 
 
 #include <string>
+#include <exception>
+#include <stdexcept>
 #include <Magick++.h>
-
+#include <iostream>
 
 extern "C" {
     #include <Python.h>
@@ -118,6 +120,47 @@ PyObject* readimgfromblob(PyObject* self, PyObject* args) {
         return 0;
     }
 }
+
+PyObject* writeimg(PyObject* self, PyObject* args) {
+	PyArrayObject* input;
+	const char* output_filename;
+	if (!PyArg_ParseTuple(args,"Os",&input,&output_filename)) {
+         PyErr_SetString(PyExc_TypeError,"writeimg takes image data as input");
+         return 0;
+    }
+    try {
+        if (PyArray_NDIM(input) > 3 || PyArray_NDIM(input) < 2) {
+            throw std::runtime_error("writeimg: Can only handle arrays of the form H x W  or H x W x 3.");
+        }
+        if (PyArray_NDIM(input) == 3 && PyArray_DIM(input,2) != 3) {
+            throw std::runtime_error("writeimg: Can only handle arrays of the form H x W  or H x W x 3.");
+        }
+        if (!PyArray_ISCARRAY(input)) {
+            throw std::runtime_error("writeimg: Can only handle contiguous arrays");
+        }
+        // if (!PyArray_ISCARRAY(input)) {
+        //     input = PyArray_MAKE_CONTINGUOUS(input);
+        //  }
+        const int height = PyArray_DIM(input,0);
+        const int width = PyArray_DIM(input,1);
+        const bool is_colour = (PyArray_NDIM(input) > 2);
+        const char * const pixel_ordering = is_colour ? "RGB" : "I";
+        StorageType storage_type;
+        if (PyArray_TYPE(input) == PyArray_UBYTE) {
+            storage_type = CharPixel;
+        } else if (PyArray_TYPE(input) == PyArray_USHORT) {
+            storage_type = ShortPixel;
+        } else {
+            throw std::runtime_error("writeimg: Cannot handle this type (only handles uint8 & uint16)");
+        }
+        Image img(width,height,pixel_ordering,storage_type,PyArray_DATA(input));
+        img.write(output_filename);
+        Py_RETURN_NONE;
+    } catch ( std::exception& error_ ) {
+        PyErr_SetString(PyExc_EOFError,error_.what());
+        return 0;
+    }
+}
         
 
 const char * readimg_doc = 
@@ -146,9 +189,20 @@ const char * readimgfromblob_doc =
     "@see readimg\n"
     ;
 
+const char * writeimg_doc =
+    "writeimg(array,filename)\n"
+    "\n"
+    "Writes image array to filename using Image Magick.\n"
+    "\n"
+    "Handles colour images (stored in HxWx3 format) or single channel.\n"
+    "Handles images stored as both uint8 (in which case the output is 8-bit) or\n"
+    "uint16 (in which case the output may be 16-bit if the output format supports it).\n"
+    ;
+
 PyMethodDef methods[] = {
   {"readimg",readimg, METH_VARARGS , readimg_doc },
   {"readimgfromblob",readimgfromblob, METH_VARARGS , readimgfromblob_doc },
+  {"writeimg",writeimg, METH_VARARGS , writeimg_doc},
   {NULL, NULL,0,NULL},
 };
 
