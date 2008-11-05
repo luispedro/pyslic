@@ -222,8 +222,12 @@ class Image(object):
         self.lazy_load()
         def getchannel(channel):
             if type(self.channels[Image.protein_channel]) == list:
-                return self.channeldata[channel][idx,:,:]
-            return self.channeldata[channel]
+                orig=self.channeldata[channel][idx,:,:]
+            else:
+                orig=self.channeldata[channel]
+            if orig.ptp():
+                return numpy.array( (orig.astype(numpy.float)-orig.min()) * 255./orig.ptp(), numpy.uint8 )
+            return orig
         prot=getchannel(self.protein_channel)
         X,Y=prot.shape
         composite=numpy.zeros((X,Y,3),numpy.uint8)
