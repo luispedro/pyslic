@@ -48,6 +48,7 @@ def nfoldcrossvalidation(features,labels,nfolds=None,classifier=None, return_pre
 
     classifier should implement the train() and apply() methods
     '''
+    assert len(features) == len(labels), 'nfoldcrossvalidation: len(features) should match len(labels)'
     if classifier is None:
         classifier = defaultclassifier()
     labels,labelnames=normaliselabels(labels)
