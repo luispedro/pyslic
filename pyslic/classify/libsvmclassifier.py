@@ -25,6 +25,7 @@
 from __future__ import division
 from numpy import array, asanyarray
 from classifier import classifier, classification_result
+from tempfile import NamedTemporaryFile
 _svm = None
 try:
     import svm
@@ -57,5 +58,22 @@ class libsvmClassifier(classifier):
         if self.output_probability:
             return self.model.predict_probability(feats)
         return self.model.predict(feats)
+    
+    def __getstate__(self):
+        # This is really really really hacky, but it works
+        N=NamedTemporaryFile()
+        self.model.save(N.name)
+        S=N.read()
+        return S,self.output_probability,self._trained,self._labelnames
+
+    def __setstate__(self,state):
+        if _svm is None:
+            raise RuntimeError('SVM Library not found. Cannot use this classifier.')
+        S,self.output_probability,self._trained,self._labelnames = state
+        N=NamedTemporaryFile()
+        N.write(S)
+        N.flush()
+        self.model = _svm.svm_model(N.name)
+
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
