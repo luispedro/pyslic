@@ -194,8 +194,8 @@ const char * writeimg_doc =
     "\n"
     "Writes image array to filename using Image Magick.\n"
     "\n"
-    "Handles colour images (stored in HxWx3 format) or single channel.\n"
-    "Handles images stored as both uint8 (in which case the output is 8-bit) or\n"
+    "Handles colour images (stored in HxWx3 format) or grey-scale (stored in HxW format).\n"
+    "Handles images stored as either uint8 (in which case the output is 8-bit) or\n"
     "uint16 (in which case the output may be 16-bit if the output format supports it).\n"
     ;
 
