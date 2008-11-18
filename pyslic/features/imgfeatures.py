@@ -103,11 +103,11 @@ def imgfeaturesdna(imageproc,dnaproc):
     values.append(euler_nr)
 
     # Calculate the center of fluorescence of IMAGE
-    cof = array(ndimage.center_of_mass(imageproc))
+    cof = numpy.array(ndimage.center_of_mass(imageproc))
 
     dnacof=None
     if dnaproc is not None:
-        dnacof=array(ndimage.center_of_mass(dnaproc))
+        dnacof = numpy.array(ndimage.center_of_mass(dnaproc))
     
     # Find the maximum and minimum object sizes, and the distance 
     #    of each object to the center of fluorescence
@@ -158,7 +158,7 @@ def imgfeaturesdna(imageproc,dnaproc):
         obj_m10 = double(img_moment10[i]);
         obj_m01 = double(img_moment01[i]);
 
-        obj_center = array([obj_m01,obj_m10],double)/obj_m00;
+        obj_center = numpy.array([obj_m01,obj_m10],double)/obj_m00;
         obj_distance = _norm2(obj_center - cof)
         
         obj_distances.append(obj_distance)
@@ -167,7 +167,7 @@ def imgfeaturesdna(imageproc,dnaproc):
             obj_dnadistance = _norm2(obj_center - dnacof)
             obj_dnadistances.append(obj_dnadistance)
 
-    obj_sizes=array(obj_sizes[1:]) # Ignore object 0, i.e. background
+    obj_sizes = numpy.array(obj_sizes[1:]) # Ignore object 0, i.e. background
     obj_size_avg = obj_sizes.mean()
     obj_size_var = obj_sizes.var()
     obj_size_ratio = obj_sizes.max()/obj_sizes.min() 
@@ -176,7 +176,7 @@ def imgfeaturesdna(imageproc,dnaproc):
     values.append(obj_size_var) 
     values.append(obj_size_ratio)
 
-    obj_distances=array(obj_distances)
+    obj_distances = numpy.array(obj_distances)
     obj_dist_avg = mean(obj_distances) ;
     obj_dist_var = var(obj_distances)
     mindist=obj_distances.min()
@@ -190,7 +190,7 @@ def imgfeaturesdna(imageproc,dnaproc):
     values.append(obj_dist_ratio)
 
     if dnaproc is not None:
-        obj_dnadistances=array(obj_dnadistances)
+        obj_dnadistances = numpy.array(obj_dnadistances)
         obj_dnadist_avg = obj_dnadistances.mean()
         obj_dnadist_var = obj_dnadistances.var()
         obj_dnamindist=obj_dnadistances.min()
