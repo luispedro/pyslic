@@ -19,3 +19,8 @@ def test_computecoocurrence():
         assert (computecooccurence(A,0,remove_zeros=0).sum()-1.)**2 < 1.e-8
 
 
+def test_single_point():
+    A=numpy.zeros((5,5))
+    A[2,2]=12
+    assert not numpy.any(numpy.isnan(pyslic.features.texture.computecooccurence(A,0)))
+

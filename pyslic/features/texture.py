@@ -215,7 +215,8 @@ def computecooccurence(img,dir,remove_zeros=True):
     comap = comap + comap.T
     if remove_zeros:
         comap=comap[1:,1:]
-    comap /= comap.sum()
+    N = comap.sum()
+    if N: comap /= comap.sum()
     return comap
 
 
