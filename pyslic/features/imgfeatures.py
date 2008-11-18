@@ -27,9 +27,10 @@
 # send email to murphy@cmu.edu
 
 from __future__ import division
+import numpy
 from numpy import *
 from ..imageprocessing.bweuler import bweuler
-from scipy.ndimage import *
+from scipy import ndimage
 
 __all__ = ['imgfeatures','imgfeaturesdna']
 
@@ -92,20 +93,21 @@ def imgfeaturesdna(imageproc,dnaproc):
     slfnames = []
 
     bwimage=(imageproc > 0)
-    imagelabeled,obj_number = label(bwimage)
+    imagelabeled,obj_number = ndimage.label(bwimage)
     values = [obj_number]
     if obj_number == 0:
-        return zeros(14)
+        if dnaproc is not None: return numpy.zeros(14)
+        return numpy.zeros(8)
 
     euler_nr = bweuler(bwimage)
     values.append(euler_nr)
 
     # Calculate the center of fluorescence of IMAGE
-    cof = array(center_of_mass(imageproc))
+    cof = array(ndimage.center_of_mass(imageproc))
 
     dnacof=None
     if dnaproc is not None:
-        dnacof=array(center_of_mass(dnaproc))
+        dnacof=array(ndimage.center_of_mass(dnaproc))
     
     # Find the maximum and minimum object sizes, and the distance 
     #    of each object to the center of fluorescence
