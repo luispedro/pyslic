@@ -25,6 +25,7 @@
 import setuptools
 import numpy.distutils.core as numpyutils
 from readimg_setup import readimg_args
+from try_imports import try_imports
 
 convexhull = numpyutils.Extension('pyslic/imageprocessing/_convexhull', sources = ['pyslic/imageprocessing/convexhull.cpp'])
 
@@ -40,6 +41,7 @@ def test_pyversion():
         sys.exit(1)
 
 test_pyversion()
+try_imports()
 
 numpyutils.setup(name='PySLIC',
       version='0.4.5',

@@ -1,4 +1,4 @@
-def test_imports():
+def try_imports():
     try:
         import numpy
     except:
