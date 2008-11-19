@@ -44,4 +44,5 @@ Soft dependencies are worked around if not present, but there is a perfomance co
 
     * If a C++ compiler is found and useable, the code will run much faster, but it is not a strict dependency.
     * If ncreduce is installed (http://luispedro.org/software/ncreduce), it will be used by pyslic.classify.
-
+    * The svm module (from libsvm) is needed for libsvm classification
+    * The PyML module is needed for PyML classification
