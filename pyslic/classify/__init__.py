@@ -29,4 +29,3 @@ from classifywrap import concattransformers, pretransformclassifier
 from nfoldcrossvalidation import nfoldcrossvalidation
 import normalise
 from normalise import *
-from nearestneighbour import NNClassifier
