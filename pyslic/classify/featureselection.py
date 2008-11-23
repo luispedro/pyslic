@@ -233,6 +233,8 @@ class sda_filter(object):
 
     def train(self,features,labels):
         self.idxs=sda(features,labels)
+        if len(self.idxs) == 0:
+            self.idxs = [0]
 
     def apply(self,features):
         return features[:,self.idxs]
