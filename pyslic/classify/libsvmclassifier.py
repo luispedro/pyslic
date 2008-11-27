@@ -40,21 +40,28 @@ except:
 
 __all__=['libsvmClassifier']
 class libsvmClassifier(classifier):
-    def __init__(self,probability = False):
+    def __init__(self,probability = False, auto_weighting = False):
         classifier.__init__(self)
         if _svm is None:
             raise RuntimeError('SVM Library not found. Cannot use this classifier.')
         self.param = _svm.svm_parameter(kernel_type = svm.RBF, probability = probability)
-        self.output_probability = False
+        self.output_probability = probability
+        self.auto_weighting = auto_weighting
     
     def set_option(self,optname,value):
         setattr(self.param,optname,value)
 
     def _dotrain(self,features,labels):
+        if self.auto_weighting:
+            nlabels = labels.max() + 1
+            self.param.nr_weight = nlabels
+            self.param.weight_label = range(nlabels)
+            self.param.weight = [(labels != i).mean() for i in xrange(nlabels)]
         problem=_svm.svm_problem(labels,features)
         self.model=_svm.svm_model(problem,self.param)
 
-    def _doapply(self,feats):
+    def apply(self,feats):
+        if len(feats.shape) == 2: return [self.apply(f) for f in feats]
         if self.output_probability:
             return self.model.predict_probability(feats)
         return self.model.predict(feats)
@@ -68,7 +75,7 @@ class libsvmClassifier(classifier):
 
     def __setstate__(self,state):
         if _svm is None:
-            raise RuntimeError('SVM Library not found. Cannot use this classifier.')
+            raise RuntimeError('LibSVM Library not found. Cannot use this classifier.')
         S,self.output_probability,self._trained,self._labelnames = state
         N=NamedTemporaryFile()
         N.write(S)
