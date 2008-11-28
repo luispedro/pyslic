@@ -33,13 +33,24 @@ setuptools not found.
 On linux, the package is often called python-setuptools'''
     exit(1)
 try_imports()
-import setuptools
+
 import numpy.distutils.core as numpyutils
 from readimg_setup import readimg_args
 
 convexhull = numpyutils.Extension('pyslic/imageprocessing/_convexhull', sources = ['pyslic/imageprocessing/convexhull.cpp'])
+ext_modules = [convexhull]
 
-readimg = numpyutils.Extension('pyslic.image.io.readimg', sources = ['pyslic/image/io/readimg.cpp'], **readimg_args())
+args = readimg_args()
+if args is None:
+    print '''
+PySLIC will be usable, but will rely on Python Image Library (PIL) for
+reading image files.
+
+Only file formats supported by PIL will be usable (in particular, JPEG2000 files will
+*not* be supported).'''
+else:
+    readimg = numpyutils.Extension('pyslic.image.io.readimg', sources = ['pyslic/image/io/readimg.cpp'], **readimg_args())
+    ext_modules.append(readimg)
 packages=setuptools.find_packages()
 packages.remove('tests')
 
@@ -53,13 +64,13 @@ def test_pyversion():
 test_pyversion()
 
 numpyutils.setup(name='PySLIC',
-      version='0.4.5',
+      version='0.4.6',
       description='Subcellular Location Image Classifier',
       author='Murphy Lab',
       author_email='murphy@mcu.edu',
       url='http://murphylab.cbi.cmu.edu/',
       packages=packages,
-      ext_modules = [convexhull,readimg],
+      ext_modules = ext_modules,
       test_suite='nose.collector',
       )
 

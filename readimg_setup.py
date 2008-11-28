@@ -25,10 +25,18 @@
 import popen2
 from numpy.distutils.core import setup, Extension
 
-def readimg_args():
-    output,input=popen2.popen2('pkg-config ImageMagick++ --libs')
+def readimg_args(verbose=True):
+    output,input,error=popen2.popen3('pkg-config ImageMagick++ --libs')
     input.close()
-    tokens=output.readline().split()
+    errors = error.read()
+    if errors and verbose:
+        print '''
+Could not find ImageMagick++ headers.
+
+readimg will not be built.
+        '''
+        return None
+    tokens = output.readline().split()
     output.close()
     args={ 'libraries'    : [t[2:] for t in tokens if t.startswith('-l')],
            'include_dirs' : [t[2:] for t in tokens if t.startswith('-I')],
@@ -36,11 +44,12 @@ def readimg_args():
     }
     return args
 
-readimg = Extension('readimg', sources = ['readimg.cpp'],  **readimg_args())
 
 if __name__ == '__main__':
+    readimg = Extension('readimg', sources = ['readimg.cpp'],  **readimg_args())
     setup (name = 'readimg',
            version = '1.0',
-           description = 'Read image using ImageMagick',
+           description = 'Read and write images using ImageMagick',
            ext_modules = [readimg]
            )
+

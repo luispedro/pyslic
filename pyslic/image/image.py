@@ -25,7 +25,13 @@
 from __future__ import division
 import numpy
 from scipy.ndimage import label
-import io.readimg
+try:
+    from .io.readimg import readimg
+except:
+    from scipy.misc.pilutil import imread
+    readimg = imread
+
+
 from contextlib import contextmanager
 
 __all__ = ['Image', 'setshowimage','loadedimage']
@@ -34,7 +40,7 @@ def _open_file_bw(fname):
     """
     Force a file to be B&W
     """
-    A=io.readimg(fname)
+    A=readimg(fname)
     if A.ndim == 3:
         A=A.mean(2)
     return A
