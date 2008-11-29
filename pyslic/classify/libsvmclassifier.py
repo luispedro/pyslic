@@ -40,7 +40,7 @@ except:
 
 __all__=['libsvmClassifier']
 class libsvmClassifier(classifier):
-    def __init__(self,probability = False, auto_weighting = False):
+    def __init__(self,probability = False, auto_weighting = True):
         classifier.__init__(self)
         if _svm is None:
             raise RuntimeError('SVM Library not found. Cannot use this classifier.')
