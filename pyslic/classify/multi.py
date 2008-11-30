@@ -28,30 +28,32 @@ from classifier import classifier
 import random
 
 class one_against_rest(classifier):
-    __slots__ = ['_classifiers','_base']
+    __slots__ = ['_classifiers','_base','_base2']
 
     def __init__(self,base):
         classifier.__init__(self)
         self._classifiers = None
         self._base = base
+        self._base2 = None
 
     def is_multi_class(self):
         return True
 
     def _dotrain(self,features,labels):
-        if self._nclasses == 2:
-            self._base.train(features,labels)
+        if labels.max() + 1 == 2:
+            self._base2 = self._base()
+            self._base2.train(features,labels)
             return
         #else
         self._classifiers=[]
-        for i in xrange(self._nclasses):
-            s=self._base.__class__()
+        for i in xrange(labels.max()+1):
+            s = self._base()
             s.train(features,labels==i)
             self._classifiers.append(s)
 
     def _doapply(self,feats):
         if self._classifiers is None:
-            return self._base.apply(feats)
+            return self._base2.apply(feats)
         vals=array([c.apply(feats) for c in self._classifiers])
         idxs, = where(vals == 1)
         if len(idxs) == 1:
@@ -65,24 +67,26 @@ class one_against_rest(classifier):
 class one_against_one(classifier):
     __slots__ = ['_classifiers','_base','_labelnames']
 
-    def __init__(self,base):
+    def __init__(self,factory):
         classifier.__init__(self)
         self._classifiers = None
-        self._base = base
+        self._base = factory
 
     def _is_multiclass(self):
         return True
 
     def _dotrain(self,features,labels):
-        nc=self._nclasses
+        nc = labels.max()+1
+        self._nclasses = nc
         if nc == 2:
-            self._base.train(features,olabels)
+            self._base = self._base()
+            self._base.train(features,labels)
             return
         #else
         self._classifiers=[[None for i in xrange(nc)] for j in xrange(nc)]
         for i in xrange(nc):
             for j in xrange(i+1,nc):
-                s=self._base.__class__()
+                s=self._base()
                 idxs=(labels == i) | (labels == j)
                 s.train(features[idxs],labels[idxs]==i)
                 self._classifiers[i][j]=s

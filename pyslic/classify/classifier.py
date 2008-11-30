@@ -53,7 +53,7 @@ class classifier(object):
 
     def train(self,features,labels):
         nlabels,self._labelnames=normaliselabels(labels)
-        self._nclasses = nlabels[-1]
+        self._nclasses = nlabels.max()+1
         features=asanyarray(features)
         self._dotrain(features,nlabels)
         self._trained = True
