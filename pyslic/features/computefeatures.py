@@ -48,6 +48,8 @@ def _featsfor(featset):
         return ['skl','nof','img','hul','zer','har','edg']
     if ufeatset == 'MCELL':
         return ['har','img','edg','skl']
+    if ufeatset == 'FIELD+':
+        return ['har','img','edg','skl','nof','pftas']
     return [featset]
 
 _Default_Haralick_Scale = 1.15
@@ -74,11 +76,17 @@ def computefeatures(img,featsets,progress=None,**kwargs):
     Feature set names:
         + 'SLF7dna'
         + 'mcell': field level features
+        + 'field+': all field level features. The exact exact number of
+                    features computed is liable to change (increase) in
+                    newer versions
 
     img can be a list of images. In this case, a two-dimensional feature vector will be returned, where
     f[i,j] is the j-th feature of the i-th image. Also, in this case, imgs will be unload after feature calculation.
 
-    @param progress: if progress is not None, then it should be an integer. Every progress images, an output message will be printed.
+    Parameters
+    ----------
+        * *progress*: if progress is not None, then it should be an integer.
+                Every *progress* images, an output message will be printed.
     '''
     if type(featsets) == str:
         featsets = _featsfor(featsets)
@@ -143,6 +151,12 @@ def computefeatures(img,featsets,progress=None,**kwargs):
     return features
 
 def featurenames(featsets):
+    '''
+    names = featurenames(featsets)
+
+    Returns a list of feature names. The argument has the same
+    meaning as the argument to computefeatures.
+    '''
     featsets = _featsfor(featsets)
     names=[]
     for F in featsets:
