@@ -36,7 +36,7 @@ _bins = numpy.arange(11)
 
 def _tas(img,thresh,margin):
     def _ctas(img):
-        V = ndimage.convolve(img,_M)
+        V = ndimage.convolve(img.astype(numpy.uint8),_M)
         values,_ = numpy.histogram(V,bins=_bins)
         values = values[:9]
         return values/values.sum()
