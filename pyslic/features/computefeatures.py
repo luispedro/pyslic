@@ -52,6 +52,7 @@ def _featsfor(featset):
         return ['har','img','edg','skl','nof','pftas']
     return [featset]
 
+_Default_Scale = .23
 _Default_Haralick_Scale = 1.15
 _Default_Haralick_Bins = 32
 
@@ -101,7 +102,7 @@ def computefeatures(img,featsets,progress=None,**kwargs):
         return numpy.array(features)
     scale=img.scale
     if scale is None:
-        scale = .23
+        scale = _Default_Scale
     preprocessimage(img,1,{})
     features=numpy.array([])
     protein=img.channeldata[Image.protein_channel]
