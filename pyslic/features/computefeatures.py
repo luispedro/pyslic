@@ -58,13 +58,15 @@ _Default_Haralick_Bins = 32
 
 def computefeatures(img,featsets,progress=None,**kwargs):
     '''
-
-    features = computefeatures(img,featsets,progress=None)
+    features = computefeatures(img,featsets,progress=None,**kwargs)
 
     Compute features defined by featsets on image img.
 
+
     featsets can be either a list of feature groups.
+
     Feature groups:
+    --------------
         + 'har': 13 Haralick features [in matslic]
         + 'har3d': 26 Haralick features (actually this works in 2D as well)
         + 'skl': Skeleton features [in matslic] (syn: 'skel')
@@ -88,13 +90,14 @@ def computefeatures(img,featsets,progress=None,**kwargs):
     ----------
         * *progress*: if progress is not None, then it should be an integer.
                 Every *progress* images, an output message will be printed.
+        * *options*: currently passed through to pyslic.preprocessimage
     '''
     if type(featsets) == str:
         featsets = _featsfor(featsets)
     if type(img) == list:
         features=[]
         for i,im in enumerate(img):
-            f=computefeatures(im,featsets)
+            f = computefeatures(im,featsets,progress=None,**kwargs)
             features.append(f)
             im.unload()
             if progress is not None and (i % progress) == 0:
@@ -103,7 +106,7 @@ def computefeatures(img,featsets,progress=None,**kwargs):
     scale=img.scale
     if scale is None:
         scale = _Default_Scale
-    preprocessimage(img,1,{})
+    preprocessimage(img,1,options=kwargs.get('options',{}))
     features=numpy.array([])
     protein=img.channeldata[Image.protein_channel]
     procprotein=img.channeldata[Image.procprotein_channel]
