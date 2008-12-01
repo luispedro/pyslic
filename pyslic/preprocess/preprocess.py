@@ -43,8 +43,11 @@ def preprocessimage(image,regionid,options = {}):
         + 'bgsub.way': One of
             - 'ml' (default) 
             - 'mb' and controls whether the region is selected prior to preprocessing
-         + '3d.mode': On of
+         + '3d.mode': One of
             - 'perslice' (default): process each slice separately
+         + 'threshold.algorithm': One of
+            - 'rc': Riddlar-Calvard
+            - 'mean':  Image mean
     """
     def preprocessimg(img):
         if len(img.shape) > 2:
