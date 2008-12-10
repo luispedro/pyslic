@@ -52,7 +52,7 @@ else:
     readimg = numpyutils.Extension('pyslic.image.io.readimg', sources = ['pyslic/image/io/readimg.cpp'], **readimg_args())
     ext_modules.append(readimg)
 packages=setuptools.find_packages()
-packages.remove('tests')
+if 'tests' in packages: packages.remove('tests')
 
 def test_pyversion():
     import sys
@@ -64,7 +64,7 @@ def test_pyversion():
 test_pyversion()
 
 numpyutils.setup(name='PySLIC',
-      version='0.4.6',
+      version='0.4.6a',
       description='Subcellular Location Image Classifier',
       author='Murphy Lab',
       author_email='murphy@mcu.edu',

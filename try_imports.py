@@ -55,5 +55,5 @@ def try_imports():
     LibSVM classification will not be available (everything else will work).'''
 
 if __name__ == '__main__':
-    test_imports()
+    try_imports()
 
