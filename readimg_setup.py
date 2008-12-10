@@ -27,16 +27,23 @@ from numpy.distutils.core import setup, Extension
 
 def readimg_args(verbose=True):
     output,input,error=popen2.popen3('pkg-config ImageMagick++ --libs')
-    input.close()
     errors = error.read()
-    if errors and verbose:
-        print '''
-Could not find ImageMagick++ headers.
+    if errors:
+        output,input,error=popen2.popen3('ImageMagick++-config --libs')
+        errors += error.read()
+    if errors:
+        if verbose:
+            print '''
+Could not find ImageMagick++ headers using
+pkg-config or ImageMagick++-config.
+
+Error was: %s
 
 readimg will not be built.
-        '''
+''' % errors
         return None
     tokens = output.readline().split()
+    input.close()
     output.close()
     args={ 'libraries'    : [t[2:] for t in tokens if t.startswith('-l')],
            'include_dirs' : [t[2:] for t in tokens if t.startswith('-I')],
