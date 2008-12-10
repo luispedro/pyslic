@@ -19,7 +19,7 @@ Lazy Loading
 
 Image uses lazy loading. You create images by simply giving them paths to image files, but the images are
 not loaded into memory until necessary. This is necessary to support large collections of images (which cannot be
-held simmultaneously in memory).
+held simultaneously in memory).
 
 For example, to load a directory full of images:
 
@@ -41,6 +41,7 @@ COMPUTING FEATURES
 ------------------
 
 There are two ways to compute features:
+
 	* Through computefeatures()
 	* Calling individual functions
 
@@ -97,5 +98,6 @@ Classifiers are objects which support at least two methods: *train()* and *apply
 
     output = classif.apply(testfeats)
 
-The default classifier does a feature normalisation (to [-1,+1] interval) followed by SDA for feature selection and then performs a grid-search for the parameters of a libSVM-based classifier with an RBF kernel.
+The default classifier does a feature normalisation (to [-1,+1] interval) followed by *stepwise discriminant analysis* (SDA) for feature selection and then performs a grid-search for the parameters of a libSVM-based classifier with an RBF kernel.
+
 
