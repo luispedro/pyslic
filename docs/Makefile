@@ -26,6 +26,7 @@ clean:
 	-rm -rf build/*
 
 html:
+	@mkdir -p static
 	mkdir -p build/html build/doctrees
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) build/html
 	@echo
