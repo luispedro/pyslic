@@ -52,6 +52,7 @@ USING COMPUTEFEATURES
 ~~~~~~~~~~~~~~~~~~~~~
 
 ::
+
     from pyslic import Image, computefeatures
 
     image=Image()
@@ -67,7 +68,8 @@ USING COMPUTEFEATURES
 You can also compute features for a large collection of images:
 
 ::
-    imgs = loadimgs():
+
+    imgs = loadimgs()
     features = computefeatures(imgs,'slf7dna')
 
 CLASSIFICATION
@@ -77,7 +79,8 @@ Besides feature calculation, the next biggest module of PySLIC is the classifica
 
 Once you have your features and labels and want to test classification accuracy, you can just call *nfoldcrossvalidation()*:
 
-..
+::
+
     cmatrix, names = nfoldcrossvalidation(features,labels)
 
 This will perform 10-fold cross-validation using a default classifier. cmatrix will be a confusion matrix, so that cmatrix[i,j] corresponds to the number of times that an element of class i was classified as being of class j. To map these indices back to your labels, use the *names* vector.
@@ -87,7 +90,8 @@ Classifiers
 
 Classifiers are objects which support at least two methods: *train()* and *apply()*. For example:
 
-..
+::
+
     classif = defaultClassifier()
     classif.train(trainfeats,trainlabels)
 
