@@ -124,8 +124,12 @@ PyObject* readimgfromblob(PyObject* self, PyObject* args) {
 PyObject* writeimg(PyObject* self, PyObject* args) {
 	PyArrayObject* input;
 	const char* output_filename;
+	if (PyTuple_Size(args) != 2) {
+         PyErr_Format(PyExc_TypeError,"writeimg takes two arguments (%d given)",(int)PyTuple_Size(args));
+         return 0;
+    }
 	if (!PyArg_ParseTuple(args,"Os",&input,&output_filename)) {
-         PyErr_SetString(PyExc_TypeError,"writeimg takes image data as input");
+         PyErr_SetString(PyExc_TypeError,"writeimg take two arguments: an array and a filename.");
          return 0;
     }
     try {
