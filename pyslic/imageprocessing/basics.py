@@ -23,8 +23,10 @@
 # send email to murphy@cmu.edu
 
 from __future__ import division
-from scipy.ndimage import histogram, convolve
+import numpy
+from scipy import ndimage
 from numpy import array, asarray, ones, uint32, uint8, zeros
+from nhistogram import nhistogram
 
 __all__ = ['fullhistogram','majority_filter','nonzeromin']
 
@@ -38,7 +40,7 @@ def fullhistogram(img):
     maxt=img.max()
     if maxt==0:
         return array([img.size])
-    return histogram(img,0,maxt,maxt+1)
+    return nhistogram(img, numpy.arange(maxt+2))[0]
 
 def majority_filter(bwimg, N = 3):
     """
@@ -88,9 +90,9 @@ def majority_filter(bwimg, N = 3):
         import warnings
         warnings.warn('scipy.weave failed (Error: %s). Resorting to (slow) Python code.' % e)
         assert N < 2 ** 16
-        bwimg=asarray(bwimg > 0,uint32)
-        F=ones((N,N))
-        bwimg=convolve(bwimg,F)
+        bwimg = asarray(bwimg > 0,uint32)
+        filter = ones((N,N))
+        bwimg = ndimage.convolve(bwimg,filter)
         return bwimg > (N**2/2)
 
 def nonzeromin(img):
