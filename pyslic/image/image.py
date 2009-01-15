@@ -148,6 +148,10 @@ class Image(object):
         self.regions = None
         self.channeldata={}
 
+    def __repr__(self):
+        '''Implement repr() operator'''
+        return 'Image( %s )' % repr(self.channels)
+
     def set_load_function(self,f):
         '''
         Sets the file loading function whose signature should be
