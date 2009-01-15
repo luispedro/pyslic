@@ -127,7 +127,7 @@ def otsu(img, remove_zeros=False):
     nB=cumsum(hist)
     nO=nB[-1]-nB
     mu_B=0
-    mu_O=(arange(1,Ng)*hist[1:]).sum()/hist.sum()
+    mu_O=(arange(1,Ng)*hist[1:]).sum()/hist[1:].sum()
     best=nB[0]*nO[0]*(mu_B-mu_O)*(mu_B-mu_O)
     bestT=0
 
