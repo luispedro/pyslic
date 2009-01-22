@@ -165,7 +165,7 @@ _dir_deltas = [
     (1,1,-1),
     (1,-1,-1),
 ]
-def computecooccurence(img,dir,remove_zeros=True):
+def computecooccurence(img,dir,ignore_zeros=True):
     assert dir >= 0
     assert dir < len(_dir_deltas)
     assert dir < 5 or len(img.shape) == 3
@@ -213,7 +213,7 @@ def computecooccurence(img,dir,remove_zeros=True):
                     n=img[nz,ny,nx]
                     comap[p,n] += 1
     comap = comap + comap.T
-    if remove_zeros:
+    if ignore_zeros:
         comap=comap[1:,1:]
     N = comap.sum()
     if N: comap /= comap.sum()

@@ -67,16 +67,16 @@ def hardthreshold(img,T):
     img *= (img > T)
     return img
 
-def rc(img,remove_zeros=False):
+def rc(img,ignore_zeros=False):
     """
-    T = rc(img, remove_zeros=False)
+    T = rc(img, ignore_zeros=False)
     
     Calculate a threshold according to the RC method.
 
-    @param remove_zeros: Whether to ignore zero valued pixels (default: False)
+    @param ignore_zeros: Whether to ignore zero valued pixels (default: False)
     """
     hist=fullhistogram(img)
-    if remove_zeros:
+    if ignore_zeros:
         if hist[0] == img.size:
             return 0
         hist[0]=0
@@ -100,19 +100,19 @@ def rc(img,remove_zeros=False):
     return res
         
 
-def murphy_rc(img,remove_zeros=False):
+def murphy_rc(img,ignore_zeros=False):
     """
     T = murphy_rc(img)
     
     Calculate a threshold according to Murphy's adaptation of the RC method.
 
-    @param remove_zeros: Whether to ignore zero valued pixels (default: False)
+    @param ignore_zeros: Whether to ignore zero valued pixels (default: False)
         Murphy's Matlab implementation always ignores zero valued pixels.
     """
     pmax=img.max()
-    return pmax-rc(pmax-img,remove_zeros=remove_zeros)
+    return pmax-rc(pmax-img,ignore_zeros=ignore_zeros)
 
-def otsu(img, remove_zeros=False):
+def otsu(img, ignore_zeros=False):
     """
     T = otsu(img)
 
@@ -121,7 +121,7 @@ def otsu(img, remove_zeros=False):
     # Calculated according to CVonline: http://homepages.inf.ed.ac.uk/rbf/CVonline/LOCAL_COPIES/MORSE/threshold.pdf
     hist=fullhistogram(img)
     hist=asarray(hist,double) # This forces everything to be double precision
-    if remove_zeros:
+    if ignore_zeros:
         hist[0]=0
     Ng=len(hist)
     nB=cumsum(hist)

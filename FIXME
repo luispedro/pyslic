@@ -1,6 +1,3 @@
-** Call the second parameter in thresholding methods ignore_zeros instead of remove_zeros
-** Call the second parameter in features.texture.computecooccurence ignore_zeros instead of remove_zeros
-
 ** Have image loading functions return subclasses of Image instead of doing it all on Image.load_function
 
 ** Classify should work with lists

@@ -8,15 +8,15 @@ def test_computecoocurrence():
     all_dirs=range(4)
     
     assert numpy.all(computecooccurence(A,0)==numpy.eye(4)/4.)
-    assert numpy.all(computecooccurence(A,0,remove_zeros=0)==numpy.eye(5)/5.)
+    assert numpy.all(computecooccurence(A,0,ignore_zeros=0)==numpy.eye(5)/5.)
 
     assert numpy.all(computecooccurence(A.T,2)==numpy.eye(4)/4.)
-    assert numpy.all(computecooccurence(A.T,2,remove_zeros=0)==numpy.eye(5)/5.)
+    assert numpy.all(computecooccurence(A.T,2,ignore_zeros=0)==numpy.eye(5)/5.)
 
     
     for dir in all_dirs:
         assert (computecooccurence(A,dir).sum()-1.)**2 < 1.e-8
-        assert (computecooccurence(A,0,remove_zeros=0).sum()-1.)**2 < 1.e-8
+        assert (computecooccurence(A,0,ignore_zeros=0).sum()-1.)**2 < 1.e-8
 
 
 def test_single_point():

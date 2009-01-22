@@ -92,7 +92,7 @@ def preprocessimage(image,regionid,options = {}):
 def thresholdfor(img,options = {}):
     type = options.get('threshold.algorithm','rc')
     if type == 'rc':
-        return rc(img,remove_zeros=True)
+        return rc(img,ignore_zeros=True)
     elif type == 'mean':
         return img.mean()
     else:

@@ -64,34 +64,34 @@ def localthresholding(img,method='mean',size=8):
         raise ArgumentErrorType,"localthresholding: unknown method '%s'" % method
     return img > func(img,size)
 
-def localglobal(img,remove_zeros=True,globalmethod='otsu',localmethod='mean',localsize=8):
+def localglobal(img,ignore_zeros=True,globalmethod='otsu',localmethod='mean',localsize=8):
     '''
     Perform both local and global thresholding.
     
     result[i,j] = (img[i,j] > global_threshold) * (img[i,j] > local_threshold[i,j])
 
     @param img: The image
-    @param remove_zeros: Whether to ignore zero-valued pixels
+    @param ignore_zeros: Whether to ignore zero-valued pixels
     @param globalmethod: Global method to use ('otsu', 'rc', or 'murphy_rc')
     @param localmethod: Which local method to use (@see localthresholding)
     @param localsize: Size parameter for local thresholding (@see localthresholding)
     '''
     localobjects=localthresholding(img,method=localmethod,size=localsize)
     if globalmethod == 'otsu':
-        T=otsu(img,remove_zeros=remove_zeros)
+        T=otsu(img,ignore_zeros=ignore_zeros)
     elif globalmethod == 'rc':
-        T=rc(img,remove_zeros=remove_zeros)
+        T=rc(img,ignore_zeros=ignore_zeros)
     elif globalmethod == 'murphy_rc':
-        T=murphy_rc(img,remove_zeros=remove_zeros)
+        T=murphy_rc(img,ignore_zeros=ignore_zeros)
     else:
         raise ValueError,"localglobal: globalmethod '%s' not recognised." % globalmethod
     globalobjects=img > T
     return localobjects * globalobjects
 
 
-def multithreshold(img,remove_zeros=True,firstThreshold=20,nrThresholds=5):
+def multithreshold(img,ignore_zeros=True,firstThreshold=20,nrThresholds=5):
     '''
-    labeled,N = multithreshold(img, remove_zeros = True)
+    labeled,N = multithreshold(img, ignore_zeros = True)
 
     Performs multi thresholding (which is a form of oversegmentation).
 
@@ -99,10 +99,10 @@ def multithreshold(img,remove_zeros=True,firstThreshold=20,nrThresholds=5):
     the N detected objects (the return of this function is  similar to that of scipy.ndimage.label())
 
     @param img: The input image
-    @param remove_zeros: Don't take zero pixels into account
+    @param ignore_zeros: Don't take zero pixels into account
     '''
     output=numpy.zeros_like(img)
-    if remove_zeros:
+    if ignore_zeros:
         pmin=nonzeromin(img)
     else:
         pmin=img.min()
