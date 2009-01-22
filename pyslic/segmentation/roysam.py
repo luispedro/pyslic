@@ -1,12 +1,13 @@
 from collections import defaultdict
 import ncreduce
-import pymorph
-from pyslic import thresholding
-import pyslic
+from ..imageprocessing import thresholding
+from .. import features
 from scipy import ndimage
 import pymorph
 import morph
 import numpy
+
+__all__ = ['roysam_watershed']
 def roysam_watershed(dna,thresh=None,blur_factor=3):
     '''
     Run watershed on mixed gradient & intensity image as suggested by Lin et al.
@@ -122,7 +123,7 @@ class Merger(object):
         '''Implement Rw in the paper.'''
         def RSw(c0,c1):
             def logS(img):
-                F=numpy.r_[pyslic.features.hullfeatures.hullfeatures(img),pyslic.features.hullfeatures.hullsizefeatures(img)]
+                F=numpy.r_[features.hullfeatures.hullfeatures(img),features.hullfeatures.hullsizefeatures(img)]
                 return -.5*sqrt( dot(dot(F-mu,iSigma),F-mu) )
             S0=logS(self.W==c0)
             S1=logS(self.W==c1)
