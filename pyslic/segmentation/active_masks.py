@@ -25,6 +25,7 @@
 from __future__ import division
 import numpy
 from ..imageprocessing import thresholding
+from ..utils import get_random
 from collections import defaultdict
 from scipy import ndimage
 def _unhaar(X):
@@ -79,6 +80,7 @@ def active_masks(f,Kmax,Kmin,A,Mmax,alpha,beta,gamma,b=2,R=None):
 
     In this implementation, regions 0 is special and corresponds to the background
     '''
+    R = get_random(R)
     f=numpy.asanyarray(f,numpy.float32)
     h,w=f.shape
     need_expand=False
@@ -97,8 +99,6 @@ def active_masks(f,Kmax,Kmin,A,Mmax,alpha,beta,gamma,b=2,R=None):
 
     nh//=2**Kmax
     nw//=2**Kmax
-    if R is None:
-        R=numpy.random
     P=numpy.array([[R.randint(0,Mmax-1) for i in xrange(nw)] for j in xrange(nh)]) # P is \Psi
     for k in xrange(Kmax,Kmin-1,-1):
         for a in A[k]:
