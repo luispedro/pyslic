@@ -117,10 +117,12 @@ class Merger(object):
      Vol. 56A, No. 1, pp. 23-36 Cytometry Part A, November 2003.
     '''
 
-    def __init__(self,dna):
+    def __init__(self,dna,mu,iSigma):
         '''
         M = Merged(dna)
         '''
+        self.mu = mu
+        self.iSigma = iSigma
         self.C = pymorph.gradm(dna)
         self.W,self.WL = roysam_watershed(dna)
         self.B,self.neighbours,self.border_id = border(self.W)
@@ -155,13 +157,13 @@ class Merger(object):
         def RSw(c0,c1):
             def logS(img):
                 F = _compute_features(img)
-                return -.5*np.sqrt( np.dot(np.dot(F-mu,iSigma),F-mu) )
-            S0 = logS(self.W==c0)
-            S1 = logS(self.W==c1)
-            Sc = logS((self.W==c0)|(self.W==c1))
+                return -.5*np.sqrt( np.dot(np.dot(F-self.mu,self.iSigma),F-self.mu) )
+            S0 = logS(self.W == c0)
+            S1 = logS(self.W == c1)
+            Sc = logS((self.W == c0)|(self.W == c1))
             logR = np.log(2)+Sc-S0-S1
             if abs(logR) < 100:
-                return np.exp(np.logR)
+                return np.exp(logR)
             return np.exp(np.sign(logR)*100)
         def RGw(c0,c1):
             b = self.border_id[min(c0,c1),max(c0,c1)]
@@ -181,8 +183,8 @@ class Merger(object):
             border_regions=dict((y,x) for x,y in self.border_id.iteritems())
         return self.W
 
-def greedy_roysam_merge(dna):
-    M=Merger(dna)
+def greedy_roysam_merge(dna,mu,iSigma):
+    M=Merger(dna,mu,iSigma)
     M.greedy()
     return M.W
 
