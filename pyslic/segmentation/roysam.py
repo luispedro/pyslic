@@ -1,11 +1,40 @@
+# -*- coding: utf-8 -*-
+# Copyright (C) 2008  Murphy Lab
+# Carnegie Mellon University
+# 
+# Written by Luís Pedro Coelho <lpc@cmu.edu>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation; either version 2 of the License,
+# or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+#
+# For additional information visit http://murphylab.web.cmu.edu or
+# send email to murphy@cmu.edu
+
+from __future__ import division
+import numpy as np
 from collections import defaultdict
-import ncreduce
+try:
+    import ncreduce
+    fast_all = ncreduce.all
+except:
+    fast_all = np.all
 from ..imageprocessing import thresholding
 from .. import features
 from scipy import ndimage
 import pymorph
 import morph
-import numpy
 
 __all__ = ['roysam_watershed']
 def roysam_watershed(dna,thresh=None,blur_factor=3):
@@ -29,7 +58,7 @@ def roysam_watershed(dna,thresh=None,blur_factor=3):
     M=(ndimage.gaussian_filter(dna,4)>thresh)
     G=pymorph.gradm(dna)
     D=ndimage.distance_transform_edt(M)
-    D=D*numpy.exp(1-G/float(G.max()))
+    D=D*np.exp(1-G/float(G.max()))
     T=ndimage.gaussian_filter(D.max() - D,blur_factor)
     T=pymorph.to_uint8(T)
     R=pymorph.regmin(T)
@@ -57,24 +86,26 @@ def border(W,Bc=None):
     Bc:     A structuring element (default: 3x3 cross)
     '''
     if Bc is None: Bc = pymorph.secross()
-    V,_=pymorph.mat2set(Bc)
-    shapea=numpy.array(W.shape)
-    B=W*0
-    bg=W.max()
-    neighbours=defaultdict(set)
-    border_id=defaultdict(xrange(1,W.max()**2).__iter__().next)
-    for pos,val in numpy.ndenumerate(W):
+    V,_ = pymorph.mat2set(Bc)
+    shapea = np.array(W.shape)
+    B = W*0
+    bg = W.max()
+    neighbours = defaultdict(set)
+    border_id = defaultdict(xrange(1,W.max()**2).__iter__().next)
+    for pos,val in np.ndenumerate(W):
         if val and val != bg:
             for vi in V:
-                if ncreduce.all((pos+vi)>=0) and ncreduce.all((pos+vi)<shapea):
-                    other=W[tuple(pos+vi)]
+                if fast_all((pos+vi)>=0) and fast_all((pos+vi)<shapea):
+                    other = W[tuple(pos+vi)]
                     if other and other != bg and other != val:
-                        a1,a2=min(other,val),max(other,val)
-                        B[tuple(pos)]=border_id[(a1,a2)]
+                        a1,a2 = min(other,val),max(other,val)
+                        B[tuple(pos)] = border_id[(a1,a2)]
                         neighbours[a1].add(a2)
                         neighbours[a2].add(a1)
     return B, neighbours, border_id
 
+def _compute_features(img):
+    return np.r_[features.hullfeatures.hullfeatures(img),features.hullfeatures.hullsizefeatures(img)]
 class Merger(object):
     '''
     Implements Roysam's region merging algorithm.
@@ -90,9 +121,9 @@ class Merger(object):
         '''
         M = Merged(dna)
         '''
-        self.C=pymorph.gradm(dna)
-        self.W,self.WL=roysam_watershed(dna)
-        self.B,self.neighbours,self.border_id=border(self.W)
+        self.C = pymorph.gradm(dna)
+        self.W,self.WL = roysam_watershed(dna)
+        self.B,self.neighbours,self.border_id = border(self.W)
         self.border_regions=dict((y,x) for x,y in self.border_id.iteritems())
 
     def _merge(self,c0,c1):
@@ -123,21 +154,24 @@ class Merger(object):
         '''Implement Rw in the paper.'''
         def RSw(c0,c1):
             def logS(img):
-                F=numpy.r_[features.hullfeatures.hullfeatures(img),features.hullfeatures.hullsizefeatures(img)]
-                return -.5*sqrt( dot(dot(F-mu,iSigma),F-mu) )
-            S0=logS(self.W==c0)
-            S1=logS(self.W==c1)
-            Sc=logS((self.W==c0)|(self.W==c1))
-            logR=log(2)+Sc-S0-S1
+                F = _compute_features(img)
+                return -.5*np.sqrt( np.dot(np.dot(F-mu,iSigma),F-mu) )
+            S0 = logS(self.W==c0)
+            S1 = logS(self.W==c1)
+            Sc = logS((self.W==c0)|(self.W==c1))
+            logR = np.log(2)+Sc-S0-S1
             if abs(logR) < 100:
-                return exp(logR)
-            return exp(sign(logR)*100)
+                return np.exp(np.logR)
+            return np.exp(np.sign(logR)*100)
         def RGw(c0,c1):
-            b=self.border_id[min(c0,c1),max(c0,c1)]
+            b = self.border_id[min(c0,c1),max(c0,c1)]
             return (self.C[self.W==c0].mean()+self.C[self.W==c1].mean())/2./self.C[self.B==b].mean()
         return RSw(c0,c1)*RGw(c0,c1)
 
     def greedy(self,beta=1.2):
+        '''
+        Merge regions greedily.
+        '''
         border_regions=dict((y,x) for x,y in self.border_id.iteritems())
         while True:
             values=dict((b,self._Rw(c0,c1)) for (c0,c1),b in self.border_id.iteritems())
@@ -147,9 +181,9 @@ class Merger(object):
             border_regions=dict((y,x) for x,y in self.border_id.iteritems())
         return self.W
 
-
 def greedy_roysam_merge(dna):
     M=Merger(dna)
     M.greedy()
     return M.W
 
+# vim: set ts=4 sts=4 sw=4 expandtab smartindent:
