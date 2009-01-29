@@ -120,7 +120,10 @@ class FixIllumination(object):
         @see see
         '''
         assert self.S is not None
-        self.S /= self.S.min()
+        Smin = self.S.min()
+        if Smin == 0:
+            Smin = 1
+        self.S /= Smin
         # float96 is not always very well supported and we no longer need to sum up lots of numbers
         self.S = numpy.array(self.S,float)
 
