@@ -105,7 +105,9 @@ def border(W,Bc=None):
     return B, neighbours, border_id
 
 def _compute_features(img):
-    return np.r_[features.hullfeatures.hullfeatures(img),features.hullfeatures.hullsizefeatures(img)]
+    Allfeats = np.r_[features.hullfeatures.hullfeatures(img),features.hullfeatures.hullsizefeatures(img)]
+    return Allfeats[np.array([0,1,2,3,5,6,7],int)]
+
 class Merger(object):
     '''
     Implements Roysam's region merging algorithm.
@@ -117,14 +119,14 @@ class Merger(object):
      Vol. 56A, No. 1, pp. 23-36 Cytometry Part A, November 2003.
     '''
 
-    def __init__(self,dna,mu,iSigma):
+    def __init__(self,dna,mu,iSigma,thresh=None):
         '''
         M = Merged(dna)
         '''
         self.mu = mu
         self.iSigma = iSigma
         self.C = pymorph.gradm(dna)
-        self.W,self.WL = roysam_watershed(dna)
+        self.W,self.WL = roysam_watershed(dna,thresh)
         self.B,self.neighbours,self.border_id = border(self.W)
         self.border_regions=dict((y,x) for x,y in self.border_id.iteritems())
 
@@ -177,25 +179,23 @@ class Merger(object):
         '''
         values = dict(((c0,c1),self._Rw(c0,c1)) for (c0,c1),b in self.border_id.iteritems())
         while True:
-            if not values:
-                break
+            if not values: break
             val,best = max((y,x) for x,y in values.items())
             if val < beta: break
             b0,b1 = best
             affected = self.neighbours[b0]|self.neighbours[b1]
-            recompute = []
+            del values[b0,b1]
             for c0,c1 in values.keys():
                 if c0 in affected or c1 in affected:
                     del values[c0,c1]
-                    recompute.append((c0,c1))
             self._merge(b0,b1)
             for c0,c1 in self.border_id:
                 if (c0,c1) not in values:
                     values[c0,c1] = self._Rw(c0,c1)
         return self.W
 
-def greedy_roysam_merge(dna,mu,iSigma):
-    M = Merger(dna,mu,iSigma)
+def greedy_roysam_merge(dna,mu,iSigma,thresh=None):
+    M = Merger(dna,mu,iSigma,thresh=None)
     M.greedy()
     return M.W
 
