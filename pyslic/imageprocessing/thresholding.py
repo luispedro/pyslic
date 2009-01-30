@@ -29,6 +29,33 @@ from .basics import fullhistogram, nonzeromin
 
 __all__=['rc','murphy_rc','otsu','softthreshold','hardthreshold']
 
+def threshold(img,thresh):
+    '''
+    T = threshold(img, thresh)
+
+    thresh can be:
+        * None: returns -1
+        * a number: returns thresh
+        * a function: returns thresh(img)
+        * a string:
+            one of ('otsu','rc','murphy_rc','mean')
+    '''
+    if thresh is None:
+        return -1
+    if type(thresh) in (int,float):
+        return thresh
+    if type(thresh) is str:
+        if thresh == 'otsu':
+            return otsu(img)
+        if thresh == 'rc':
+            return rc(img)
+        if thresh == 'murphy_rc':
+            return murphy_rc(img)
+        if thresh == 'mean':
+            return img.mean()
+        raise ValueError("pyslic.threshold: Cannot handle argument '%s'" % thresh)
+    return thresh(img)
+
 def softthreshold(img,T):
     '''
     softthreshold(img,T)
