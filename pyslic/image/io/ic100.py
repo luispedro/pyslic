@@ -95,6 +95,7 @@ def read_ic100dir(basedir):
 
     Read IC100 output starting on basedir
     '''
+    assert type(basedir) is not unicode, 'pyslic.image.io.read_ic100dir does not work with unicode input' # The problem is that it creates images with unicode paths which cannot be loaded!
     imgs=[]
     wells=glob('%s/tables/well_*' % basedir)
     for well in wells:

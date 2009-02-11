@@ -57,6 +57,7 @@ def loadimages(startdir):
         class2/
             ....
     """
+    assert type(startdir) is not unicode, 'pyslic.image.io.dirtransversal does not work with unicode input' # The problem is that it creates images with unicode paths which cannot be loaded!
     images=[]
     basedir=getcwd()
     def _loadimage(d,dna,prot,crop):
