@@ -23,6 +23,7 @@
 # send email to murphy@cmu.edu
 
 from __future__ import division
+from collections import defaultdict
 from os import *
 import os.path
 from os.path import isdir
@@ -60,10 +61,13 @@ def loadimages(startdir):
     assert type(startdir) is not unicode, 'pyslic.image.io.dirtransversal does not work with unicode input' # The problem is that it creates images with unicode paths which cannot be loaded!
     images=[]
     basedir=getcwd()
+    labelcount = defaultdict(int)
     def _loadimage(d,dna,prot,crop):
 #        print 'loadimage(%s,%s,%s,%s)' % (d,dna,prot,crop)
-        res=Image()
-        res.label=d
+        res = Image()
+        res.label = d
+        res.id = (d, labelcount[d])
+        labelcount[d] += 1
         res.channels[Image.dna_channel]=os.path.join(basedir,startdir,d,'dna',dna)
         res.channels[Image.protein_channel]=os.path.join(basedir,startdir,d,'prot',prot)
         if crop:
