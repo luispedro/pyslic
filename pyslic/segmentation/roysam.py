@@ -60,7 +60,10 @@ def roysam_watershed(dna,thresh=None,blur_factor=3):
     D = ndimage.distance_transform_edt(M)
     D = D*np.exp(1-G/float(G.max()))
     T = ndimage.gaussian_filter(D.max() - D,blur_factor)
-    T = pymorph.to_uint8(T)
+    if T.max() < 256:
+        T = pymorph.to_uint8(T)
+    else:
+        T = pymorph.to_uint8(T*(256.0/T.max()))
     R = pymorph.regmin(T)
     R,N = ndimage.label(R)
     for i in xrange(R.size):
@@ -195,7 +198,7 @@ class Merger(object):
         return self.W
 
 def greedy_roysam_merge(dna,mu,iSigma,thresh=None):
-    M = Merger(dna,mu,iSigma,thresh=None)
+    M = Merger(dna,mu,iSigma,thresh=thresh)
     M.greedy()
     return M.W
 
