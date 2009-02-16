@@ -86,7 +86,10 @@ def readtjz(path):
     '''
     images=[]
     Nstacks=len(filter(lambda inner: inner.startswith('Stack-'),zipfile.ZipFile(path).namelist()))
-    for i in xrange(Nstacks/2):
+    if (Nstacks % 2):
+        import warnings
+        warnings.warn('pyslic.image.io.readtjz: Nr of slices is not an even number.')
+    for i in xrange(Nstacks//2):
         img=Image()
         img.set_load_function(readimageinzip)
         p_channel='%s/Stack-%05d' % (path,2*i)
