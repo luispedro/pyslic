@@ -28,12 +28,31 @@ import os.path
 from os.path import isdir
 from ..image import Image
 
-__all__ = ['loadimages','getlabels']
+__all__ = ['loadimages','detect_dirtransversal','dirtransversal']
 
 def _validfilename(f):
     return f.endswith('.png') or f.endswith('.tif') or f.endswith('.bmp')
 
-def loadimages(startdir):
+def detect_dirtransversal(startdir):
+    '''
+    is_dirtransversal = detect_dirtransversal(startdir)
+
+    Returns true if startdir seems like the start of a dirtransversal
+    directory.
+    '''
+    count_pos = 0
+    for d in os.listdir(startdir):
+        d = os.path.join(startdir,d)
+        if isdir(d):
+            subs = os.listdir(d)
+            if not 'prot' in subs:
+                return False
+            for sub in subs:
+                if sub not in ('prot','dna','crop'): return False
+            count_pos += 1
+    return bool(count_pos)
+
+def dirtransversal(startdir):
     """
     images = loadimages(startdir)
 
@@ -95,5 +114,7 @@ def loadimages(startdir):
             Pi += 1
             Ci += 1
     return images
+
+loadimages = dirtransversal
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
