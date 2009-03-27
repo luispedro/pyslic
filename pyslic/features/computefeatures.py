@@ -35,7 +35,7 @@ from imgskelfeats import imgskelfeatures
 from noffeatures import noffeatures
 from imgfeatures import imgfeatures, imgfeaturesdna
 from hullfeatures import hullfeatures, hullsizefeatures
-from zernike import zernike
+from zernike import zernike, znames
 from tas import tas, pftas
 
 __all__ = ['computefeatures','featurenames']
@@ -103,20 +103,26 @@ def computefeatures(img,featsets,progress=None,**kwargs):
             if progress is not None and (i % progress) == 0:
                 print 'Processed %s images...' % i
         return numpy.array(features)
-    scale=img.scale
+    regions = img.regions
+    if regions is not None and regions.max() > 1 and 'region' not in kwargs:
+        return numpy.array([
+                    computefeatures(img, featsets, progress=progress, region=r, **kwargs)
+                    for r in xrange(1,regions.max()+1)])
+    scale = img.scale
     if scale is None:
         scale = _Default_Scale
-    preprocessimage(img,1,options=kwargs.get('options',{}))
-    features=numpy.array([])
-    protein=img.channeldata[Image.protein_channel]
-    procprotein=img.channeldata[Image.procprotein_channel]
-    resprotein=img.channeldata[Image.residualprotein_channel]
-    procdna=img.channeldata.get(Image.procdna_channel)
+
+    preprocessimage(img, kwargs.get('region',1), options=kwargs.get('options',{}))
+    features = numpy.array([])
+    protein = img.channeldata[Image.protein_channel]
+    procprotein = img.channeldata[Image.procprotein_channel]
+    resprotein = img.channeldata[Image.residualprotein_channel]
+    procdna = img.channeldata.get(Image.procdna_channel)
     for F in featsets:
         if F in ['edg','edge']:
-            feats=edgefeatures(procprotein)
+            feats = edgefeatures(procprotein)
         elif F == 'har':
-            img=procprotein
+            img = procprotein
             har_scale = kwargs.get('haralick.scale',_Default_Haralick_Scale)
             if scale != har_scale:
                 img = img.copy()
@@ -124,31 +130,31 @@ def computefeatures(img,featsets,progress=None,**kwargs):
             bins = kwargs.get('haralick.bins',_Default_Haralick_Bins)
             if bins != 256:
                 img = numpy.array(img.astype(float) * bins / (img.max()-img.min()),numpy.uint8)
-            feats=haralickfeatures(procprotein)
-            feats=feats.mean(0)
+            feats = haralickfeatures(procprotein)
+            feats = feats.mean(0)
         elif F == 'har3d':
-            feats=haralickfeatures(procprotein)
-            feats=numpy.r_[feats.mean(0),feats.ptp(0)]
+            feats = haralickfeatures(procprotein)
+            feats = numpy.r_[feats.mean(0),feats.ptp(0)]
         elif F in ['hul', 'hull']:
-            feats=hullfeatures(procprotein)
+            feats = hullfeatures(procprotein)
         elif F == 'hullsize':
-            feats=hullsizefeatures(procprotein)
+            feats = hullsizefeatures(procprotein)
         elif F == 'hullsizedna':
-            feats=hullsizefeatures(procdna)
+            feats = hullsizefeatures(procdna)
         elif F == 'img':
-            feats=imgfeaturesdna(procprotein,procdna)
+            feats = imgfeaturesdna(procprotein,procdna)
         elif F == 'mor':
-            feats=morphologicalfeatures(procprotein)
+            feats = morphologicalfeatures(procprotein)
         elif F == 'nof':
-            feats=noffeatures(procprotein,resprotein)
+            feats = noffeatures(procprotein,resprotein)
         elif F in ['skl', 'skel']:
-            feats=imgskelfeatures(procprotein)
+            feats = imgskelfeatures(procprotein)
         elif F == 'zer':
-            feats=zernike(procprotein,12,34.5,scale)
+            feats = zernike(procprotein,12,34.5,scale)
         elif F == 'tas':
-            feats=tas(protein)
+            feats = tas(protein)
         elif F == 'pftas':
-            feats=pftas(procprotein)
+            feats = pftas(procprotein)
         else:
             raise Exception('Unknown feature set: %s' % F)
         features = numpy.r_[features,feats]
@@ -187,8 +193,7 @@ def featurenames(featsets):
         elif F == 'skl':
             names.extend(imgskelfeatures.names)
         elif F == 'zer':
-            feats=(procprotein)
-            names.extend(zernike.names)
+            names.extend(znames(12,34.5))
         elif F == 'tas':
             names.extend(tas.names)
         elif F == 'pftas':

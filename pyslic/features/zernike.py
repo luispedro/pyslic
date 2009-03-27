@@ -87,29 +87,32 @@ def Znl(n,l,X,Y,P):
 
 def zernike(img,D,radius,scale):
     """
-     zvalues = zernike(img,D,radius) zernike moments through degree D
+    zvalues = zernike(img,D,radius) zernike moments through degree D
 
-     Returns a vector of absolute Zernike moments through degree D for the
-     image I, and the names of those moments in cell array znames. 
-     radius is used as the maximum radius for the Zernike polynomials.
+    Returns a vector of absolute Zernike moments through degree D for the
+    image I.
 
-     Reference: Teague, MR. (1980). Image Analysis via the General
-       Theory of Moments.  J. Opt. Soc. Am. 70(8):920-930.
+    Parameters
+    ----------
+       * radius is used as the maximum radius for the Zernike polynomials.
+       * scale is the scale of the image.
+
+    Reference: Teague, MR. (1980). Image Analysis via the General
+      Theory of Moments.  J. Opt. Soc. Am. 70(8):920-930.
     """
-    znames = []
     zvalues = []
 
 # Find all non-zero pixel coordinates and values
     X,Y = where(img > 0)
-    P=img[X,Y].ravel()
+    P = img[X,Y].ravel()
 
 # Normalize the coordinates to the center of mass and normalize
 #  pixel distances using the maximum radius argument (radius)
     cofx,cofy = center_of_mass(img)
     Xn = double(X-cofx)/radius*scale
     Yn = double(Y-cofy)/radius*scale
-    Xn=Xn.ravel()
-    Yn=Yn.ravel()
+    Xn = Xn.ravel()
+    Yn = Yn.ravel()
 
 
 # Find all pixels of distance <= 1.0 to center
@@ -119,9 +122,21 @@ def zernike(img,D,radius,scale):
     for n in xrange(D+1):
         for l in xrange(n+1):
             if (n-l)%2 == 0:
-                znames.append('Z_#i,%s%s' % (n, l))
                 z= Znl(n,l, Xn[k], Yn[k], frac_center.ravel())
                 zvalues.append(abs(z))
     return zvalues
+
+
+def znames(D,radius):
+    """
+     names = znames(D,radius) name oof zernike moments through degree D
+
+    """
+    names = []
+    for n in xrange(D+1):
+        for l in xrange(n+1):
+            if (n-l)%2 == 0:
+                names.append('Z_%s,%s' % (n, l))
+    return names
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
