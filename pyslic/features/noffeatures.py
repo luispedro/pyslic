@@ -35,6 +35,6 @@ def noffeatures(procimg,nofimg):
         return 1.
     return nonobj_fluor/total_fluor
 
-noffeatures.names = 'fract_nonobj_fluor'
+noffeatures.names = ['fract_nonobj_fluor']
 noffeatures.slf_names = ['SLF7.79']
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
