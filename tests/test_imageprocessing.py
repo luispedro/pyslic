@@ -2,7 +2,8 @@ import numpy
 import pyslic
 import pyslic.imageprocessing.thresholding
 from pyslic.imageprocessing.basics import fullhistogram
-img=pyslic.readimg('data/protimg.jp2')
+from os.path import dirname
+img = pyslic.readimg(dirname(__file__) + '/data/protimg.jp2')
 
 def test_fullhistogram():
     A100 = numpy.arange(100).reshape((10,10))
@@ -22,6 +23,6 @@ def test_threshold():
     assert pyslic.imageprocessing.thresholding.threshold(img,None)  == -1
     assert pyslic.imageprocessing.thresholding.threshold(img,'otsu') == pyslic.imageprocessing.thresholding.otsu(img)
     assert pyslic.imageprocessing.thresholding.threshold(img,'rc') == pyslic.imageprocessing.thresholding.rc(img)
-    assert pyslic.imageprocessing.thresholding.threshold(img,pyslic.imageprocessing.thresholding.rc) == pyslic.imageprocessing.thresholding.rfc(img)
+    assert pyslic.imageprocessing.thresholding.threshold(img,pyslic.imageprocessing.thresholding.rc) == pyslic.imageprocessing.thresholding.rc(img)
     assert pyslic.imageprocessing.thresholding.threshold(img,pyslic.imageprocessing.thresholding.rc) == pyslic.imageprocessing.thresholding.rc(img)
     
