@@ -97,6 +97,7 @@ def filter_labeled(labeled,positives):
     '''
     new_label=cumsum(positives)
     new_label[~positives]=0
+    assert labeled.max() < len(new_label), 'pyslic.segmentation.filter_labeled: Positives is too small!'
     D1,D2=labeled.shape
     try:
         from scipy import weave
