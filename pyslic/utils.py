@@ -23,7 +23,7 @@
 # send email to murphy@cmu.edu
 
 from __future__ import division
-import numpy
+import numpy as np
 import random
 
 __all__ = [
@@ -44,9 +44,9 @@ def get_random(R):
         * RandomState   : returns R
     '''
     if R is None:
-        return numpy.random.mtrand._rand
+        return np.random.mtrand._rand
     if type(R) == int:
-        return numpy.random.RandomState(R)
+        return np.random.RandomState(R)
     return R
 
 def get_pyrandom(R):
@@ -64,7 +64,7 @@ def get_pyrandom(R):
         return random
     if type(R) is int:
         return random.Random(R)
-    if type(R) is numpy.random.RandomState:
+    if type(R) is np.random.RandomState:
         return random.Random(R.randint(2**30))
     raise TypeError,"get_pyrandom() does not know how to handle type %s." % type(R)
 
@@ -80,30 +80,40 @@ def format_table(table,collabels,rowlabels,format='latex'):
     if format != 'latex':
         raise AttributeError, 'format_table: only \'latex\' format supported'
 
-    table=numpy.asanyarray(table)
-    r,c=table.shape
+    table = np.asanyarray(table)
+    r,c = table.shape
 
-    eol="\\\\\n"
-    heading=' & ' + ' & '.join(collabels) + eol
-    content=''
+    eol = "\\\\\n"
+    max_c = max(len(c) for c in collabels)
+    max_r = max(len(r) for r in rowlabels)
+    heading = (' ' * max_r) + ' & '
+    col_format = '%%%ss &' % max_c
+    for c in collabels:
+        heading +=  col_format % c
+    heading += eol
+    content = ''
+    row_format = '%%%ss &' % max_r
     for i in xrange(r):
-        header = (str(rowlabels[i]) if rowlabels else '')
-        row = header + ' & ' + ' & '.join(str(elem) for elem in table[i]) + eol
+        row = row_format % (str(rowlabels[i]) if rowlabels else '')
+        for elem in table[i]:
+            row += col_format % str(elem)
+        row += eol
         content += row
 
-    return '''
-    \\begin{tabular}
-    \\toprule
+    return r'''
+    \begin{tabular}
+    \toprule
         %(heading)s
-    \\midrule
+    \midrule
         %(content)s
-    \\bottomrule
+    \bottomrule
+    \end{tabular}
     ''' % locals()
 
 def format_confusion_matrix(cmatrix,labels,format='latex'):
     '''
     @see format_table
     '''
-    return format_table(cmatrix,labels,labels,format)
+    return format_table(cmatrix.astype(np.uint32), labels, labels, format)
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
