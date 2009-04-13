@@ -1,7 +1,6 @@
 from .features import computefeatures
 import image
 from image import Image
-from image.io import readimg, writeimg
 import preprocess
 import classify
 import clustering
@@ -11,8 +10,6 @@ from .preprocess import preprocessimage, bgsub
 from .imageprocessing import thresholding
 __all__ = [
     'image',
-    'readimg',
-    'writeimg',
     'Image',
     'preprocess',
     'computefeatures',
@@ -22,3 +19,12 @@ __all__ = [
     'segmentation',
     'thresholding',
     ]
+
+try:
+    from image.io import readimg, writeimg
+    __all__.extend([
+        'readimg',
+        'writeimg',
+        ])
+except:
+    pass
