@@ -22,44 +22,56 @@
 # For additional information visit http://murphylab.web.cmu.edu or
 # send email to murphy@cmu.edu
 
-from __future__ import division
-from numpy import *
-from heapq import *
+from __future__ import division, with_statement
+import numpy as np
+from ..image import loadedimage
+import morph
+import pymorph
+from scipy import ndimage
 
 __all__ = ['watershed']
 
-def watershed(image,seeds):
+def segment_watershed(img, mode='direct', thresholding=None, min_obj_size=None, **kwargs):
     '''
-    labeled = watershed(image,cofs)
+    segment_watershed(img, mode='direct', thresholding=None, min_obj_size=None, kwargs)
 
-    Basic, queue based, watershed algorithm
+    Segment using traditional watershed
+
+    Parameters
+    ----------
+
+        * img: a pyslic.Image. The algorithm operates on the dna channel.
+        * mode: 'direct' or 'gradient': whether to use the image or the gradient of the image
+        * thresholding: how to threshold the smoothed image (default: None, no thresholding)
+        * min_obj_size: minimum object size. This is slightly different than post-filtering for minimum 
+            object size as it fill those holes with a second watershed pass as opposed to having
+            an image with holes
+        * smoothing: whether to smooth (default: True)
+        * smooth_gamma: Size of Gaussian for blurring, in pixels (default: 12)
     '''
-    queue=[]
-    r,c=image.shape
-    if type(seeds) == list:
-        for i,(cofy, cofx) in enumerate(seeds):
-            heappush(queue, (0,i+1,int(cofy),int(cofx)) )
-    else:
-        assert seeds.shape == (r,c)
-        for y in xrange(r):
-            for x in xrange(c):
-                if seeds[y,x] > 0:
-                    heappush(queue, (image[y,x],seeds[y,x],y,x))
-    labeled=zeros_like(image)
-    while queue:
-        val,obj,y,x = heappop(queue)
-        if labeled[y,x] != 0:
-            continue
-        labeled[y,x]=obj
-        for i in xrange(3):
-            ny=y-1+i
-            if ny < 0 or ny >= r:
-                continue
-            for j in xrange(3):
-                nx=x-1+j
-                if nx < 0 or nx >= c:
-                    continue
-                heappush( queue, (image[ny,nx],obj,ny,nx) )
-    return labeled
+    assert mode in ('direct','gradient'), "segment_watershed: mode '%s' not understood" % mode
+    with loadedimage(img):
+        dna = img.get('dna')
+        if kwargs.get('smoothing',True):
+            dnaf = ndimage.gaussian_filter(dna, kwargs.get('smooth_gamma',12))
+        else:
+            dnaf = dna
+        rmax = pymorph.regmax(dnaf)
+        rmax_L,_ = ndimage.label(rmax)
+        if mode == 'direct':
+            watershed_img = dna.max()-dna
+        elif mode == 'gradient':
+            dnag = pymorph.gradm(dna)
+            watershed_img = dnag.max()-dnag
+        water = morph.cwatershed(watershed_img,rmax_L)
+        if thresholding is not None:
+            T = pyslic.thresholding.threshold(dnaf,thresholding)
+            water *= (dnaf >= T)
+        if min_obj_size is not None:
+            sizes = np.array(ndimage.sum(np.ones(water.shape),water,np.arange(water.max()+1)))
+            for oid in np.where(sizes < min_obj_size)[0]:
+                water[water == oid] = 0
+            water,lines = morph.cwatershed(water,water,return_lines=1)
+        return water
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
