@@ -20,12 +20,13 @@
 # send email to murphy@cmu.edu
 
 from __future__ import division
+import numpy as np
 from numpy import *
 from scipy import ndimage
 from ..imageprocessing import sobeledge
 import math
 
-_atan2=vectorize(math.atan2)
+_atan2 = np.vectorize(lambda x: math.atan2(x)) # This is necessary in newer numpy versions
 
 def edgefeatures(protproc):
     """
