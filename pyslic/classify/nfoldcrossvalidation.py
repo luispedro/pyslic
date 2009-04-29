@@ -24,12 +24,13 @@
 
 from __future__ import division
 import numpy
+import numpy as np
 from numpy import *
 from classify import defaultclassifier
 from classifier import normaliselabels
 
 __all__=['nfoldcrossvalidation']
-def nfoldcrossvalidation(features,labels,nfolds=None,classifier=None, return_predictions=False):
+def nfoldcrossvalidation(features, labels, nfolds=None, classifier=None, return_predictions=False, max_train=None):
     '''
     Perform n-fold cross validation
 
@@ -51,8 +52,8 @@ def nfoldcrossvalidation(features,labels,nfolds=None,classifier=None, return_pre
     assert len(features) == len(labels), 'nfoldcrossvalidation: len(features) should match len(labels)'
     if classifier is None:
         classifier = defaultclassifier()
-    labels,labelnames=normaliselabels(labels)
-    predictions=labels*0-1
+    labels,labelnames = normaliselabels(labels)
+    predictions = labels*0-1
 
     features = numpy.asanyarray(features)
 
@@ -66,22 +67,27 @@ def nfoldcrossvalidation(features,labels,nfolds=None,classifier=None, return_pre
     elif min_class_count < nfolds:
         from warnings import warn
         warn('pyslic.classify.nfoldcrossvalidation: Reducing the nr. of folds to %s (minimum class size).' % min_class_count)
-        nfolds=min_class_count
+        nfolds = min_class_count
     
-    nclasses=len(classcounts)
-    cmatrix=zeros((nclasses,nclasses))
+    nclasses = len(classcounts)
+    cmatrix = zeros((nclasses,nclasses))
     for fold in xrange(nfolds):
         testingset=zeros(len(labels),bool)
 
         for L,C in classcounts.items():
-            idxs,=where(labels==L)
-            N=len(idxs)
-            perfold=N/nfolds
-            start=floor(perfold*fold)
-            end=floor(perfold*(fold+1))
-            idxs=idxs[start:end]
-            testingset[idxs]=True
+            idxs, = where(labels==L)
+            N = len(idxs)
+            perfold = N/nfolds
+            start = floor(perfold*fold)
+            end = floor(perfold*(fold+1))
+            idxs = idxs[start:end]
+            testingset[idxs] = True
         trainingset= ~testingset
+        if max_train is not None:
+            for c in xrange(nclasses):
+                if (labels[trainingset] == c).sum() > max_train:
+                    idxs, = np.where( (labels == L) & trainingset )
+                    trainingset[idxs[max_train:]] = False
         
         classifier.train(features[trainingset],labels[trainingset])
         prediction=classifier.apply(features[testingset])
