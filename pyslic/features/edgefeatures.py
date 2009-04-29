@@ -26,7 +26,7 @@ from scipy import ndimage
 from ..imageprocessing import sobeledge
 import math
 
-_atan2 = np.vectorize(lambda x: math.atan2(x)) # This is necessary in newer numpy versions
+_atan2 = np.vectorize(lambda x,y: math.atan2(x,y)) # This is necessary in newer numpy versions
 
 def edgefeatures(protproc):
     """
