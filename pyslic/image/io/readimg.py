@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2008  Murphy Lab
+# Copyright (C) 2008-2009  Murphy Lab
 # Carnegie Mellon University
 # 
 # Written by Luís Pedro Coelho <lpc@cmu.edu>
@@ -22,9 +22,11 @@
 # For additional information visit http://murphylab.web.cmu.edu or
 # send email to murphy@cmu.edu
 
-from readtjz import readtjz_recursive, readtjz
-from ksr import read_ksr_dir, detect_ksr_dir
-from ic100 import detect_ic100dir, read_ic100dir
-from read_cellomics_dib import read_cellomics_dib
-import dirtransversal
-from readimg import readimg
+try:
+    from readmagick import readimg
+except:
+    from scipy.misc.pilutil import imread
+    readimg = imread
+    del imread
+
+# vim: set ts=4 sts=4 sw=4 expandtab smartindent:

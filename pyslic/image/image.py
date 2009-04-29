@@ -25,14 +25,8 @@
 from __future__ import division
 import numpy
 from scipy.ndimage import label
-try:
-    from .io.readimg import readimg
-except:
-    from scipy.misc.pilutil import imread
-    readimg = imread
-
-
 from contextlib import contextmanager
+from .io.readimg import readimg
 
 __all__ = ['Image', 'setshowimage','loadedimage']
 
