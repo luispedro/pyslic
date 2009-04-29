@@ -54,11 +54,11 @@ class libsvmClassifier(classifier):
     def _dotrain(self,features,labels):
         if self.auto_weighting:
             nlabels = labels.max() + 1
-            self.param.nr_weight = nlabels
+            self.param.nr_weight = int(nlabels)
             self.param.weight_label = range(nlabels)
             self.param.weight = [(labels != i).mean() for i in xrange(nlabels)]
-        problem=_svm.svm_problem(labels,features)
-        self.model=_svm.svm_model(problem,self.param)
+        problem = _svm.svm_problem(labels.astype(float), features)
+        self.model = _svm.svm_model(problem,self.param)
 
     def apply(self,feats):
         if len(feats.shape) == 2: return [self.apply(f) for f in feats]
