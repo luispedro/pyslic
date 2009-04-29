@@ -197,7 +197,34 @@ class Merger(object):
                     values[c0,c1] = self._Rw(c0,c1)
         return self.W
 
-def greedy_roysam_merge(dna,mu,iSigma,thresh=None):
+
+def train_classifier(labeled_dnas):
+    '''
+    classifier = train_classifier(labeled_dnas)
+    
+    Learn a classifier for Roysam's Algorithm.
+        (to be used for greedy_roysam_merge)
+    '''
+    for dna in labeled_dnas:
+        for obji in xrange(1,dna.max()+1):
+            F.append(_compute_features(dna==obji))
+    return F.mean(0),np.cov(F)
+
+def greedy_roysam_merge(dna, classifier, thresh=None):
+    '''
+    labeled greedy_roysam_merge(dna, classifier, thresh=None)
+
+    Implement Roysam's Greedy Merging Algorithm
+
+    Parameters
+    -----------
+    
+        * dna: DNA image
+        * classifier: shape properties
+            (should be of the form returned by train_classifier)
+        * thresh: Thresholding value or method
+    '''
+    mu,iSigma = classifier
     M = Merger(dna,mu,iSigma,thresh=thresh)
     M.greedy()
     return M.W
