@@ -23,8 +23,7 @@
 # send email to murphy@cmu.edu
 
 from __future__ import division
-import numpy
-from numpy import *
+import numpy as np
 from scipy import ndimage
 from ..imageprocessing.bwperim import bwperim
 from ..imageprocessing.bbox import croptobbox
@@ -32,33 +31,31 @@ from ..imageprocessing.convexhull import convexhull
 import warnings
 
 __all__ = ['dna_size_shape','border_regions','filter_labeled']
-def dna_size_shape(dnamasks,scale,minarea,maxarea,minroundness):
+
+def dna_size_shape(dnamasks, scale=1., minarea=float('-inf'), maxarea=float('+inf'), minroundness=-1.):
     '''
-    positives = dna_size_shape(dnamasks,scale,minarea,maxarea,minroundness)
+    positives = dna_size_shape(dnamasks, scale, minarea, maxarea, minroundness)
 
     Only accepts DNA objects that fulfill the following criterion:
             * are greater than minarea
             * are smaller than maxarea
             * are rounder than minroundness
     '''
-
-    labeled,nr_objs=ndimage.label(dnamasks)
-
-    positives=zeros(nr_objs+1,numpy.bool)
+    positives = np.zeros(nr_objs+1,numpy.bool)
     minarea /= scale
     maxarea /= scale
     for obj in xrange(1,nr_objs+1):
         objimg = croptobbox(labeled == obj)
-        area=objimg.sum()
+        area = objimg.sum()
         if area > maxarea or area < minarea:
             continue
-        hull=convexhull(objimg)
-        hullArea=hull.sum()
-        hullPerim=bwperim(hull).sum()
-        roundness=hullPerim**2/(4*pi*hullArea)
+        hull = convexhull(objimg)
+        hullArea = hull.sum()
+        hullPerim = bwperim(hull).sum()
+        roundness = hullPerim**2/(4*pi*hullArea)
         if roundness < minroundness:
             continue
-        positives[obj]=1
+        positives[obj] = 1
     return positives
 
 def border_regions(mask_or_labeled):
@@ -68,35 +65,34 @@ def border_regions(mask_or_labeled):
     Removes anything that touches the border.
     '''
     nr_objs = mask_or_labeled.max()
-    if mask_or_labeled.max() == 1:
-        labeled,nr_objs=ndimage.label(mask_or_labeled)
+    if nr_objs == 1:
+        labeled,nr_objs = ndimage.label(mask_or_labeled)
     else:
         labeled = mask_or_labeled
-    positives = numpy.ones(nr_objs+1,numpy.bool)
-    r,c=labeled.shape
+    positives = numpy.ones(nr_objs+1, numpy.bool)
 
-    negs=unique(labeled[0])
-    positives[negs]=False
+    negs = np.unique(labeled[0])
+    positives[negs] = False
 
-    negs=unique(labeled[-1])
-    positives[negs]=False
+    negs = np.unique(labeled[-1])
+    positives[negs] = False
 
-    negs=unique(labeled[:,0])
-    positives[negs]=False
+    negs = np.unique(labeled[:,0])
+    positives[negs] = False
 
-    negs=unique(labeled[:,-1])
-    positives[negs]=False
+    negs = np.unique(labeled[:,-1])
+    positives[negs] = False
     return positives
 
-def filter_labeled(labeled,positives):
+def filter_labeled(labeled, positives):
     '''
-    labeled, N = filter_labeled(labeled,positives)
+    labeled, N = filter_labeled(labeled, positives)
 
     Performs a filtering version of label(), where object OBJ is kept
         only if positives[OBJ]
     '''
-    new_label=cumsum(positives)
-    new_label[~positives]=0
+    new_label = cumsum(positives)
+    new_label[~positives] = 0
     assert labeled.max() < len(new_label), 'pyslic.segmentation.filter_labeled: Positives is too small!'
     D1,D2=labeled.shape
     try:
