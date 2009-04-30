@@ -91,27 +91,10 @@ def filter_labeled(labeled, positives):
     Performs a filtering version of label(), where object OBJ is kept
         only if positives[OBJ]
     '''
-    new_label = cumsum(positives)
+    new_label = np.cumsum(positives)
     new_label[~positives] = 0
     assert labeled.max() < len(new_label), 'pyslic.segmentation.filter_labeled: Positives is too small!'
-    D1,D2=labeled.shape
-    try:
-        from scipy import weave
-        from scipy.weave import converters
-        code = '''
-        for (int y = 0; y != D1; ++y) {
-            for (int x = 0; x != D2; ++x) {
-                labeled(y,x) = new_label(labeled(y,x));
-            }  
-        }'''
-        weave.inline(code,
-            ['labeled','new_label','D1','D2'],
-            type_converters=converters.blitz)
-    except Exception, e:
-        warnings.warn('scipy.weave failed. Resorting to (slow) Python code (Error: %s)' % e)
-        for y in xrange(D1):
-            for x in xrange(D2):
-                labeled[y,x]=new_label[labeled[y,x]]
+    labeled = new_label[labeled]
     return labeled,int(positives.sum())
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
