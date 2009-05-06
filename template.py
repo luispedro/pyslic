@@ -23,7 +23,7 @@
 # send email to murphy@cmu.edu
 
 from __future__ import division
-import numpy
+import numpy as np
 
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
