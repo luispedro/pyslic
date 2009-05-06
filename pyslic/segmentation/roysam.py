@@ -205,10 +205,11 @@ def train_classifier(labeled_dnas):
     Learn a classifier for Roysam's Algorithm.
         (to be used for greedy_roysam_merge)
     '''
+    F = []
     for dna in labeled_dnas:
         for obji in xrange(1,dna.max()+1):
             F.append(_compute_features(dna==obji))
-    return F.mean(0),np.cov(F)
+    return np.mean(F,0),np.cov(F)
 
 def greedy_roysam_merge(dna, classifier, thresh=None):
     '''
