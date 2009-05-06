@@ -24,7 +24,8 @@
 
 from __future__ import division, with_statement
 import numpy
-from ..imageprocessing import thresholding, basics
+from ..imageprocessing import basics
+from ..imageprocessing.thresholding import threshold
 from ..image import Image, loadedimage
 from scipy import ndimage
 
