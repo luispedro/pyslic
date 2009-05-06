@@ -31,12 +31,12 @@ from ..image import Image
 from .read_cellomics_dib import read_cellomics_dib
 from warnings import warn
 
-__all__ = ['read_ksr_dir','detect_ksr_dir']
+__all__ = ['read_ksr_dir','read_ksrdir','detect_ksrdir', 'detect_ksr_dir']
 _ksrpat=re.compile('KSR_.*t([0-9]+)([A-H][0-9]{1,2})f([0-9]+)d([0-9])\.(tif|TIF|DIB|dib)')
 
-def detect_ksr_dir(dir):
+def detect_ksrdir(dir):
     '''
-    is_ksr_dir = detect_ksr_dir(dir)
+    is_ksrdir = detect_ksrdir(dir)
 
     Returns true if the directory seems to contain ksr files
     '''
@@ -53,14 +53,14 @@ def _fixlabel(L):
         return L[0]+L[2]
     return L
 
-def read_ksr_dir(dir):
+def read_ksrdir(dir):
     '''
-    images = read_ksr_dir(dirname)
+    images = read_ksrdir(dirname)
 
     Read all the files in dirname and return them as a dictionary:
         (WellName, FieldNr) -> Image
     '''
-    assert type(dir) is not unicode, 'pyslic.image.io.read_ksr_dir does not work with unicode input' # The problem is that it creates images with unicode paths which cannot be loaded!
+    assert type(dir) is not unicode, 'pyslic.image.io.read_ksrdir does not work with unicode input' # The problem is that it creates images with unicode paths which cannot be loaded!
     Files=os.listdir(dir)
     channelcode = { 1 : Image.dna_channel , 2 : Image.protein_channel, 3 : Image.autofluorescence_channel } 
     images={}
@@ -86,5 +86,8 @@ def read_ksr_dir(dir):
         img.channels[channelcode[int(Channel)]]=os.path.abspath(os.path.join(dir,f))
     return list(images.values())
 
+
+read_ksr_dir = read_ksrdir
+detect_ksr_dir = detect_ksrdir
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:

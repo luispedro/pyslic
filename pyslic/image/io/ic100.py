@@ -28,7 +28,8 @@ from ..image import Image
 import os
 from glob import glob
 import re
-from os.path import exists
+from collections import defaultdict
+from os.path import exists, abspath
 
 def detect_ic100dir(basedir):
     '''
@@ -120,5 +121,31 @@ def read_ic100dir(basedir):
             imgs.append(img)
     return imgs
 
+_flat_pat = re.compile(r'(^|/)[0-9]{6}[A-Z_]+[0-9]__([A-H])___?([0-9]{1,2})_T_001_ch_0([012])_image_0+([1-9][0-9]?)_Z_001\.bmp$')
+_channels = ('dna','protein','autofluorescence')
 
+def read_ic100dir_flat(basedir):
+    '''
+    imgs = read_ic100dir_flat(basedir)
+
+    Read images from IC100 flat directory.
+    '''
+    wellfiles = defaultdict(dict)
+    for name in glob(basedir+'/*.bmp'):
+        match = _flat_pat.search(name)
+        if match is not None:
+            _,wellrow,wellcol,channelnr,imageid = match.groups()
+            channel = _channels[int(channelnr)]
+            wellfiles[wellrow+wellcol,imageid][channel] = name
+    images = []
+    for (well,idx),channels in wellfiles.iteritems():
+        img = Image()
+        for ch,f in channels.iteritems():
+            img.channels[ch] = abspath(f)
+        img.id = (well,idx)
+        img.label = well
+        img.load_function = read_ic100_BMP
+        images.append(img)
+    images.sort(key=lambda Img: Img.label)
+    return images
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
