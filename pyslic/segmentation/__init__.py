@@ -27,5 +27,7 @@ from voronoi import *
 #from segmentation import *
 from filters import *
 from active_masks import *
+from thresholding import threshold_segment
+from .watershed import watershed_segment
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:

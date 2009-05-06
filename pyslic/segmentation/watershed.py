@@ -31,9 +31,9 @@ from scipy import ndimage
 
 __all__ = ['watershed']
 
-def segment_watershed(img, mode='direct', thresholding=None, min_obj_size=None, **kwargs):
+def watershed_segment(img, mode='direct', thresholding=None, min_obj_size=None, **kwargs):
     '''
-    segment_watershed(img, mode='direct', thresholding=None, min_obj_size=None, kwargs)
+    segment_watershed(img, mode='direct', thresholding=None, min_obj_size=None, **kwargs)
 
     Segment using traditional watershed
 
