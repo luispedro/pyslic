@@ -30,6 +30,7 @@ from glob import glob
 import re
 from collections import defaultdict
 from os.path import exists, abspath
+import random
 
 def detect_ic100dir(basedir):
     '''
@@ -123,6 +124,21 @@ def read_ic100dir(basedir):
 
 _flat_pat = re.compile(r'(^|/)[0-9]{6}[A-Z_]+[0-9]__([A-H])___?([0-9]{1,2})_T_001_ch_0([012])_image_0+([1-9][0-9]?)_Z_001\.bmp$')
 _channels = ('dna','protein','autofluorescence')
+
+def detect_ic100dir_flat(basedir):
+    '''
+    is_flat_ic100dir = detect_ic100dir_flat(basedir)
+
+    Returns whether it seems like read_ic100dir_flat can
+    parse the structure of basedir.
+    '''
+    bmps = glob(basedir+'/*.bmp')
+    if not bmps: return False
+    random.shuffle(bmps)
+    for b in bmps[:2+len(bmps)//10]:
+        if _flat_pat.search(b) is not None:
+            return True
+    return False
 
 def read_ic100dir_flat(basedir):
     '''
