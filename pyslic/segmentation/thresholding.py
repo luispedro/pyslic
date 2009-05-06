@@ -49,7 +49,9 @@ def threshold_segment(dna, smooth=None,threshold_method='otsu',median_size=5, mi
     if smooth is not None:
         dna = ndimage.gaussian_filter(dna,smooth)
     T = threshold(dna,threshold_method)
-    binimg = (basics.majority_filter(dna > T, median_size))
+    binimg = dna > T
+    if median_size is not None:
+        binimg = basics.majority_filter(binimg, median_size)
     L,N = ndimage.label(binimg)
     if N == 0:
         return L
