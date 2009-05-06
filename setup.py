@@ -40,17 +40,6 @@ from readimg_setup import readimg_args
 convexhull = numpyutils.Extension('pyslic/imageprocessing/_convexhull', sources = ['pyslic/imageprocessing/convexhull.cpp'])
 ext_modules = [convexhull]
 
-args = readimg_args()
-if args is None:
-    print '''
-PySLIC will be usable, but will rely on Python Image Library (PIL) for
-reading image files.
-
-Only file formats supported by PIL will be usable (in particular, JPEG2000 files will
-*not* be supported).'''
-else:
-    readimg = numpyutils.Extension('pyslic.image.io.readimg', sources = ['pyslic/image/io/readimg.cpp'], **readimg_args())
-    ext_modules.append(readimg)
 packages=setuptools.find_packages()
 if 'tests' in packages: packages.remove('tests')
 
