@@ -28,7 +28,7 @@ from ..imageprocessing import thresholding, basics
 from ..image import Image, loadedimage
 from scipy import ndimage
 
-def threshold_segment(dna, smooth=None,threshold_method='otsu',median_size=5, min_obj_size=2500):
+def threshold_segment(dna, threshold_method='otsu', smooth=None, median_size=5, min_obj_size=2500):
     '''
     labeled = threshold_method(dna, threshold_method='otsu',median_size=5,min_obj_size=2500)
 
@@ -37,9 +37,9 @@ def threshold_segment(dna, smooth=None,threshold_method='otsu',median_size=5, mi
     Params
     ------
         * dna: either a pyslic.Image or a DNA image
-        * smooth: either None (no smoothing) or a sigma value for a gaussian blur (default: None)
         * threshold_method: thresholding method to use. Can be either a function or 
             string which denotes the name of a function in pyslic.imageprocessing.thresholding (default: otsu)
+        * smooth: either None (no smoothing) or a sigma value for a gaussian blur (default: None)
         * median_size: median filter size (default: 5)
         * min_obj_size: minimum object size (default: 2500)
     '''
