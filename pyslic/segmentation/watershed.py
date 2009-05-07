@@ -25,6 +25,7 @@
 from __future__ import division, with_statement
 import numpy as np
 from ..image import loadedimage
+from ..imageprocessing.thresholding import threshold
 import morph
 import pymorph
 from scipy import ndimage
@@ -65,7 +66,7 @@ def watershed_segment(img, mode='direct', thresholding=None, min_obj_size=None, 
             watershed_img = dnag.max()-dnag
         water = morph.cwatershed(watershed_img,rmax_L)
         if thresholding is not None:
-            T = pyslic.thresholding.threshold(dnaf,thresholding)
+            T = threshold(dnaf,thresholding)
             water *= (dnaf >= T)
         if min_obj_size is not None:
             sizes = np.array(ndimage.sum(np.ones(water.shape),water,np.arange(water.max()+1)))
