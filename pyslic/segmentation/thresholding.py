@@ -46,7 +46,7 @@ def threshold_segment(dna, threshold_method='otsu', smooth=None, median_size=5, 
     '''
     if type(dna) == Image:
         with loadedimage(dna):
-            return threshold_segment(dna.get('dna'),threshold_method,median_size,min_obj_size)
+            return threshold_segment(dna.get('dna'),threshold_method,smooth, median_size,min_obj_size)
     if smooth is not None:
         dna = ndimage.gaussian_filter(dna,smooth)
     T = threshold(dna,threshold_method)
