@@ -24,6 +24,7 @@
 
 from __future__ import division
 import numpy as np
+from numpy import linalg
 from collections import defaultdict
 try:
     import ncreduce
@@ -209,7 +210,8 @@ def train_classifier(labeled_dnas):
     for dna in labeled_dnas:
         for obji in xrange(1,dna.max()+1):
             F.append(_compute_features(dna==obji))
-    return np.mean(F,0),np.cov(F)
+    F = np.array(F)
+    return np.mean(F,0),linalg.inv(np.cov(F.T))
 
 def greedy_roysam_merge(dna, classifier, thresh=None):
     '''
