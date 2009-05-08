@@ -61,6 +61,7 @@ def roysam_watershed(dna,thresh=None,blur_factor=3):
     D = ndimage.distance_transform_edt(M)
     D = D*np.exp(1-G/float(G.max()))
     T = ndimage.gaussian_filter(D.max() - D,blur_factor)
+    T *= M
     if T.max() < 256:
         T = pymorph.to_uint8(T)
     else:
@@ -71,7 +72,7 @@ def roysam_watershed(dna,thresh=None,blur_factor=3):
         if R.flat[i] == 0 and M.flat[i] == 0:
             R.flat[i] = N+1
             break
-    W,WL = morph.cwatershed(T*M,R,return_lines=True)
+    W,WL = morph.cwatershed(T,R,return_lines=True)
     return W,WL
 
 def border(W,Bc=None):
