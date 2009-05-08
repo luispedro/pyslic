@@ -28,3 +28,4 @@ from ic100 import detect_ic100dir, read_ic100dir
 from read_cellomics_dib import read_cellomics_dib
 import dirtransversal
 from readimg import readimg
+from .autoload import auto_detect_load
