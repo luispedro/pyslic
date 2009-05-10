@@ -32,6 +32,7 @@ try:
 except:
     fast_all = np.all
 from ..imageprocessing import thresholding
+from ..imageprocessing.convexhull import convexhull
 from .. import features
 from scipy import ndimage
 import pymorph
@@ -65,14 +66,11 @@ def roysam_watershed(dna,thresh=None,blur_factor=3):
         T = pymorph.to_uint8(T)
     else:
         T = pymorph.to_uint8(T*(256.0/T.max()))
-    R = pymorph.regmin(T)
-    R,N = ndimage.label(R)
     T *= M
+    R = pymorph.regmin(T)
     R *= M
-    for i in xrange(R.size):
-        if R.flat[i] == 0 and M.flat[i] == 0:
-            R.flat[i] = N+1
-            break
+    R,N = ndimage.label(R)
+    R[(R==0)&(M==0)] = N+1
     W,WL = morph.cwatershed(T,R,return_lines=True)
     W *= M
     return W,WL
@@ -110,9 +108,26 @@ def border(W,Bc=None):
                         neighbours[a1].add(a2)
                         neighbours[a2].add(a1)
     return B, neighbours, border_id
+def border_(W,Bc=None):
+    bg = W.max()
+    B = np.zeros_like(W)
+    neighbours = defaultdict(set)
+    border_id = defaultdict(xrange(1,W.max()**2).__iter__().next)
+    for obji in xrange(1,W.max()):
+        B_obji = (morph.dilate(W == obji,Bc)-(W==obji))
+        for neighbour in np.unique(W[B_obji]):
+            if neighbour == 0 or neighbour == bg: continue
+            a1,a2 = obji,neighbour
+            if a2 < a1: a1,a2 = a2,a1
+            B[B_obji & (W==neighbour)] = border_id[(a1,a2)]
+            neighbours[a1].add(a2)
+            neighbours[a2].add(a1)
+    return B, neighbours, border_id
 
 def _compute_features(img):
-    Allfeats = np.r_[features.hullfeatures.hullfeatures(img),features.hullfeatures.hullsizefeatures(img)]
+    bimg = (img > 0)
+    hull = convexhull(bimg - pymorph.erode(bimg))
+    Allfeats = np.r_[features.hullfeatures.hullfeatures(img,hull),features.hullfeatures.hullsizefeatures(img,hull)]
     return Allfeats[np.array([0,1,2,3,5,6,7],int)]
 
 class Merger(object):
@@ -178,7 +193,9 @@ class Merger(object):
         def RGw(c0,c1):
             b = self.border_id[min(c0,c1),max(c0,c1)]
             return (self.C[self.W==c0].mean()+self.C[self.W==c1].mean())/2./self.C[self.B==b].mean()
-        return RSw(c0,c1)*RGw(c0,c1)
+        rs = RSw(c0,c1)
+        rg = RGw(c0,c1)
+        return rs * rg
 
     def greedy(self,beta=1.2):
         '''
@@ -187,7 +204,7 @@ class Merger(object):
         values = dict(((c0,c1),self._Rw(c0,c1)) for (c0,c1),b in self.border_id.iteritems())
         while True:
             if not values: break
-            val,best = max((y,x) for x,y in values.items())
+            val,best = max((y,x) for x,y in values.iteritems())
             if val < beta: break
             b0,b1 = best
             affected = self.neighbours[b0]|self.neighbours[b1]
@@ -199,6 +216,7 @@ class Merger(object):
             for c0,c1 in self.border_id:
                 if (c0,c1) not in values:
                     values[c0,c1] = self._Rw(c0,c1)
+        self.W[self.W == self.W.max()] = 0
         return self.W
 
 
