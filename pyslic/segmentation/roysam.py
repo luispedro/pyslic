@@ -74,7 +74,7 @@ def roysam_watershed(dna,thresh=None,blur_factor=3):
             R.flat[i] = N+1
             break
     W,WL = morph.cwatershed(T,R,return_lines=True)
-    W[W == N+1] = 0
+    W *= M
     return W,WL
 
 def border(W,Bc=None):
