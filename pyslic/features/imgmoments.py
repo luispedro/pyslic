@@ -63,12 +63,14 @@ def imgcentmoments(img,x,y,cofy=None,cofx=None):
         img=asarray(img,uint8)
         vals=zeros(1)
         code = '''
-#line 32 "imgmoments.py"
+#line 67 "imgmoments.py"
+        double res = 0.;
         for (int y_index = 0; y_index != max1; ++y_index) {
             for (int x_index = 0; x_index != max2; ++x_index) {
-                vals(0) += img(y_index,x_index) * std::pow(cofy - y_index,y) * std::pow(cofx - x_index,x);
+                res += img(y_index,x_index) * std::pow(cofy - y_index,y) * std::pow(cofx - x_index,x);
             }
         }
+        vals(0) = res;
         '''
         weave.inline(
                 code,
