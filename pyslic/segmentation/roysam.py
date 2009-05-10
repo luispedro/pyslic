@@ -59,20 +59,22 @@ def roysam_watershed(dna,thresh=None,blur_factor=3):
     M = (ndimage.gaussian_filter(dna,4)>thresh)
     G = pymorph.gradm(dna)
     D = ndimage.distance_transform_edt(M)
-    D = D*np.exp(1-G/float(G.max()))
+    D *= np.exp(1-G/float(G.max()))
     T = ndimage.gaussian_filter(D.max() - D,blur_factor)
-    T *= M
     if T.max() < 256:
         T = pymorph.to_uint8(T)
     else:
         T = pymorph.to_uint8(T*(256.0/T.max()))
     R = pymorph.regmin(T)
     R,N = ndimage.label(R)
+    T *= M
+    R *= M
     for i in xrange(R.size):
         if R.flat[i] == 0 and M.flat[i] == 0:
             R.flat[i] = N+1
             break
     W,WL = morph.cwatershed(T,R,return_lines=True)
+    W[W == N+1] = 0
     return W,WL
 
 def border(W,Bc=None):
@@ -216,7 +218,7 @@ def train_classifier(labeled_dnas):
 
 def greedy_roysam_merge(dna, classifier, thresh=None):
     '''
-    labeled greedy_roysam_merge(dna, classifier, thresh=None)
+    labeled = greedy_roysam_merge(dna, classifier, thresh=None)
 
     Implement Roysam's Greedy Merging Algorithm
 
