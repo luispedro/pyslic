@@ -90,25 +90,6 @@ def border(W,Bc=None):
     Regs:   A labeled image
     Bc:     A structuring element (default: 3x3 cross)
     '''
-    if Bc is None: Bc = pymorph.secross()
-    V,_ = pymorph.mat2set(Bc)
-    shapea = np.array(W.shape)
-    B = W*0
-    bg = W.max()
-    neighbours = defaultdict(set)
-    border_id = defaultdict(xrange(1,W.max()**2).__iter__().next)
-    for pos,val in np.ndenumerate(W):
-        if val and val != bg:
-            for vi in V:
-                if fast_all((pos+vi)>=0) and fast_all((pos+vi)<shapea):
-                    other = W[tuple(pos+vi)]
-                    if other and other != bg and other != val:
-                        a1,a2 = min(other,val),max(other,val)
-                        B[tuple(pos)] = border_id[(a1,a2)]
-                        neighbours[a1].add(a2)
-                        neighbours[a2].add(a1)
-    return B, neighbours, border_id
-def border_(W,Bc=None):
     bg = W.max()
     B = np.zeros_like(W)
     neighbours = defaultdict(set)
