@@ -104,6 +104,7 @@ def border(W,Bc=None):
             B[B_obji & (W==neighbour)] = border_id[(a1,a2)]
             neighbours[a1].add(a2)
             neighbours[a2].add(a1)
+            if a1 == 66 or a2 == 66:
     return B, neighbours, border_id
 
 def _compute_features(img):
