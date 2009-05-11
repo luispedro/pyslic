@@ -69,10 +69,13 @@ def watershed_segment(img, mode='direct', thresholding=None, min_obj_size=None, 
             T = threshold(dnaf,thresholding)
             water *= (dnaf >= T)
         if min_obj_size is not None:
-            sizes = np.array(ndimage.sum(np.ones(water.shape),water,np.arange(water.max()+1)))
-            for oid in np.where(sizes < min_obj_size)[0]:
-                water[water == oid] = 0
-            water,lines = morph.cwatershed(water,water,return_lines=1)
+            oid = 1
+            while oid <= water.max():
+                if (water == oid).sum() < min_obj_size:
+                    water[water == oid] =0
+                    water[water > oid] -= 1
+                else:
+                    oid += 1
         return water
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
