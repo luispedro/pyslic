@@ -33,6 +33,7 @@ except:
     fast_all = np.all
 from ..imageprocessing import thresholding
 from ..imageprocessing.convexhull import convexhull
+from ..imageprocessing.bbox import bbox, croptobbox
 from .. import features
 from scipy import ndimage
 import pymorph
@@ -107,6 +108,10 @@ def border(W,Bc=None):
 
 def _compute_features(img):
     bimg = (img > 0)
+    s00,s01,s10,s11 = bbox(bimg)
+    if s00 > 0: s00 -= 1
+    if s10 > 0: s10 -= 1
+    bimg = bimg[s00:s01+1,s10:s11+1]
     hull = convexhull(bimg - pymorph.erode(bimg))
     Allfeats = np.r_[features.hullfeatures.hullfeatures(img,hull),features.hullfeatures.hullsizefeatures(img,hull)]
     return Allfeats[np.array([0,1,2,3,5,6,7],int)]
@@ -173,6 +178,8 @@ class Merger(object):
             return np.exp(np.sign(logR)*100)
         def RGw(c0,c1):
             b = self.border_id[min(c0,c1),max(c0,c1)]
+            if np.all(self.B != b):
+                return .01 # A small number: these probably should not be merged
             return (self.C[self.W==c0].mean()+self.C[self.W==c1].mean())/2./self.C[self.B==b].mean()
         rs = RSw(c0,c1)
         rg = RGw(c0,c1)
