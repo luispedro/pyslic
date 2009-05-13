@@ -76,14 +76,19 @@ def read_ksrdir(dir):
             warn("Don't know how to handle more than one time point, ignoring timepoints with t > 1")
             continue
         img=images.get((Well,Field),None)
+        isdib = f.endswith('.DIB') or f.endswith('.dib')
         if img is None:
             img = Image()
             img.label = _fixlabel(Well)
             img.id = (img.label,Field)
-            if f.endswith('.DIB') or f.endswith('.dib'):
-                img.load_function=read_cellomics_dib
             images[(Well,Field)]=img
-        img.channels[channelcode[int(Channel)]]=os.path.abspath(os.path.join(dir,f))
+
+        # If there's a DIB and a TIFF, take the DIB!
+        # The logic below is simplified, but it works for our dataset:
+        if isdib:
+            img.load_function = read_cellomics_dib
+        if (channelcode[int(Channel)] not in img.channels) or isdib:
+            img.channels[channelcode[int(Channel)]]=os.path.abspath(os.path.join(dir,f))
     return list(images.values())
 
 
