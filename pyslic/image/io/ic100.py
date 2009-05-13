@@ -47,6 +47,8 @@ def read_ic100_BMP(input):
     Reads a BMP from the IC100. If it's 8-bits, then this is just the traditional
     Windows BMP format. However, 16-bit grey-scale BMPs are not correctly handled by
     traditional software and are handled by our code.
+
+    Reference: http://en.wikipedia.org/wiki/BMP_file_format
     '''
     if type(input) == str:
         input=file(input)
