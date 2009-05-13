@@ -35,7 +35,6 @@ On linux, the package is often called python-setuptools'''
 try_imports()
 
 import numpy.distutils.core as numpyutils
-from readimg_setup import readimg_args
 
 convexhull = numpyutils.Extension('pyslic/imageprocessing/_convexhull', sources = ['pyslic/imageprocessing/convexhull.cpp'])
 ext_modules = [convexhull]
