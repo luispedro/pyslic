@@ -28,7 +28,7 @@ import os
 import tempfile
 from glob import glob
 from ..image import Image
-from . import readimg
+import readmagick
 
 __all__ = ['readtjz_recursive','readtjz']
 
@@ -49,8 +49,8 @@ def _getimage(fname,inner):
 
     Reads an image inside a zip file
     '''
-    S=getfileinsidezip(fname,inner)
-    Img=readimg.readimgfromblob(S)
+    S = getfileinsidezip(fname,inner)
+    Img = readmagick.readimgfromblob(S)
     if len(Img.shape) > 2:
         return Img.mean(2)
     return Img
