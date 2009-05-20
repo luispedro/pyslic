@@ -30,7 +30,7 @@ from glob import glob
 from ..image import Image
 import readmagick
 
-__all__ = ['readtjz_recursive','readtjz']
+__all__ = ['readtjz_recursive','readtjz', 'detect_tjzdir']
 
 def getfileinsidezip(fname,inner):
     '''
@@ -115,3 +115,25 @@ def readtjz_recursive(base):
     for root,_,_ in os.walk(base):
         images.extend(_parsedir(root))
     return images
+
+def detect_tjzdir(base, max_files=512):
+    '''
+    is_tjzdir = detect_tjzdir(basedir,max_files=512)
+
+    Returns True if it seems like a directory of TJZ files.
+
+    Parameters
+    -----------
+
+        * max_files: maximum number of files to look at before giving up.
+                Set to None for no maximum (default: 512)
+    '''
+    cnt = 0
+    for root,_,files in os.walk(base):
+        for f in files:
+            cnt += 1
+            if f.endswith('.tzj'):
+                return True
+            if max_files is not None and cnt > max_files:
+                return False
+    return False
