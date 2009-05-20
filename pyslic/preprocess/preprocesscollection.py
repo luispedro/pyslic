@@ -22,7 +22,7 @@
 # For additional information visit http://murphylab.web.cmu.edu or
 # send email to murphy@cmu.edu
 
-from __future__ import division
+from __future__ import division, with_statement
 import numpy
 from scipy.ndimage import gaussian_filter
 from ..image import Image, loadedimage
