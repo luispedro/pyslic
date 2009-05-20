@@ -71,7 +71,7 @@ def read_ksrdir(dir):
             continue
         T,Well,Field,Channel,_=m.groups()
         T=int(T)
-        Field=int(Field)
+        Field=int(Field) - 1 # the KSR naming is 1-based.
         if T != 1:
             warn("Don't know how to handle more than one time point, ignoring timepoints with t > 1")
             continue
