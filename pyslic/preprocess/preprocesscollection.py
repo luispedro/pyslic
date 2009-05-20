@@ -25,7 +25,7 @@
 from __future__ import division
 import numpy
 from scipy.ndimage import gaussian_filter
-from ..image import Image
+from ..image import Image, loadedimage
 
 __all__ = [
     'preprocess_collection',
@@ -37,22 +37,21 @@ __all__ = [
     'NullPreprocessor',
     ]
 
-def preprocess_collection(imgs,P,unload=True):
+def preprocess_collection(imgs,P):
     '''
-    P = process_collection(imgs,P,unload=True)
+    P = process_collection(imgs,P)
     
-    for img in imgs:
-        P.see(img)
-        if unload: img.unload()
-    P.finish()
-    return P
+    This function does:
 
-    @param unload: if True, images are unloaded after processing
+        for img in imgs:
+            with loadedimage(img):
+                P.see(img)
+        P.finish()
+        return P
     '''
     for img in imgs:
-        P.see(img)
-        if unload:
-            img.unload()
+        with loadedimage(img):
+            P.see(img)
     P.finish()
     return P
 
