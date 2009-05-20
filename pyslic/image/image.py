@@ -129,18 +129,18 @@ class Image(object):
         self.post_load=[]
 
     def __getstate__(self):
-        return (self.attributes,self.label,self.id,self.scale,self.channels,self.loaded,self.load_function)
+        copy = self.__dict__.copy()
+        del copy['channeldata']
+        del copy['loaded']
+        del copy['regions']
+        return copy
 
-    def __setstate__(self,S):
-        if len(S) == 7:
-            self.attributes,self.label,self.id,self.scale,self.channels,self.loaded,self.load_function = S
-        else:
-            self.label,self.id,self.scale,self.channels,self.loaded,self.load_function = S
-            self.attributes = {}
-
+    def __setstate__(self, state):
         self.loaded = False
+        self.channeldata = {}
         self.regions = None
-        self.channeldata={}
+        for k,v in state.iteritems():
+            self.__dict__[k] = v
 
     def __repr__(self):
         '''Implement repr() operator'''
