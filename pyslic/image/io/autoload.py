@@ -26,6 +26,7 @@ from __future__ import division
 from dirtransversal import *
 from ic100 import *
 from ksr import *
+from readtjz import *
 
 def auto_detect_load(basedir):
     '''
