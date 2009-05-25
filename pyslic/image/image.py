@@ -40,7 +40,8 @@ def _open_file_bw(fname):
     return A
 
 def _showimage(img):
-    from scipy.misc.pilutil import imshow
+    from pylab import imshow
+    #from scipy.misc.pilutil import imshow
     imshow(img)
 
 def setshowimage(f):
