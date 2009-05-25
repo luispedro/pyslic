@@ -40,7 +40,10 @@ def detect_ksrdir(dir):
 
     Returns true if the directory seems to contain ksr files
     '''
-    f=os.listdir(dir)[0]
+    files = os.listdir(dir)
+    if not files:
+        return False
+    f = files[0]
     return _ksrpat.match(f)
 
 def _fixlabel(L):
@@ -61,10 +64,10 @@ def read_ksrdir(dir):
         (WellName, FieldNr) -> Image
     '''
     assert type(dir) is not unicode, 'pyslic.image.io.read_ksrdir does not work with unicode input' # The problem is that it creates images with unicode paths which cannot be loaded!
-    Files=os.listdir(dir)
+    files = os.listdir(dir)
     channelcode = { 1 : Image.dna_channel , 2 : Image.protein_channel, 3 : Image.autofluorescence_channel } 
     images={}
-    for f in Files:
+    for f in files:
         m=_ksrpat.match(f)
         if not m:
             print "Don't know how to process", f
