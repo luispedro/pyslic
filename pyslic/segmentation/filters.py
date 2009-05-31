@@ -32,19 +32,20 @@ import warnings
 
 __all__ = ['dna_size_shape','border_regions','filter_labeled']
 
-def dna_size_shape(dnamasks, scale=1., minarea=float('-inf'), maxarea=float('+inf'), minroundness=-1.):
+def dna_size_shape(labeled, scale=1., minarea=float('-inf'), maxarea=float('+inf'), minroundness=-1.):
     '''
-    positives = dna_size_shape(dnamasks, scale, minarea, maxarea, minroundness)
+    positives = dna_size_shape(dnamasks, scale=1., minarea=-Inf, maxarea=+Inf, minroundness=0)
 
     Only accepts DNA objects that fulfill the following criterion:
             * are greater than minarea
             * are smaller than maxarea
             * are rounder than minroundness
     '''
-    positives = np.zeros(nr_objs+1,numpy.bool)
+    nr_objects = labeled .max()
+    positives = np.zeros(nr_objects+1, np.bool)
     minarea /= scale
     maxarea /= scale
-    for obj in xrange(1,nr_objs+1):
+    for obj in xrange(1,nr_objects+1):
         objimg = croptobbox(labeled == obj)
         area = objimg.sum()
         if area > maxarea or area < minarea:
@@ -52,7 +53,7 @@ def dna_size_shape(dnamasks, scale=1., minarea=float('-inf'), maxarea=float('+in
         hull = convexhull(objimg)
         hullArea = hull.sum()
         hullPerim = bwperim(hull).sum()
-        roundness = hullPerim**2/(4*pi*hullArea)
+        roundness = hullPerim**2/(4*np.pi*hullArea)
         if roundness < minroundness:
             continue
         positives[obj] = 1
