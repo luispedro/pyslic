@@ -34,9 +34,9 @@ def _open_file_bw(fname):
     """
     Force a file to be B&W
     """
-    A=readimg(fname)
+    A = readimg(fname)
     if A.ndim == 3:
-        A=A.mean(2)
+        A = A.max(2)
     return A
 
 def _showimage(img):
