@@ -27,7 +27,7 @@ from numpy import *
 from scipy.ndimage import histogram
 from .basics import fullhistogram, nonzeromin
 
-__all__=['rc','murphy_rc','otsu','softthreshold','hardthreshold']
+__all__=['threshold', 'rc','murphy_rc','otsu','softthreshold','hardthreshold']
 
 def threshold(img,thresh):
     '''

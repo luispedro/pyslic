@@ -57,8 +57,8 @@ def roysam_watershed(dna,thresh=None,blur_factor=3):
      Vol. 56A, No. 1, pp. 23-36 Cytometry Part A, November 2003.
     '''
     if thresh is None:
-        thresh = thresholding.murphy_rc(dna)
-    M = (ndimage.gaussian_filter(dna,4)>thresh)
+        thresh = 'murphy_rc'
+    M = (ndimage.gaussian_filter(dna,4) > thresholding.threshold(dna,thresh))
     G = pymorph.gradm(dna)
     D = ndimage.distance_transform_edt(M)
     D *= np.exp(1-G/float(G.max()))
