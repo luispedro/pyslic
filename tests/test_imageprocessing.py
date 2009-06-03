@@ -1,4 +1,5 @@
 import numpy
+import numpy as np
 import pyslic
 import pyslic.imageprocessing.thresholding
 from pyslic.imageprocessing.basics import fullhistogram
@@ -25,4 +26,7 @@ def test_threshold():
     assert pyslic.imageprocessing.thresholding.threshold(img,'rc') == pyslic.imageprocessing.thresholding.rc(img)
     assert pyslic.imageprocessing.thresholding.threshold(img,pyslic.imageprocessing.thresholding.rc) == pyslic.imageprocessing.thresholding.rc(img)
     assert pyslic.imageprocessing.thresholding.threshold(img,pyslic.imageprocessing.thresholding.rc) == pyslic.imageprocessing.thresholding.rc(img)
+    assert pyslic.imageprocessing.thresholding.threshold(img,12) == 12
+    assert pyslic.imageprocessing.thresholding.threshold(img,12.) == 12.
+    assert pyslic.imageprocessing.thresholding.threshold(img,np.uint16(12)) == 12
     

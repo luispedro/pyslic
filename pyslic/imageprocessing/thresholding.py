@@ -42,8 +42,6 @@ def threshold(img,thresh):
     '''
     if thresh is None:
         return -1
-    if type(thresh) in (int,float):
-        return thresh
     if type(thresh) is str:
         if thresh == 'otsu':
             return otsu(img)
@@ -54,7 +52,9 @@ def threshold(img,thresh):
         if thresh == 'mean':
             return img.mean()
         raise ValueError("pyslic.threshold: Cannot handle argument '%s'" % thresh)
-    return thresh(img)
+    if callable(thresh):
+        return thresh(img)
+    return thresh
 
 def softthreshold(img,T):
     '''
