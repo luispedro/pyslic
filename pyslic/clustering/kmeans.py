@@ -23,6 +23,7 @@
 # send email to murphy@cmu.edu
 
 from __future__ import division
+import numpy as np
 import numpy
 from numpy import array, zeros, sqrt, inf, empty
 
@@ -105,12 +106,16 @@ def kmeans(fmatrix,K,distance='euclidean',max_iter=1000,R=None,**kwargs):
 
     N,q = fmatrix.shape
     centroids = array(R.sample(fmatrix,K))
-    prev = zeros(N)
-    dists = empty((K,N))
+    prev = np.zeros(N,np.int32)
+    assignments = np.zeros(N,np.int32)
+    dists = np.zeros(N, fmatrix.dtype)
+    ndists = np.zeros(N, fmatrix.dtype)
     for i in xrange(max_iter):
+        assignments *= 0
+        dists[:] = np.inf
         for ci,C in enumerate(centroids):
-            dists[ci,:] = distfunction(fmatrix,C)
-        assignments = dists.argmin(0)
+            ndists[:] = distfunction(fmatrix,C)
+            assignments[ndists < dists] = ci
         if (assignments == prev).all():
             break
         try:
