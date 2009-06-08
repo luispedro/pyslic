@@ -72,19 +72,23 @@ def residual_sum_squares(fmatrix,assignments,centroids,distance='euclidean',**kw
 
 def kmeans(fmatrix,K,distance='euclidean',max_iter=1000,R=None,**kwargs):
     '''
-    assignmens, centroids = kmean(fmatrix, K, distance='euclidean', icov=None, covmat=None)
+    assignmens, centroids = kmean(fmatrix, K, distance='euclidean', R=None, icov=None, covmat=None)
 
     K-Means Clustering
 
-    @param distance can be one of:
-        'euclidean'   : euclidean distance (default)
-        'seuclidean'  : standartised euclidean distance. This is equivalent to first normalising the features.
-        'mahalanobis' : mahalanobis distance.
+    Parameters
+    ----------
+     * distance can be one of:
+        - 'euclidean'   : euclidean distance (default)
+        - 'seuclidean'  : standartised euclidean distance. This is equivalent to first normalising the features
+                        by zscoring them.
+        - 'mahalanobis' : mahalanobis distance.
                 This can make use of the following keyword arguments:
                     'icov' (the inverse of the covariance matrix), 
                     'covmat' (the covariance matrix)
                 If neither is passed, then the function computes the covariance from the feature matrix
-    @param max_iter: Maximum number of iteration
+     * max_iter: Maximum number of iteration.
+     * 
     '''
     fmatrix=numpy.asanyarray(fmatrix)
     if distance == 'euclidean':
@@ -115,7 +119,9 @@ def kmeans(fmatrix,K,distance='euclidean',max_iter=1000,R=None,**kwargs):
         dists[:] = np.inf
         for ci,C in enumerate(centroids):
             ndists[:] = distfunction(fmatrix,C)
-            assignments[ndists < dists] = ci
+            better = (ndists < dists)
+            assignments[better] = ci
+            dists[better] = ndists[better]
         if (assignments == prev).all():
             break
         try:
@@ -144,7 +150,7 @@ def kmeans(fmatrix,K,distance='euclidean',max_iter=1000,R=None,**kwargs):
         except Exception, e:
             print 'scipy.weave.inline failed. Resorting to Python code (Exception was "%s")' % e
             centroids = array([fmatrix[assignments == C].mean(0) for C in xrange(K)])
-        prev = assignments
+        prev[:] = assignments
     return assignments, centroids
         
 def repeated_kmeans(fmatrix,k,iterations,distance='euclidean',max_iter=1000,R=None,**kwargs):
