@@ -23,6 +23,7 @@
 # send email to murphy@cmu.edu
 
 from __future__ import division
+import numpy as np
 from numpy import *
 
 __all__ = ['haralickfeatures','computecooccurence']
