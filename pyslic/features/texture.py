@@ -34,7 +34,7 @@ def haralickfeatures(img):
 
     Returns a 13-vector of doubles
     """
-    if img.max() > 256:
+    if img.dtype is not np.uint8 and img.max() > 256:
         img = asarray(double(img) * 256./img.max(),uint8)
 
     nr_dirs = 4
