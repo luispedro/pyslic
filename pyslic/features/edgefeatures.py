@@ -26,8 +26,6 @@ from scipy import ndimage
 from ..imageprocessing import sobeledge
 import math
 
-_atan2 = np.vectorize(lambda x,y: math.atan2(x,y)) # This is necessary in newer numpy versions
-
 def edgefeatures(protproc):
     """
     values = edgefeatures(protproc)
@@ -78,7 +76,7 @@ def edgefeatures(protproc):
 
     # Calculate the magnitude and direction of the gradient
     iprocmag = sqrt(iprocN**2 + iprocW**2)
-    iproctheta = _atan2(iprocN, iprocW)
+    iproctheta = np.arctan2(iprocN, iprocW)
 
     # Change by MV:
     # Identify pixels in iprocmag that are not 0
