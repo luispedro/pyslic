@@ -71,12 +71,22 @@ def bbox(img):
         max2=pos2[-1]+1
     return min1,max1,min2,max2
 
-def croptobbox(img):
+def croptobbox(img, border=None):
     """
     Returns a version of img cropped to the image's bounding box
+
+    Parameters
+    ----------
+        * img: image
+        * border: whether to add a border (default no border)
     """
     
     min1,max1,min2,max2 = bbox(img)
+    if border is not None:
+        min1 = max(0, min1-border)
+        min2 = max(0, min2-border)
+        max1 += border
+        max2 += border
     return img[min1:max1,min2:max2]
 
 def expandto(img,S1,S2):
