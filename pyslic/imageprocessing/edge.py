@@ -47,11 +47,11 @@ def sobeledge(img,threshold=None):
     # but with some reverse engineering to match Matlab exactly
     img=img.astype(numpy.float)
     img = (img-img.min())/(img.max()-img.min())
-    vfiltered = ndimage.correlate(img,_vsobel_filter,mode='nearest') # This emulate's Matlab's implementation
+    vfiltered = ndimage.correlate(img,_vsobel_filter,mode='nearest') # This emulates Matlab's implementation
     hfiltered = ndimage.correlate(img,_hsobel_filter,mode='nearest')
     filtered = vfiltered**2 + hfiltered**2
     thresh = 2*numpy.sqrt(filtered.mean())
-    filtered[numpy.sqrt(filtered) < thresh] = 0
+    filtered *= (numpy.sqrt(filtered) < thresh)
 
     r,c = filtered.shape
     x = (filtered > numpy.hstack((numpy.zeros((r,1)),filtered[:,:-1]))) & (filtered > numpy.hstack((filtered[:,1:], numpy.zeros((r,1)))))
