@@ -118,6 +118,8 @@ def computefeatures(img,featsets,progress=None,**kwargs):
     procprotein = img.channeldata[Image.procprotein_channel]
     resprotein = img.channeldata[Image.residualprotein_channel]
     procdna = img.channeldata.get(Image.procdna_channel)
+    if not procprotein.size:
+        return []
     for F in featsets:
         if F in ['edg','edge']:
             feats = edgefeatures(procprotein)
@@ -130,7 +132,7 @@ def computefeatures(img,featsets,progress=None,**kwargs):
             bins = kwargs.get('haralick.bins',_Default_Haralick_Bins)
             if bins != 256:
                 img = numpy.array(img.astype(float) * bins / (img.max()-img.min()),numpy.uint8)
-            feats = haralickfeatures(procprotein)
+            feats = haralickfeatures(img)
             feats = feats.mean(0)
         elif F == 'har3d':
             feats = haralickfeatures(procprotein)
