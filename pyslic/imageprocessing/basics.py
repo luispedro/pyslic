@@ -23,6 +23,7 @@
 # send email to murphy@cmu.edu
 
 from __future__ import division
+import numpy as np
 import numpy
 from scipy import ndimage
 from numpy import array, asarray, ones, uint32, uint8, zeros
@@ -80,7 +81,7 @@ def majority_filter(bwimg, N = 3):
         output=zeros((r,c),uint8)
         T=round(N**2/2)
         code = '''
-#line 43 "basics.py"
+#line 85 "basics.py"
         for (int y = 0; y != r-N+1; ++y) {
             for (int x = 0; x != c-N+1; ++x) {
                 int count = 0;
@@ -119,7 +120,7 @@ def nonzeromin(img):
         from scipy.weave import converters
         v=array([img.max()])
         code = '''
-#line 107 "basics.py"
+#line 124 "basics.py"
         for (int i = 0; i != r; ++i) {
             for (int j = 0; j != c; ++j) { 
                 if (img(i,j) && img(i,j) < v(0)) v(0) = img(i,j);
