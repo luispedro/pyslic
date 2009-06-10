@@ -26,6 +26,7 @@ from __future__ import division
 from ..image import Image
 from ..imageprocessing.basics import fullhistogram, majority_filter
 from ..imageprocessing.thresholding import rc
+from ..imageprocessing.bbox import croptobbox, bbox
 from numpy import *
 from warnings import warn
 
@@ -83,10 +84,20 @@ def preprocessimage(image,regionid,options = {}):
         residual *= ~mask
         return img,residual
     image.lazy_load()
-    img=image.channeldata[Image.protein_channel]
     image.channeldata[Image.procprotein_channel],image.channeldata[Image.residualprotein_channel]=preprocessimg(image.channeldata[Image.protein_channel])
     if Image.dna_channel in image.channeldata:
         image.channeldata[Image.procdna_channel],_=preprocessimg(image.channeldata[Image.dna_channel])
+
+    min1,max1,min2,max2 = bbox(image.channeldata[Image.procdna_channel] | image.channeldata[Image.residualprotein_channel] | image.channeldata[image.procdna_channel])
+    border = 2
+    min1 = max(0, min1 - border)
+    min2 = max(0, min2 - border)
+    max1 += border
+    max2 += border
+    image.channeldata[Image.procprotein_channel] = image.channeldata[Image.procprotein_channel][min1:max1,min2:max2]
+    image.channeldata[Image.residualprotein_channel] = image.channeldata[Image.residualprotein_channel][min1:max1,min2:max2]
+    if Image.dna_channel in image.channeldata:
+        image.channeldata[Image.procdna_channel] = image.channeldata[Image.procdna_channel][min1:max1,min2:max2]
 
 
 def thresholdfor(img,options = {}):
