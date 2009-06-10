@@ -37,10 +37,24 @@ def fullhistogram(img):
     Return a histogram with bins
         0, 1, ..., img.max()
     """
-    maxt=img.max()
-    if maxt==0:
-        return array([img.size])
-    return nhistogram(img, numpy.arange(maxt+2))[0]
+    try:
+        from scipy import weave
+        histogram = np.zeros(img.max()+1,np.int32)
+        img = np.ascontiguousarray(img.ravel())
+        N = img.size
+        code = '''
+#line 46 "basics.py"
+        for (int i = 0; i != N; ++i) {
+            ++histogram[static_cast<long int>(img[i])];
+        }
+        '''
+        weave.inline(code, ['img','N','histogram'])
+        return histogram
+    except ImportError:
+        maxt = img.max()
+        if maxt == 0:
+            return np.array([img.size])
+        return nhistogram(img, numpy.arange(maxt+2))[0]
 
 def majority_filter(bwimg, N = 3):
     """

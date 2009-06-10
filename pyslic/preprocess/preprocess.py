@@ -23,12 +23,17 @@
 # send email to murphy@cmu.edu
 
 from __future__ import division
+import numpy as np
 from ..image import Image
 from ..imageprocessing.basics import fullhistogram, majority_filter
 from ..imageprocessing.thresholding import rc
 from ..imageprocessing.bbox import croptobbox, bbox
 from numpy import *
 from warnings import warn
+try:
+    import ncreduce as fn
+except:
+    fn = np
 
 __all__ = ['preprocessimg','bgsub']
 
@@ -142,9 +147,13 @@ def _scale(img):
         scaled.min() ~= 0
         scaled.max() ~= 255
     '''
-    img=asarray(img,int32)
-    M=img.max()
-    m=img.min()
-    return (img-m)*255/(M-m)
+    img = np.array(img,int32)
+    M = fn.max(img)
+    m = fn.min(img)
+    if M == m:
+        return np.zeros(img.shape,np.uint8)
+    img -= m
+    img *= 255/(M-m)
+    return img.astype(np.uint8)
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
