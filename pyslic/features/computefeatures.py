@@ -23,6 +23,7 @@
 # send email to murphy@cmu.edu
 
 from __future__ import division
+import numpy as np
 import numpy
 from scipy import ndimage
 from string import upper
@@ -55,6 +56,7 @@ def _featsfor(featset):
 _Default_Scale = .23
 _Default_Haralick_Scale = 1.15
 _Default_Haralick_Bins = 32
+_Min_image_size = 100
 
 def computefeatures(img,featsets,progress=None,**kwargs):
     '''
@@ -118,8 +120,8 @@ def computefeatures(img,featsets,progress=None,**kwargs):
     procprotein = img.channeldata[Image.procprotein_channel]
     resprotein = img.channeldata[Image.residualprotein_channel]
     procdna = img.channeldata.get(Image.procdna_channel)
-    if not procprotein.size:
-        return []
+    if procprotein.size < _Min_image_size:
+        return np.array([np.nan for i in xrange(90)])
     for F in featsets:
         if F in ['edg','edge']:
             feats = edgefeatures(procprotein)
@@ -129,11 +131,14 @@ def computefeatures(img,featsets,progress=None,**kwargs):
             if scale != har_scale:
                 img = img.copy()
                 img = ndimage.zoom(img, scale/_Default_Haralick_Scale)
-            bins = kwargs.get('haralick.bins',_Default_Haralick_Bins)
-            if bins != 256:
-                img = numpy.array(img.astype(float) * bins / (img.max()-img.min()),numpy.uint8)
-            feats = haralickfeatures(img)
-            feats = feats.mean(0)
+            if not img.size:
+                feats = np.zeros(13)
+            else:
+                bins = kwargs.get('haralick.bins',_Default_Haralick_Bins)
+                if bins != 256:
+                    img = numpy.array(img.astype(float) * bins / (img.max()-img.min()),numpy.uint8)
+                feats = haralickfeatures(img)
+                feats = feats.mean(0)
         elif F == 'har3d':
             feats = haralickfeatures(procprotein)
             feats = numpy.r_[feats.mean(0),feats.ptp(0)]
