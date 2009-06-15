@@ -38,7 +38,7 @@ def readpslidbin(filename):
         nbytes = read_int32()
         return input.read(nbytes)
     def read_strlist():
-        return read_str().split('@')
+        return read_str().split('@')[:-1]
     def read_intlist():
         n = read_int32()
         return [read_int32() for i in xrange(n)]
@@ -51,7 +51,7 @@ def readpslidbin(filename):
     featids = read_intlist()
     real_slf_names = read_strlist()
     slf_names = read_strlist()
-    names = read_str().split('@')
+    names = read_strlist()
     n_sampleids = read_int32()
     samples = [read_int32() for i in xrange(n_sampleids)]
     settype = read_int32()
@@ -60,6 +60,7 @@ def readpslidbin(filename):
     #ndims = read_int32()  # This is in the documentation but not in the matlab code
     n_channels = read_int32()
     channel_nrs = [read_int32() for i in xrange(n_channels)]
+    return features, real_slf_names, slf_names, names, imageurls, maskurls
         
 def writepslidbin(output, features, real_slf_names, slf_names, names, imageurls, maskurls, settype, channel_nrs):
     if type(output) in (str,unicode):
@@ -70,6 +71,7 @@ def writepslidbin(output, features, real_slf_names, slf_names, names, imageurls,
         output.write(pack('>f',x))
     def write_strlist(s):
         s = ''.join(a+'@' for a in s)
+        write_int32(len(s))
         output.write(s)
     def write_intlist(l):
         write_int32(len(l))
@@ -82,6 +84,7 @@ def writepslidbin(output, features, real_slf_names, slf_names, names, imageurls,
     for fs in features:
         for f in fs:
             write_float32(f)
+    write_intlist([])
     write_strlist(real_slf_names)
     write_strlist(slf_names)
     write_strlist(names)
@@ -90,3 +93,5 @@ def writepslidbin(output, features, real_slf_names, slf_names, names, imageurls,
     write_strlist(imageurls)
     write_strlist(maskurls)
     write_intlist(channel_nrs)
+    output.close()
+
