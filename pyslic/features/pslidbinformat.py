@@ -55,8 +55,8 @@ def readpslidbin(filename):
     n_sampleids = read_int32()
     samples = [read_int32() for i in xrange(n_sampleids)]
     settype = read_int32()
-    imageurls = read_str().split('@')
-    maskurls = read_str().split('@')
+    imageurls = read_strlist()
+    maskurls = read_strlist()
     #ndims = read_int32()  # This is in the documentation but not in the matlab code
     n_channels = read_int32()
     channel_nrs = [read_int32() for i in xrange(n_channels)]
@@ -77,6 +77,8 @@ def writepslidbin(output, features, real_slf_names, slf_names, names, imageurls,
         write_int32(len(l))
         for i in l:
             write_int32(i)
+    if len(features.shape) == 1:
+        features = features.reshape((1,features.size))
     rows,cols = features.shape
     write_int32(5) # Version
     write_int32(rows)
