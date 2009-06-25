@@ -96,4 +96,8 @@ def pftas(img):
 pftas.names = [( 'pftas_%s' % i) for i in xrange(3*9)] + \
               [('npftas_%s' % i) for i in xrange(3*9)]
 
+def pftasinfo():
+    return [('SLF33.%s' % i,'pftas_%s' % i,2,1) for i in xrange(3*9)] + \
+            [('SLF33.%s' % (i+3*9),'npftas_%s' % i,2,1) for i in xrange(3*9)]
+
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:

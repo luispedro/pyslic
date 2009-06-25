@@ -23,6 +23,26 @@
 # send email to murphy@cmu.edu
 
 from __future__ import division, with_statement
+from tas import pftasinfo
+from overlap import overlapinfo
+
+def _harprops(level):
+    level -= 1
+    return [
+        ('SLF36.%s' % (level*13 +  1),'angular_second_moment-after-dsample-%s' % (level+1),2,1),
+        ('SLF36.%s' % (level*13 +  2),'contrast-after-dsample-%s' % (level + 1),2,1),
+        ('SLF36.%s' % (level*13 +  3),'correlation-after-dsample-%s' % (level + 1),2,1),
+        ('SLF36.%s' % (level*13 +  4),'sum_of_squares-after-dsample-%s' % (level + 1),2,1),
+        ('SLF36.%s' % (level*13 +  5),'inverse_diff_moment-after-dsample-%s' % (level + 1),2,1),
+        ('SLF36.%s' % (level*13 +  6),'sum_avg-after-dsample-%s' % (level + 1),2,1),
+        ('SLF36.%s' % (level*13 +  7),'sum_var-after-dsample-%s' % (level + 1),2,1),
+        ('SLF36.%s' % (level*13 +  8),'sum_entropy-after-dsample-%s' % (level + 1),2,1),
+        ('SLF36.%s' % (level*13 +  9),'entropy-after-dsample-%s' % (level + 1),2,1),
+        ('SLF36.%s' % (level*13 + 10),'diff_var-after-dsample-%s' % (level + 1),2,1),
+        ('SLF36.%s' % (level*13 + 11),'diff_entropy-after-dsample-%s' % (level + 1),2,1),
+        ('SLF36.%s' % (level*13 + 12),'info_measure_corr_1-after-dsample-%s' % (level + 1),2,1),
+        ('SLF36.%s' % (level*13 + 13),'info_measure_corr_2-after-dsample-%s' % (level + 1),2,1),
+    ]
 
 featinfo = [
     ('SLF7.80','obj_skel_len',2,1),
@@ -171,7 +191,22 @@ featinfo = [
     ('SLF11.40','Range of difference entropy',3,1),
     ('SLF11.41','Range of info measure of correlation 1',3,1),
     ('SLF11.42','Range of info measure of correlation 2',3,1),
-]
+]  + \
+    pftasinfo() + \
+    overlapinfo() + \
+    _harprops(1) + \
+    _harprops(2) + \
+    _harprops(3) + \
+    _harprops(4) + \
+    _harprops(5) + \
+    _harprops(6)
+
+_haridxs = range(72, 72+13)
+_imgidxs = range(6,20)
+_nofidxs = [5]
+_edgidxs = range(85,90)
+_sklidxs = range(5)
+
 featuresets = {
     'SLF10' : [103, 113, 102, 93, 91, 90, 104, 110, 111],
     'SLF11' : [90, 91, 92, 93, 94, 95, 96, 97, 104, 105, 106, 107, 108, 109, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145],
@@ -183,6 +218,7 @@ featuresets = {
     'SLF7DNA' : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89],
     'SLF8' : [8, 80, 25, 5, 77, 82, 29, 85, 7, 11, 74, 65, 13, 87, 53, 76, 2, 6, 30, 72, 0, 75, 56, 10, 4, 83, 86, 79, 32, 84, 78, 12],
     'SLF9' : [90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117],
+    'SLF37' : _haridxs  + _imgidxs + range(146,288) +  _nofidxs + _edgidxs + _sklidxs,
 }
 
 def _featinfo_for(featset):

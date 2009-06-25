@@ -50,16 +50,16 @@ def overlapfeatures(protein, reference, procprotein, procreference):
 
 def overlapinfo():
     return [
-        ('SLF35.1',  'overlap:prot-to-ref-overlap', 2, 2),
-        ('SLF35.2',  'overlap:fraction-above-thresh-prot-in-above-thresh-ref', 2, 2),
-        ('SLF35.3',  'overlap:fraction-of-protein-in-above-thresh-ref', 2, 2),
-        ('SLF35.4',  'overlap:fraction-of-proc-protein-in-above-thresh-ref', 2, 2),
-        ('SLF35.5',  'overlap:fraction-above-thresh-ref-in-above-thresh-prot', 2, 2),
-        ('SLF35.6',  'overlap:correlation:binprot-binref', 2, 2),
-        ('SLF35.7',  'overlap:correlation:prot-binref', 2, 2),
-        ('SLF35.8',  'overlap:correlation:prot-ref', 2, 2),
-        ('SLF35.9',  'overlap:median-prot-dist-ref', 2, 2),
-        ('SLF35.10', 'overlap:mean-prot-dist-ref', 2, 2),
+        ('SLF34.1',  'overlap:prot-to-ref-overlap', 2, 2),
+        ('SLF34.2',  'overlap:fraction-above-thresh-prot-in-above-thresh-ref', 2, 2),
+        ('SLF34.3',  'overlap:fraction-of-protein-in-above-thresh-ref', 2, 2),
+        ('SLF34.4',  'overlap:fraction-of-proc-protein-in-above-thresh-ref', 2, 2),
+        ('SLF34.5',  'overlap:fraction-above-thresh-ref-in-above-thresh-prot', 2, 2),
+        ('SLF34.6',  'overlap:correlation:binprot-binref', 2, 2),
+        ('SLF34.7',  'overlap:correlation:prot-binref', 2, 2),
+        ('SLF34.8',  'overlap:correlation:prot-ref', 2, 2),
+        ('SLF34.9',  'overlap:median-prot-dist-ref', 2, 2),
+        ('SLF34.10', 'overlap:mean-prot-dist-ref', 2, 2),
         ]
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:

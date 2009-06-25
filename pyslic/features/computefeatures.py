@@ -51,9 +51,9 @@ def _featsfor(featset):
     if ufeatset == 'MCELL':
         return ['har','img','edg','skl']
     if ufeatset == 'FIELD+':
-        return ['har','har0','har2','har4','har8','img','edg','skl','nof','pftas']
+        return ['har','har1','har2','har4','har8','img','edg','skl','nof','pftas']
     if ufeatset == 'FIELD-DNA+':
-        return ['har','har0','har2','har3','har4','har5','har6','img','edg','skl','nof','pftas','ovlap']
+        return ['har','har1','har2','har3','har4','har5','har6','img','edg','skl','nof','pftas','ovlap']
     return [featset]
 
 _Default_Scale = .23
@@ -137,7 +137,7 @@ def computefeatures(img,featsets,progress=None,**kwargs):
                 img = ndimage.zoom(img, scale/_Default_Haralick_Scale)
             if len(F) > 3:
                 rate = int(F[3])
-                if rate != 0:
+                if rate != 1:
                     C = np.ones((rate,rate))
                     img = np.array(img,np.uint16)
                     img = ndimage.convolve(img,C)
