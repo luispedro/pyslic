@@ -52,7 +52,7 @@ def _featsfor(featset):
         return ['har','img','edg','skl']
     if ufeatset == 'FIELD+':
         return ['har','har0','har2','har4','har8','img','edg','skl','nof','pftas']
-    if ufeatset == 'FIELD+DNA':
+    if ufeatset == 'FIELD-DNA+':
         return ['har','har0','har2','har3','har4','har5','har6','img','edg','skl','nof','pftas','ovlap']
     return [featset]
 
