@@ -93,7 +93,10 @@ def preprocessimage(image,regionid,options = {}):
     if Image.dna_channel in image.channeldata:
         image.channeldata[Image.procdna_channel],_=preprocessimg(image.channeldata[Image.dna_channel])
 
-    min1,max1,min2,max2 = bbox(image.channeldata[Image.procdna_channel] | image.channeldata[Image.residualprotein_channel] | image.channeldata[image.procdna_channel])
+    min1,max1,min2,max2 = bbox(
+                (image.channeldata[Image.procdna_channel] > 0) |
+                (image.channeldata[Image.residualprotein_channel] >0) |
+                (image.channeldata[image.procdna_channel] > 0))
     border = 2
     min1 = max(0, min1 - border)
     min2 = max(0, min2 - border)
