@@ -55,7 +55,6 @@ def fastclassifier():
     from gridsearch import gridsearch
     from classifywrap import pretransformclassifier
     from libsvmclassifier import libsvmClassifier
-    from pymlclassifier import PyMLSVM
     from featureselection import sda_filter, remove_repeated_features, remove_linear_dependent_features
     from numpy import arange
     return pretransformclassifier([chkfinite(),interval_normalise(),remove_linear_dependent_features(),sda_filter()],libsvmClassifier())
