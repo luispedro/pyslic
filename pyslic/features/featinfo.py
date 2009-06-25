@@ -28,7 +28,7 @@ from overlap import overlapinfo
 
 def _harprops(level):
     level -= 1
-    START_DHAR = 3*9*2
+    START_DHAR = 2*9*2 + 1
     return [
         ('SLF33.%s' % (START_DHAR + level*13 +  1),'angular_second_moment-after-dsample-%s' % (level+1),2,1),
         ('SLF33.%s' % (START_DHAR + level*13 +  2),'contrast-after-dsample-%s' % (level + 1),2,1),
