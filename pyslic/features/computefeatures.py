@@ -38,6 +38,7 @@ from imgfeatures import imgfeatures, imgfeaturesdna
 from hullfeatures import hullfeatures, hullsizefeatures
 from zernike import zernike, znames
 from tas import tas, pftas
+from .overlap import overlapfeatures
 
 __all__ = ['computefeatures','featurenames']
 
@@ -50,7 +51,9 @@ def _featsfor(featset):
     if ufeatset == 'MCELL':
         return ['har','img','edg','skl']
     if ufeatset == 'FIELD+':
-        return ['har','img','edg','skl','nof','pftas']
+        return ['har','har0','har2','har4','har8','img','edg','skl','nof','pftas']
+    if ufeatset == 'FIELD+DNA':
+        return ['har','har0','har2','har3','har4','har5','har6','img','edg','skl','nof','pftas','ovlap']
     return [featset]
 
 _Default_Scale = .23
@@ -119,24 +122,32 @@ def computefeatures(img,featsets,progress=None,**kwargs):
     protein = img.channeldata[Image.protein_channel]
     procprotein = img.channeldata[Image.procprotein_channel]
     resprotein = img.channeldata[Image.residualprotein_channel]
+    dna = img.channeldata.get(Image.dna_channel)
     procdna = img.channeldata.get(Image.procdna_channel)
     if procprotein.size < _Min_image_size:
         return np.array([np.nan for i in xrange(90)])
     for F in featsets:
         if F in ['edg','edge']:
             feats = edgefeatures(procprotein)
-        elif F == 'har':
+        elif F[:3] == 'har':
             img = procprotein
             har_scale = kwargs.get('haralick.scale',_Default_Haralick_Scale)
-            if scale != har_scale:
+            if F == 'har' and scale != har_scale:
                 img = img.copy()
                 img = ndimage.zoom(img, scale/_Default_Haralick_Scale)
+            if len(F) > 3:
+                rate = int(F[3])
+                if rate != 0:
+                    C = np.ones((rate,rate))
+                    img = np.array(img,np.uint16)
+                    img = ndimage.convolve(img,C)
+                    img = img[::rate,::rate]
             if not img.size:
                 feats = np.zeros(13)
             else:
                 bins = kwargs.get('haralick.bins',_Default_Haralick_Bins)
                 if bins != 256:
-                    img = numpy.array(img.astype(float) * bins / (img.max()-img.min()),numpy.uint8)
+                    img = numpy.array((img-img.min()).astype(float) * bins / (img.max()-img.min()),numpy.uint8)
                 feats = haralickfeatures(img)
                 feats = feats.mean(0)
         elif F == 'har3d':
@@ -162,6 +173,8 @@ def computefeatures(img,featsets,progress=None,**kwargs):
             feats = tas(protein)
         elif F == 'pftas':
             feats = pftas(procprotein)
+        elif F == 'ovlap':
+            feats = overlapfeatures(protein, dna, procprotein, procdna)
         else:
             raise Exception('Unknown feature set: %s' % F)
         features = numpy.r_[features,feats]
