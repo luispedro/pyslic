@@ -23,6 +23,7 @@
 # send email to murphy@cmu.edu
 
 from __future__ import division
+import numpy as np
 import numpy
 from scipy import ndimage
 
@@ -41,9 +42,18 @@ def _tas(img,thresh,margin):
         values = values[:9]
         return values/values.sum()
 
+    def _compute(bimg):
+        alltas.append(_ctas(bimg))
+        allntas.append(_ctas(~bimg))
+
+    alltas = []
+    allntas = []
     mu = ((img > thresh)*img).sum() / (img > thresh).sum()
-    bimg = (img > mu - margin) * (img < mu + margin)
-    return numpy.concatenate((_ctas(bimg),_ctas(~bimg)))
+    _compute( (img > mu - margin) * (img < mu + margin) )
+    _compute(img > mu - margin)
+    _compute(img < mu + margin)
+
+    return numpy.concatenate(alltas + allntas)
 
 def tas(img):
     '''
@@ -56,8 +66,9 @@ def tas(img):
     See also pftas() for a variation without any hardcoded parameters.
     '''
     return _tas(img,30,30)
-tas.names = [( 'tas_%s' % i) for i in xrange(9)] + \
-            [('ntas_%s' % i) for i in xrange(9)]
+
+tas.names = [( 'tas_%s' % i) for i in xrange(3*9)] + \
+            [('ntas_%s' % i) for i in xrange(3*9)]
 
 def pftas(img):
     '''
@@ -77,11 +88,12 @@ def pftas(img):
     Also do NOT run the preprocessing code on images on which the original
     are to be calculated on.
     '''
-    T=0
-    std=img[img>T].std()
-    return _tas(img,T,std)
+    T = 0
+    pixels = img[img > T].ravel()
+    std = pixels.std()
+    return _tas(img, T, std)
 
-pftas.names = [( 'pftas_%s' % i) for i in xrange(9)] + \
-              [('npftas_%s' % i) for i in xrange(9)]
+pftas.names = [( 'pftas_%s' % i) for i in xrange(3*9)] + \
+              [('npftas_%s' % i) for i in xrange(3*9)]
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
