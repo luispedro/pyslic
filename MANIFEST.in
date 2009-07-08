@@ -1,2 +1,2 @@
-include try_imports.py readimg_setup.py FIXME CHANGES
+include try_imports.py FIXME CHANGES
 include docs/*.rst docs/conf.py docs/Makefile
