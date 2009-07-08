@@ -23,3 +23,4 @@
 # send email to murphy@cmu.edu
 
 from computefeatures import computefeatures, featurenames
+import featinfo
