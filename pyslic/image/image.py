@@ -134,13 +134,15 @@ class Image(object):
         del copy['channeldata']
         del copy['loaded']
         del copy['regions']
-        return copy
+        items = copy.items()
+        items.sort(key=lambda it: it[0])
+        return items
 
     def __setstate__(self, state):
         self.loaded = False
         self.channeldata = {}
         self.regions = None
-        for k,v in state.iteritems():
+        for k,v in state:
             self.__dict__[k] = v
 
     def __repr__(self):
