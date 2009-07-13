@@ -54,7 +54,7 @@ def test_tas():
     IMG.channeldata[IMG.protein_channel]=img
     IMG.loaded=True
     IMG.channels[IMG.protein_channel]='<special>'
-    assert len(pyslic.features.tas.tas(img)) == 18
-    assert len(pyslic.features.tas.pftas(img)) == 18
+    assert len(pyslic.features.tas.tas(img)) == 2*3*9
+    assert len(pyslic.features.tas.pftas(img)) == 2*3*9
 
     assert numpy.all(pyslic.features.tas.tas(img) == pyslic.computefeatures(IMG,['tas']))

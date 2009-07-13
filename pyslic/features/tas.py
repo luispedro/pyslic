@@ -51,7 +51,7 @@ def _tas(img,thresh,margin):
     mu = ((img > thresh)*img).sum() / (img > thresh).sum()
     _compute( (img > mu - margin) * (img < mu + margin) )
     _compute(img > mu - margin)
-    _compute(img < mu + margin)
+    _compute(img > mu)
 
     return numpy.concatenate(alltas + allntas)
 
@@ -93,13 +93,12 @@ def pftas(img):
     std = pixels.std()
     return _tas(img, T, std)
 
-pftas.names = [( 'pftas_%s' % i) for i in xrange(3*9)] + \
-              [('npftas_%s' % i) for i in xrange(3*9)]
-
 def pftasinfo():
-    return [('SLF31.%s' % (i+1),'pftas_%s' % i,2,1) for i in xrange(9)] + \
-            [('SLF31.%s' % (i+10),'npftas_%s' % i,2,1) for i in xrange(9)] + \
-            [('SLF33.%s' % (i+1),'pftas_%s' % (i+10),2,1) for i in xrange(2*9)] + \
-            [('SLF33.%s' % (i+1+2*9),'npftas_%s' % (i+10),2,1) for i in xrange(2*9)]
+    return [('SLF31.%s' % (i+1),'pftas:center_%s' % i,2,1) for i in xrange(9)] + \
+            [('SLF31.%s' % (i+10),'npftas:center_%s' % i,2,1) for i in xrange(9)] + \
+            [('SLF33.%s' % (i+1),'pftas:mu_margin_%s' % i,2,1) for i in xrange(9)] + \
+            [('SLF33.%s' % (i+1+2*9),'npftas:mu_margin_%s' % i,2,1) for i in xrange(9)] + \
+            [('SLF33.%s' % (i+1+9),'pftas:mu_%s' % i,2,1) for i in xrange(9)] + \
+            [('SLF33.%s' % (i+1+3*9),'npftas:mu_%s' % i,2,1) for i in xrange(9)]
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
