@@ -37,55 +37,63 @@ __all__ = ['imgfeatures','imgfeaturesdna']
 def _norm2(V):
     return sqrt( (V**2).sum() )
 
-def imgfeatures(imageproc):
+def imgfeatures(imageproc, isfield):
     """
-    values = imgfeatures(imageproc)
+    values = imgfeatures(imageproc, isfield=False)
 
-   calculates features for imageproc
-   where imageproc contains the pre-processed fluorescence image, 
-   Pre-processed means that the image has been cropped and had 
-   pixels of interest selected (via a threshold, for instance).
-
-   Features calculated include:
-     - Number of objects
-     - Euler number of the image (# of objects - # of holes)
-     - Average of the object sizes
-     - Variance of the object sizes
-     - Ratio of the largest object to the smallest
-     - Average of the object distances from the COF
-     - Variance of the object distances from the COF
-     - Ratio of the largest object distance to the smallest
+    Calculates object features for imageproc
+    where imageproc contains the pre-processed fluorescence image, 
+    Pre-processed means that the image has been cropped and had 
+    pixels of interest selected (via a threshold, for instance).
+ 
+    Features calculated include:
+      - Number of objects
+      - Euler number of the image (# of objects - # of holes)
+      - Average of the object sizes
+      - Variance of the object sizes
+      - Ratio of the largest object to the smallest
+      - Average of the object distances from the COF [unless isfield]
+      - Variance of the object distances from the COF [unless isfield]
+      - Ratio of the largest object distance to the smallest
 
     @see imgfeaturesdna
     """
 
-    return imgfeaturesdna(imageproc,None)
-def imgfeaturesdna(imageproc,dnaproc):
+    return imgfeaturesdna(imageproc, None, isfield)
+
+def imgfeaturesdna(imageproc, dnaproc, isfield=False):
     """
-    values = imgfeaturesdna(imageproc,dnaproc)
+    values = imgfeaturesdna(imageproc, dnaproc, isfield=False)
 
-   calculates features for imageproc
-   where imageproc contains the pre-processed fluorescence image, 
-   and dnaproc the pre-processed dna fluorescence image.
-   Pre-processed means that the image has been cropped and had 
-   pixels of interest selected (via a threshold, for instance).
-   use dnaproc=None to exclude features based on the dna image.  
+    calculates object features for imageproc
+    where imageproc contains the pre-processed fluorescence image, 
+    and dnaproc the pre-processed dna fluorescence image.
+    Pre-processed means that the image has been cropped and had 
+    pixels of interest selected (via a threshold, for instance).
+    use dnaproc=None to exclude features based on the dna image.  
+    
+    Parameters
+    ----------
+        * imageproc: pre-processed image
+        * dnaproc: pre-processed DNA image
+        * isfield: whether to calculate only field level features
+                (default: False)
 
-   Features calculated include:
-     - Number of objects
-     - Euler number of the image (# of objects - # of holes)
-     - Average of the object sizes
-     - Variance of the object sizes
-     - Ratio of the largest object to the smallest
-     - Average of the object distances from the COF
-     - Variance of the object distances from the COF
-     - Ratio of the largest object distance to the smallest
-     - DNA: average of the object distances to the DNA COF
-     - DNA: variance of the object distances to the DNA COF
-     - DNA: ratio of the largest object distance to the smallest
-     - DNA/Image: distance of the DNA COF to the image COF
-     - DNA/Image: ratio of the DNA image area to the image area
-     - DNA/Image: fraction of image that overlaps with DNA 
+    Features calculated include:
+      - Number of objects
+      - Euler number of the image (# of objects - # of holes)
+      - Average of the object sizes
+      - Variance of the object sizes
+      - Ratio of the largest object to the smallest
+      - Average of the object distances from the COF [unless isfield]
+      - Variance of the object distances from the COF [unless isfield]
+      - Ratio of the largest object distance to the smallest
+      - DNA: average of the object distances to the DNA COF [unless isfield]
+      - DNA: variance of the object distances to the DNA COF [unless isfield]
+      - DNA: ratio of the largest object distance to the smallest
+      - DNA/Image: distance of the DNA COF to the image COF [unless isfield]
+      - DNA/Image: ratio of the DNA image area to the image area
+      - DNA/Image: fraction of image that overlaps with DNA 
     """
 
 
@@ -102,8 +110,9 @@ def imgfeaturesdna(imageproc,dnaproc):
     euler_nr = bweuler(bwimage)
     values.append(euler_nr)
 
-    # Calculate the center of fluorescence of IMAGE
-    cof = numpy.array(ndimage.center_of_mass(imageproc))
+    cof = None
+    if not isfield:
+        cof = numpy.array(ndimage.center_of_mass(imageproc))
 
     dnacof=None
     if dnaproc is not None:
@@ -111,15 +120,14 @@ def imgfeaturesdna(imageproc,dnaproc):
     
     # Find the maximum and minimum object sizes, and the distance 
     #    of each object to the center of fluorescence
-    obj_distances = [] ;
-    obj_dnadistances = [] ;
+    obj_distances = []
+    obj_dnadistances = []
 
     moment_length = obj_number  + 1
     img_moment00 = zeros(moment_length);
     img_moment10 = zeros(moment_length);
     img_moment01 = zeros(moment_length);
     obj_sizes = zeros(moment_length);
-    
     
     r,c=imageproc.shape
     try:
@@ -152,21 +160,6 @@ def imgfeaturesdna(imageproc,dnaproc):
                 img_moment01[moment_array_index] += (y * imageproc[y,x]);
                 obj_sizes[moment_array_index] += 1
 
-
-    for i in xrange(1,obj_number + 1):
-        obj_m00 = double(img_moment00[i]);
-        obj_m10 = double(img_moment10[i]);
-        obj_m01 = double(img_moment01[i]);
-
-        obj_center = numpy.array([obj_m01,obj_m10],double)/obj_m00;
-        obj_distance = _norm2(obj_center - cof)
-        
-        obj_distances.append(obj_distance)
-
-        if dnaproc is not None:
-            obj_dnadistance = _norm2(obj_center - dnacof)
-            obj_dnadistances.append(obj_dnadistance)
-
     obj_sizes = numpy.array(obj_sizes[1:]) # Ignore object 0, i.e. background
     obj_size_avg = obj_sizes.mean()
     obj_size_var = obj_sizes.var()
@@ -176,34 +169,50 @@ def imgfeaturesdna(imageproc,dnaproc):
     values.append(obj_size_var) 
     values.append(obj_size_ratio)
 
-    obj_distances = numpy.array(obj_distances)
-    obj_dist_avg = mean(obj_distances) ;
-    obj_dist_var = var(obj_distances)
-    mindist=obj_distances.min()
-    if mindist != 0:
-        obj_dist_ratio = obj_distances.max()/mindist
-    else:
-        obj_dist_ratio = 0
 
-    values.append(obj_dist_avg)
-    values.append(obj_dist_var)
-    values.append(obj_dist_ratio)
+    if not isfield:
+        for i in xrange(1,obj_number + 1):
+            obj_m00 = float(img_moment00[i]);
+            obj_m10 = float(img_moment10[i]);
+            obj_m01 = float(img_moment01[i]);
+
+            obj_center = numpy.array([obj_m01,obj_m10],float)/obj_m00;
+            obj_distance = _norm2(obj_center - cof)
+            
+            obj_distances.append(obj_distance)
+
+            if dnaproc is not None:
+                obj_dnadistance = _norm2(obj_center - dnacof)
+                obj_dnadistances.append(obj_dnadistance)
+        obj_distances = numpy.array(obj_distances)
+        obj_dist_avg = obj_distances.mean() ;
+        obj_dist_var = obj_distances.var()
+        mindist = obj_distances.min()
+        if mindist != 0:
+            obj_dist_ratio = obj_distances.max()/mindist
+        else:
+            obj_dist_ratio = 0
+
+        values.append(obj_dist_avg)
+        values.append(obj_dist_var)
+        values.append(obj_dist_ratio)
+
+        if dnaproc is not None:
+            obj_dnadistances = numpy.array(obj_dnadistances)
+            obj_dnadist_avg = obj_dnadistances.mean()
+            obj_dnadist_var = obj_dnadistances.var()
+            obj_dnamindist=obj_dnadistances.min()
+            if obj_dnamindist != 0:
+                obj_dnadist_ratio = obj_dnadistances.max()/obj_dnamindist 
+            else:
+                obj_dnadist_ratio = 0 ;
+            values.append(obj_dnadist_avg)
+            values.append(obj_dnadist_var)
+            values.append(obj_dnadist_ratio)
+
+
 
     if dnaproc is not None:
-        obj_dnadistances = numpy.array(obj_dnadistances)
-        obj_dnadist_avg = obj_dnadistances.mean()
-        obj_dnadist_var = obj_dnadistances.var()
-        obj_dnamindist=obj_dnadistances.min()
-        if obj_dnamindist != 0:
-            obj_dnadist_ratio = obj_dnadistances.max()/obj_dnamindist 
-        else:
-            obj_dnadist_ratio = 0 ;
-        values.append(obj_dnadist_avg)
-        values.append(obj_dnadist_var)
-        values.append(obj_dnadist_ratio)
-
-        dna_image_distance = _norm2(cof-dnacof)
-
         dna_area = (dnaproc > 0).sum()
         image_area = (imageproc > 0).sum()
         
@@ -217,7 +226,9 @@ def imgfeaturesdna(imageproc,dnaproc):
             dna_image_area_ratio = dna_area/image_area ;
             image_dna_overlap = image_overlap/image_area ;
         
-        values.append(dna_image_distance)
+        if not isfield:
+            dna_image_distance = _norm2(cof-dnacof)
+            values.append(dna_image_distance)
         values.append(dna_image_area_ratio)
         values.append(image_dna_overlap)
     return values

@@ -58,3 +58,8 @@ def test_tas():
     assert len(pyslic.features.tas.pftas(img)) == 2*3*9
 
     assert numpy.all(pyslic.features.tas.tas(img) == pyslic.computefeatures(IMG,['tas']))
+
+def test_imgfeaturesfield():
+    img = basedir+'/data/protimg.jp2'
+    img = pyslic.image.io.readimg(img)
+    assert len(pyslic.features.imgfeatures.imgfeaturesdna(img,None,True)) < len(pyslic.features.imgfeatures.imgfeaturesdna(img,None,False))

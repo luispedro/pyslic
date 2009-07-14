@@ -51,9 +51,9 @@ def _featsfor(featset):
     if ufeatset == 'MCELL':
         return ['har','img','edg','skl']
     if ufeatset == 'FIELD+':
-        return ['har','har1','har2','har4','har8','img','edg','skl','nof','pftas']
+        return ['har','har1','har2','har4','har8','obj-field','edg','skl','nof','pftas']
     if ufeatset == 'FIELD-DNA+':
-        return ['har','har1','har2','har3','har4','har5','har6','img','edg','skl','nof','pftas','ovlap']
+        return ['har','har1','har2','har3','har4','har5','har6','obj-field-dna','edg','skl','nof','pftas','overlap']
     return [featset]
 
 _Default_Scale = .23
@@ -160,7 +160,9 @@ def computefeatures(img,featsets,progress=None,**kwargs):
         elif F == 'hullsizedna':
             feats = hullsizefeatures(procdna)
         elif F == 'img':
-            feats = imgfeaturesdna(procprotein,procdna)
+            feats = imgfeaturesdna(procprotein, procdna)
+        elif F in ('obj-field', 'obj-field-dna'):
+            feats = imgfeaturesdna(procprotein, procdna, isfield=True)
         elif F == 'mor':
             feats = morphologicalfeatures(procprotein)
         elif F == 'nof':
@@ -173,7 +175,7 @@ def computefeatures(img,featsets,progress=None,**kwargs):
             feats = tas(protein)
         elif F == 'pftas':
             feats = pftas(procprotein)
-        elif F == 'ovlap':
+        elif F == 'overlap':
             feats = overlapfeatures(protein, dna, procprotein, procdna)
         else:
             raise Exception('Unknown feature set: %s' % F)
