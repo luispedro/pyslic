@@ -31,7 +31,8 @@ def _corrcoef(a,b):
 def overlapfeatures(protein, reference, procprotein, procreference):
     """
     values = overlapfeatures(protein, reference, procprotein, procreference)
-    """  
+    """
+    assert procreference is not None, 'pyslic.features.overlapfeatures: reference must not be None'
     binprot = (procprotein > 0)
     binref = (procreference > 0)
     dist = ndimage.distance_transform_edt(~binref)
