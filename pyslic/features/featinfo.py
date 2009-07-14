@@ -211,12 +211,14 @@ _dharidxs = _addfeats(_harprops(1)) + \
 
 _haridxs = range(72, 72+13)
 _imgidxs = range(6,20)
+_objfieldidxs = [6, 7, 8, 9, 10,]
+_objdnafieldidxs = [6, 7, 8, 9, 10, 18, 19]
 _nofidxs = [5]
 _edgidxs = range(85,90)
 _sklidxs = range(5)
 
-_slf33 = _haridxs + _dharidxs + _imgidxs + _edgidxs + _sklidxs + _nofidxs + _pftasidxs
-_slf34 = _slf33 + _overlapidxs
+_slf33 = _haridxs + _dharidxs + _objfieldidxs + _edgidxs + _sklidxs + _nofidxs + _pftasidxs
+_slf34 = _haridxs + _dharidxs + _objdnafieldidxs + _edgidxs + _sklidxs + _nofidxs + _pftasidxs + _overlapidxs
 
 featuresets = {
     'SLF10' : [103, 113, 102, 93, 91, 90, 104, 110, 111],

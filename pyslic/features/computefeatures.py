@@ -50,8 +50,12 @@ def _featsfor(featset):
         return ['skl','nof','img','hul','zer','har','edg']
     if ufeatset == 'MCELL':
         return ['har','img','edg','skl']
+    if ufeatset == 'SLF33':
+        return ['har','har1','har2','har3','har4','har5','har6','obj-field','edg','skl','nof','pftas']
+    if ufeatset == 'SLF34':
+        return ['har','har1','har2','har3','har4','har5','har6','obj-field-dna','edg','skl','nof','pftas','overlap']
     if ufeatset == 'FIELD+':
-        return ['har','har1','har2','har4','har8','obj-field','edg','skl','nof','pftas']
+        return ['har','har1','har2','har3','har4','har5','har6','obj-field','edg','skl','nof','pftas']
     if ufeatset == 'FIELD-DNA+':
         return ['har','har1','har2','har3','har4','har5','har6','obj-field-dna','edg','skl','nof','pftas','overlap']
     return [featset]

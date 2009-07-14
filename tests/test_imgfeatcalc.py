@@ -63,3 +63,12 @@ def test_imgfeaturesfield():
     img = basedir+'/data/protimg.jp2'
     img = pyslic.image.io.readimg(img)
     assert len(pyslic.features.imgfeatures.imgfeaturesdna(img,None,True)) < len(pyslic.features.imgfeatures.imgfeaturesdna(img,None,False))
+
+def test_featinfolen():
+    imgdata = basedir+'/data/protimg.jp2'
+    imgdata = pyslic.image.io.readimg(imgdata)
+    img = pyslic.Image()
+    img.channeldata[img.protein_channel] = imgdata
+    img.loaded = True
+    img.channels[img.protein_channel]='<special>'
+    assert len(pyslic.computefeatures(img,'SLF33')) == len(pyslic.features.featinfo.get_names('SLF33'))
