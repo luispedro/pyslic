@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2008  Murphy Lab
+# Copyright (C) 2008-2009  Murphy Lab
 # Carnegie Mellon University
 # 
 # Written by Luís Pedro Coelho <lpc@cmu.edu>
@@ -52,7 +52,7 @@ def test_pyversion():
 test_pyversion()
 
 numpyutils.setup(name='PySLIC',
-      version='0.4.8',
+      version='0.4.9',
       description='Subcellular Location Image Classifier',
       author='Murphy Lab',
       author_email='murphy@mcu.edu',
