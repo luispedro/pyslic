@@ -27,6 +27,7 @@ import numpy as np
 import numpy
 from scipy import ndimage
 from string import upper
+import re
 from ..image import Image
 from ..preprocess import preprocessimage
 
@@ -39,6 +40,7 @@ from hullfeatures import hullfeatures, hullsizefeatures
 from zernike import zernike, znames
 from tas import tas, pftas
 from .overlap import overlapfeatures
+from .lbp import lbp
 
 __all__ = ['computefeatures','featurenames']
 
@@ -130,6 +132,7 @@ def computefeatures(img,featsets,progress=None,**kwargs):
     procdna = img.channeldata.get(Image.procdna_channel)
     if procprotein.size < _Min_image_size:
         return np.array([np.nan for i in xrange(90)])
+    lbppat = re.compile(r'lbp\(([0-9]+), ?([0-9]+)\)')
     for F in featsets:
         if F in ['edg','edge']:
             feats = edgefeatures(procprotein)
@@ -181,6 +184,9 @@ def computefeatures(img,featsets,progress=None,**kwargs):
             feats = pftas(procprotein)
         elif F == 'overlap':
             feats = overlapfeatures(protein, dna, procprotein, procdna)
+        elif lbppat.match(F):
+            radius,points = lbppat.match(F).groups()
+            feats = lbp(protein, int(radius), int(points))
         else:
             raise Exception('Unknown feature set: %s' % F)
         features = numpy.r_[features,feats]

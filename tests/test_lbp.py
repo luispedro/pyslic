@@ -1,0 +1,21 @@
+from pyslic.features.lbp import lbp
+import numpy as np
+
+def test_shape():
+    A = np.arange(32*32).reshape((32,32))
+    B = np.arange(64*64).reshape((64,64))
+    features0 = lbp(A, 3, 12)
+    features1 = lbp(B, 3, 12)
+    assert features0.shape == features1.shape
+
+def test_nonzero():
+    A = np.arange(32*32).reshape((32,32))
+    features = lbp(A, 3, 12)
+    assert features.sum() > 0
+
+def test_histogram():
+    A = np.arange(32*32).reshape((32,32))
+    w,h = A.shape
+    for r in (2,3,4,5):
+        assert lbp(A,r,8).sum() == (w-2*r-1)*(h-2*r-1)
+
