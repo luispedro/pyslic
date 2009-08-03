@@ -1,5 +1,8 @@
 from pyslic.features.lbp import lbp, _roll_left
 import numpy as np
+import pyslic
+from os.path import dirname
+basedir = dirname(__file__)
 
 def test_shape():
     A = np.arange(32*32).reshape((32,32))
@@ -26,3 +29,13 @@ def test_roll_left():
         y = _roll_left(y, 12)
 
     assert y == 1232
+
+def test_computefeatures():
+    imgdata = basedir+'/data/protimg.jp2'
+    imgdata = pyslic.image.io.readimg(imgdata)
+    img = pyslic.Image()
+    img.channeldata[img.protein_channel] = imgdata
+    img.loaded = True
+    img.channels[img.protein_channel]='<special>'
+    features = pyslic.computefeatures(img,['lbp(8,12)'])
+    assert type(features) is np.ndarray
