@@ -22,7 +22,10 @@
 # send email to murphy@cmu.edu
 
 import numpy as np
+from scipy import ndimage
 
+from scipy import weave
+from scipy.weave import converters
 def lbp(image, radius, points):
     '''
     features = lbp(image, radius, points)
@@ -47,56 +50,43 @@ def lbp(image, radius, points):
             Ojala, T. Pietikainen, M. Maenpaa, T. LECTURE NOTES IN COMPUTER SCIENCE (Springer)
             2000, ISSU 1842, pages 404-420  
     '''
-    angle = (2*np.pi)/points
-    feature = []
-    lis = []
-    def binary(i, n):
-        j = 0
-        return list((0,1)[i>>j & 1] for j in xrange(n-1,-1,-1))
-    for q in xrange(2**points):
-        lis = binary(q,q)
-        if len(lis) < points:
-            for i in xrange(points-len(lis)):
-                lis.insert(0,0)
-        if len(lis) > points:
-            for i in xrange(len(lis)-points):
-                del lis[0]
-        feature.append(lis)
-        lis = []
-    final = np.array([0] * (len(feature)))
-    
-    for row in xrange(radius, image.shape[0]-radius-1):
-        for pix in xrange(radius, image.shape[1]-radius-1):
-            sign = [] # For the comparison function
-            center = image[row,pix]
-     
-            for l in xrange(points): # For every point calculate these features
-                x = radius * np.sin(angle*l)
-                y = radius * np.cos(angle*l)
-                ix = int(x)
-                iy = int(y)
-                a = image[(row + iy),(pix + ix)]
-                b = image[(row + iy + 1),(pix + ix)]
-                c = image[(row + iy),(pix + ix +1)]
-                d = image[(row + iy+1),(pix + ix+1)]
-                dx = x-ix
-                dy = y-iy
-                e = a+(c-a)*(dy)
-                f = b+(d-b)*(dy)
-                r = e+(f-e)*(dx)
-                sign.append(int(center > r))
-            sign = np.array(sign)
-            bestval = sign.copy()
+    image = image.astype(np.float)
+    angles = np.arange(points) * (2*np.pi)/float(points)
+    delta_xs = radius * np.sin(angles)
+    delta_ys = radius * np.cos(angles)
+    final = np.zeros(2**points)
 
-            for n in xrange(len(sign)):
-                cur = np.roll(sign, n)
-                for curbit, bestbit in zip(cur,bestval):
-                    if curbit != bestbit:
-                        if curbit < bestbit:
-                            bestval = cur
-                        break
-            bestval = list(bestval)
-            g = feature.index((bestval))
-            final[g] += 1
+    def compute_canonical(cur):
+        bestval = cur
+        for n in xrange(points):
+            is_left_bit = (cur & 1)
+            cur >>= 1
+            if is_left_bit:
+                cur |= (1 << points)
+            if cur < bestval: bestval = cur
+        return bestval
+
+    if points < 20:
+        canonical_cache = np.zeros(2**points, np.int32) - 1
+        def canonical(input):
+            if canonical_cache[input] == -1:
+                canonical_cache[input] = compute_canonical(input)
+            return canonical_cache[input]
+    else:
+        canonical = compute_canonical
+
+    coordinates = np.empty( (2,points) )
+    rs = np.empty(points, np.float)
+    for row in xrange(radius, image.shape[0]-radius):
+        for col in xrange(radius, image.shape[1]-radius):
+            center = image[row, col]
+            coordinates[0] = row
+            coordinates[0] += delta_xs
+            coordinates[1] = col
+            coordinates[1] += delta_ys
+            ndimage.interpolation.map_coordinates(image, coordinates, order=1, output=rs)
+            code = (2**np.arange(points) * (center > rs)).sum()
+            code = canonical(code)
+            final[code] += 1
     return final
 
