@@ -27,24 +27,24 @@ from scipy import ndimage
 from scipy import weave
 from scipy.weave import converters
 
-def roll_left(v, points):
+def _roll_left(v, points):
     return (v >> 1) | ( (1 << (points-1)) * (v & 1) )
 
 def _precompute_mapping(points):
-    res = np.zeros(2**points)
+    res = np.zeros(2**points, np.int32)
     res -= 1
     for i in xrange(2**points):
         if res[i] == -1:
             bestval = i
             cur = i
-            for i in xrange(points):
-                cur = roll_left(cur, points)
+            for j in xrange(points):
+                cur = _roll_left(cur, points)
                 if cur < bestval:
                     bestval = cur
             cur = i
-            for i in xrange(points):
-                cur = roll_left(cur, points)
+            for j in xrange(points):
                 res[cur] = bestval
+                cur = _roll_left(cur, points)
     return res
 
 
@@ -73,9 +73,6 @@ def lbp(image, radius, points):
             2000, ISSU 1842, pages 404-420  
     '''
     image = image.astype(np.float)
-    angles = np.arange(points) * (2*np.pi)/float(points)
-    delta_xs = radius * np.sin(angles)
-    delta_ys = radius * np.cos(angles)
     final = np.zeros(2**points)
     if points < 20:
         mapping = _precompute_mapping(points).take
@@ -84,24 +81,35 @@ def lbp(image, radius, points):
             res = []
             for c in codes:
                 bestval = cur
-                cur = roll_left(cur, points)
+                cur = _roll_left(cur, points)
                 if cur < bestval: bestval = cur
                 res.append(bestval)
             return np.array(res)
 
     h,w = image.shape
     w2r = w - 2*radius
+
+    angles = np.linspace(0, 2*np.pi, points+1)[:-1]
     coordinates = np.empty( (2, w2r, points) )
+    coordinates[0] = radius * np.sin(angles)
+    coordinates[1] = radius * np.cos(angles)
     coordinates1T = coordinates[1].T
+    coordinates1T += np.arange(w2r)
+
     for row in xrange(radius, image.shape[0]-radius):
         center = image[row, radius:w-radius]
-        coordinates[0] = row + delta_ys
-        coordinates[1] = delta_xs
-        coordinates1T += np.arange(w2r)
+        coordinates[0] += 1
         rs = ndimage.interpolation.map_coordinates(image, coordinates, order=1)
         codes = (2**np.arange(points) * (center > rs.T).T).sum(1)
         codes = mapping(codes)
-        for c in codes:
-            final[c] += 1
+        N = len(codes)
+        code = '''
+        for (int i = 0; i != N; ++i) {
+            ++final(codes(i));
+        }
+        '''
+        weave.inline(code,
+                ['codes','N','final'],
+                type_converters=converters.blitz)
     return final
 

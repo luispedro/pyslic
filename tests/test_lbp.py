@@ -1,4 +1,4 @@
-from pyslic.features.lbp import lbp
+from pyslic.features.lbp import lbp, _roll_left
 import numpy as np
 
 def test_shape():
@@ -19,3 +19,10 @@ def test_histogram():
     for r in (2,3,4,5):
         assert lbp(A,r,8).sum() == (w-2*r)*(h-2*r)
 
+def test_roll_left():
+    y = 1232
+    values = []
+    for i in xrange(12):
+        y = _roll_left(y, 12)
+
+    assert y == 1232
