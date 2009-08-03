@@ -26,6 +26,28 @@ from scipy import ndimage
 
 from scipy import weave
 from scipy.weave import converters
+
+def roll_left(v, points):
+    return (v >> 1) | ( (1 << (points-1)) * (v & 1) )
+
+def _precompute_mapping(points):
+    res = np.zeros(2**points)
+    res -= 1
+    for i in xrange(2**points):
+        if res[i] == -1:
+            bestval = i
+            cur = i
+            for i in xrange(points):
+                cur = roll_left(cur, points)
+                if cur < bestval:
+                    bestval = cur
+            cur = i
+            for i in xrange(points):
+                cur = roll_left(cur, points)
+                res[cur] = bestval
+    return res
+
+
 def lbp(image, radius, points):
     '''
     features = lbp(image, radius, points)
@@ -55,38 +77,31 @@ def lbp(image, radius, points):
     delta_xs = radius * np.sin(angles)
     delta_ys = radius * np.cos(angles)
     final = np.zeros(2**points)
-
-    def compute_canonical(cur):
-        bestval = cur
-        for n in xrange(points):
-            is_left_bit = (cur & 1)
-            cur >>= 1
-            if is_left_bit:
-                cur |= (1 << points)
-            if cur < bestval: bestval = cur
-        return bestval
-
     if points < 20:
-        canonical_cache = np.zeros(2**points, np.int32) - 1
-        def canonical(input):
-            if canonical_cache[input] == -1:
-                canonical_cache[input] = compute_canonical(input)
-            return canonical_cache[input]
+        mapping = _precompute_mapping(points).take
     else:
-        canonical = compute_canonical
+        def mapping(codes):
+            res = []
+            for c in codes:
+                bestval = cur
+                cur = roll_left(cur, points)
+                if cur < bestval: bestval = cur
+                res.append(bestval)
+            return np.array(res)
 
-    coordinates = np.empty( (2,points) )
-    rs = np.empty(points, np.float)
+    h,w = image.shape
+    w2r = w - 2*radius
+    coordinates = np.empty( (2, w2r, points) )
+    coordinates1T = coordinates[1].T
     for row in xrange(radius, image.shape[0]-radius):
-        for col in xrange(radius, image.shape[1]-radius):
-            center = image[row, col]
-            coordinates[0] = row
-            coordinates[0] += delta_xs
-            coordinates[1] = col
-            coordinates[1] += delta_ys
-            ndimage.interpolation.map_coordinates(image, coordinates, order=1, output=rs)
-            code = (2**np.arange(points) * (center > rs)).sum()
-            code = canonical(code)
-            final[code] += 1
+        center = image[row, radius:w-radius]
+        coordinates[0] = row + delta_ys
+        coordinates[1] = delta_xs
+        coordinates1T += np.arange(w2r)
+        rs = ndimage.interpolation.map_coordinates(image, coordinates, order=1)
+        codes = (2**np.arange(points) * (center > rs.T).T).sum(1)
+        codes = mapping(codes)
+        for c in codes:
+            final[c] += 1
     return final
 

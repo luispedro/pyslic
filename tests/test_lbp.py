@@ -17,5 +17,5 @@ def test_histogram():
     A = np.arange(32*32).reshape((32,32))
     w,h = A.shape
     for r in (2,3,4,5):
-        assert lbp(A,r,8).sum() == (w-2*r-1)*(h-2*r-1)
+        assert lbp(A,r,8).sum() == (w-2*r)*(h-2*r)
 
