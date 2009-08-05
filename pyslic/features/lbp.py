@@ -56,13 +56,13 @@ def lbp(image, radius, points):
 
     Parameters
     ----------
-        * image: is the raw image to be evaluated.
+        * image: input image (2-D numpy ndarray)
         * radius: radius (in pixels)
         * points: nr of points to consider
 
     Output
     ------
-        * features: histogram of features.
+        * features: histogram of features (1-D numpy ndarray)
     
 
     Reference
