@@ -22,10 +22,8 @@
 # For additional information visit http://murphylab.web.cmu.edu or
 # send email to murphy@cmu.edu
 
-from accuracy import accuracy, waccuracy, rowsto1
-from classify import *
-from libsvmclassifier import libsvmClassifier
-from classifywrap import concattransformers, pretransformclassifier
-from nfoldcrossvalidation import nfoldcrossvalidation
-import normalise
-from normalise import *
+from accuracy import accuracy, waccuracy
+from classify import defaultclassifier, fastclassifier
+import milk
+nfoldcrossvalidation = milk.nfoldcrossvalidation.nfoldcrossvalidation
+del milk

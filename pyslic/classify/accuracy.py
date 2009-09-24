@@ -23,7 +23,6 @@
 # send email to murphy@cmu.edu
 
 from __future__ import division
-from numpy import *
 
 __all__ = ['accuracy','waccuracy','rowsto1']
 

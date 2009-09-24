@@ -28,7 +28,7 @@ import numpy
 from numpy import array, zeros, sqrt, inf, empty
 
 from ..utils import get_pyrandom
-from ..classify.normalise import zscore
+from milk.supervised.normalise import zscore
 
 __all__ = ['kmeans','repeated_kmeans']
 
