@@ -67,7 +67,7 @@ _Default_Haralick_Scale = 1.15
 _Default_Haralick_Bins = 32
 _Min_image_size = 100
 
-def computefeatures(img,featsets,progress=None,**kwargs):
+def computefeatures(img, featsets, progress=None, preprocessing=True, **kwargs):
     '''
     features = computefeatures(img,featsets,progress=None,**kwargs)
 
@@ -101,6 +101,9 @@ def computefeatures(img,featsets,progress=None,**kwargs):
     ----------
         * *progress*: if progress is not None, then it should be an integer.
                 Every *progress* images, an output message will be printed.
+        * *preprocessing*: Whether to do preprocessing (default: True).
+                If False and img.channeldata[procprotein|procdna] are empty, they are filled in
+                using img.channeldata[protein|dna] respectively.
         * *options*: currently passed through to pyslic.preprocessimage
     '''
     if type(featsets) == str:
@@ -122,8 +125,14 @@ def computefeatures(img,featsets,progress=None,**kwargs):
     scale = img.scale
     if scale is None:
         scale = _Default_Scale
-
-    preprocessimage(img, kwargs.get('region',1), options=kwargs.get('options',{}))
+    if preprocessing:
+        preprocessimage(img, kwargs.get('region',1), options=kwargs.get('options',{}))
+    else:
+        if not img.channeldata[Image.procprotein_channel]:
+            img.channeldata[Image.procprotein_channel] = img.channeldata[Image.protein_channel]
+            img.channeldata[Image.residualprotein_channel] = 0*img.channeldata[Image.protein_channel]
+        if not img.channeldata[Image.procdna_channel]:
+            img.channeldata[Image.procdna_channel] = img.channeldata[Image.dna_channel]
     features = numpy.array([])
     protein = img.channeldata[Image.protein_channel]
     procprotein = img.channeldata[Image.procprotein_channel]
