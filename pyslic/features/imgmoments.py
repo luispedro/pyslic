@@ -77,7 +77,7 @@ def imgcentmoments(img,x,y,cofy=None,cofx=None):
                 ['max1','max2','img','cofy','cofx','y','x','vals'],
                 type_converters=converters.blitz)
         return vals[0]
-    except:
+    except ImportError:
         import warnings
         warnings.warn('scipy.weave failed. Resorting to (slow) Python code')
         img = double(img)
