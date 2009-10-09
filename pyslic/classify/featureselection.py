@@ -42,7 +42,7 @@ def _sweep(A,k,flag):
         from scipy.weave import converters
         k=int(k)
         code = '''
-#line 32 "featureselection.py"
+#line 46 "featureselection.py"
         for (int i = 0; i != N; ++i) {
             for (int j = 0; j != N; ++j) {
                 if (i == k) {
@@ -92,7 +92,7 @@ def sda(features,labels):
     K. Enslein, A. Ralston, and H. Wilf, New York; John Wiley & Sons, Inc.
     '''
 
-
+    assert len(features) == len(labels), 'pyslic.classify.sda: length of features not the same as length of labels'
     N, m = features.shape
     labels,labelsu = normaliselabels(labels)
     q=len(labelsu)
@@ -106,7 +106,7 @@ def sda(features,labels):
         from scipy import weave
         from scipy.weave import converters
         code='''
-#line 68 "featureselection.py"
+#line 110 "featureselection.py"
         for (int i = 0; i != m; ++i) {
             for (int j = 0; j != m; ++j) {
                 for (int n = 0; n != N; ++n) {
@@ -137,20 +137,26 @@ def sda(features,labels):
     output=[]
     D=W.diagonal()
     df1 = q-1
+    last_enter_k = -1
     while True:
         V = W.diagonal()/T.diagonal() 
         W_d = W.diagonal()
         V_neg = (W_d < 0)
         p=V_neg.sum()
-        df2 = N-p-q+1
         if V_neg.any(): 
             V_m = V[V_neg].min()
             k,=where(V == V_m)
             k=k[0]
             Fremove = (N-p-q+1)/(q-1)*(V_m-1)
+            df2 = N-p-q+1
             PrF = 1 - scipy.stats.f.cdf(Fremove,df1,df2)
             if PrF > _SIGNIFICANCE_OUT:
-                #print 'removing ',k, 'V(k)', 1./V_m, 'Fremove', Fremove
+                #print 'removing ',k, 'V(k)', 1./V_m, 'Fremove', Fremove, 'df1', df1, 'df2', df2, 'PrF', PrF
+                if k == last_enter_k:
+                    # We are going into an infinite loop.
+                    import warnings
+                    wernings.warn('pyslic.featureselection.sda: infinite loop detected (maybe bug?).')
+                    break
                 W=_sweep(W,k,1)
                 T=_sweep(T,k,1)
                 continue
@@ -160,13 +166,15 @@ def sda(features,labels):
             k,=where(V==V_m)
             k=k[0]
             Fenter = (N-p-q)/(q-1) * (1-V_m)/V_m
+            df2 = N-p-q
             PrF = 1 - scipy.stats.f.cdf(Fenter,df1,df2)
             if PrF < _SIGNIFICANCE_IN:
-                #print 'adding ',k, 'V(k)', 1./V_m, 'Fenter', Fenter
+                #print 'adding ',k, 'V(k)', 1./V_m, 'Fenter', Fenter, 'df1', df1, 'df2', df2, 'PrF', PrF
                 W=_sweep(W,k,-1)
                 T=_sweep(T,k,-1)
                 if PrF < .0001:
                     output.append((Fenter,k))
+                last_enter_k = k
                 continue
         break
 
