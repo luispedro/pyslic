@@ -16,11 +16,15 @@ def try_imports():
     Under linux, the package is often called python-scipy.'''
 
     try:
-        import Image, ImageDraw
-    except:
-        print '''Python Imaging Library (PIL) not present!
+        import readmagick
+    except ImportError:
+        try:
+            import Image, ImageDraw
+        except ImportError:
 
-    Please install PIL.'''
+            print '''Neither readmagick nor the Python Imaging Library (PIL) are present!
+
+        Please install readmagick or PIL.'''
 
 
 
@@ -48,11 +52,11 @@ def try_imports():
     Ncreduce is not necessary, but makes classification and clustering faster.'''
 
     try:
-        import svm
+        import milk
     except:
-        print '''import svm failed.
+        print '''import milk failed.
 
-    LibSVM classification will not be available (everything else will work).'''
+    Classification will not be available (everything else will work).'''
 
 if __name__ == '__main__':
     try_imports()
