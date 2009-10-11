@@ -5,7 +5,7 @@
 # Jun 2, 2002 - M.Velliste: added SLF names
 # Feb 7 2008 - L-P Coelho: Ported to Python
 
-# Copyright (C) 2006  Murphy Lab
+# Copyright (C) 2006-2009 Murphy Lab
 # Carnegie Mellon University
 #
 # This program is free software; you can redistribute it and/or modify
@@ -27,8 +27,7 @@
 # send email to murphy@cmu.edu
 
 from __future__ import division
-import numpy
-from numpy import *
+import numpy as np
 from ..imageprocessing.bweuler import bweuler
 from scipy import ndimage
 
@@ -95,28 +94,26 @@ def imgfeaturesdna(imageproc, dnaproc, isfield=False):
       - DNA/Image: ratio of the DNA image area to the image area
       - DNA/Image: fraction of image that overlaps with DNA 
     """
-
-
-    names = []
-    slfnames = []
-
-    bwimage=(imageproc > 0)
+    bwimage = (imageproc > 0)
     imagelabeled,obj_number = ndimage.label(bwimage)
     values = [obj_number]
     if obj_number == 0:
-        if dnaproc is not None: return numpy.zeros(14)
-        return numpy.zeros(8)
+        if isfield:
+            if dnaproc is None: return np.zeros(5)
+            raise NotImplementedError
+        if dnaproc is None: return np.zeros(8)
+        return np.zeros(14)
 
     euler_nr = bweuler(bwimage)
     values.append(euler_nr)
 
     cof = None
     if not isfield:
-        cof = numpy.array(ndimage.center_of_mass(imageproc))
+        cof = np.array(ndimage.center_of_mass(imageproc))
 
-    dnacof=None
+    dnacof = None
     if dnaproc is not None:
-        dnacof = numpy.array(ndimage.center_of_mass(dnaproc))
+        dnacof = np.array(ndimage.center_of_mass(dnaproc))
     
     # Find the maximum and minimum object sizes, and the distance 
     #    of each object to the center of fluorescence
@@ -124,10 +121,10 @@ def imgfeaturesdna(imageproc, dnaproc, isfield=False):
     obj_dnadistances = []
 
     moment_length = obj_number  + 1
-    img_moment00 = zeros(moment_length);
-    img_moment10 = zeros(moment_length);
-    img_moment01 = zeros(moment_length);
-    obj_sizes = zeros(moment_length);
+    img_moment00 = np.zeros(moment_length);
+    img_moment10 = np.zeros(moment_length);
+    img_moment01 = np.zeros(moment_length);
+    obj_sizes = np.zeros(moment_length);
     
     r,c=imageproc.shape
     try:
@@ -147,11 +144,11 @@ def imgfeaturesdna(imageproc, dnaproc, isfield=False):
         weave.inline(code,
             ['r','c','imageproc','imagelabeled','obj_sizes','img_moment00','img_moment01','img_moment10'],
             type_converters=converters.blitz)
-    except:
-        img_moment00 = zeros(moment_length);
-        img_moment10 = zeros(moment_length);
-        img_moment01 = zeros(moment_length);
-        obj_sizes = zeros(moment_length);
+    except ImportError:
+        img_moment00 = np.zeros(moment_length);
+        img_moment10 = np.zeros(moment_length);
+        img_moment01 = np.zeros(moment_length);
+        obj_sizes = np.zeros(moment_length);
         for x in xrange(c):
             for y in xrange(r):
                 moment_array_index = imagelabeled[y,x]
@@ -160,7 +157,7 @@ def imgfeaturesdna(imageproc, dnaproc, isfield=False):
                 img_moment01[moment_array_index] += (y * imageproc[y,x]);
                 obj_sizes[moment_array_index] += 1
 
-    obj_sizes = numpy.array(obj_sizes[1:]) # Ignore object 0, i.e. background
+    obj_sizes = np.array(obj_sizes[1:]) # Ignore object 0, i.e. background
     obj_size_avg = obj_sizes.mean()
     obj_size_var = obj_sizes.var()
     obj_size_ratio = obj_sizes.max()/obj_sizes.min() 
@@ -176,7 +173,7 @@ def imgfeaturesdna(imageproc, dnaproc, isfield=False):
             obj_m10 = float(img_moment10[i]);
             obj_m01 = float(img_moment01[i]);
 
-            obj_center = numpy.array([obj_m01,obj_m10],float)/obj_m00;
+            obj_center = np.array([obj_m01,obj_m10],float)/obj_m00;
             obj_distance = _norm2(obj_center - cof)
             
             obj_distances.append(obj_distance)
@@ -184,7 +181,7 @@ def imgfeaturesdna(imageproc, dnaproc, isfield=False):
             if dnaproc is not None:
                 obj_dnadistance = _norm2(obj_center - dnacof)
                 obj_dnadistances.append(obj_dnadistance)
-        obj_distances = numpy.array(obj_distances)
+        obj_distances = np.array(obj_distances)
         obj_dist_avg = obj_distances.mean() ;
         obj_dist_var = obj_distances.var()
         mindist = obj_distances.min()
@@ -198,7 +195,7 @@ def imgfeaturesdna(imageproc, dnaproc, isfield=False):
         values.append(obj_dist_ratio)
 
         if dnaproc is not None:
-            obj_dnadistances = numpy.array(obj_dnadistances)
+            obj_dnadistances = np.array(obj_dnadistances)
             obj_dnadist_avg = obj_dnadistances.mean()
             obj_dnadist_var = obj_dnadistances.var()
             obj_dnamindist=obj_dnadistances.min()
