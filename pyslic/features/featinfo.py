@@ -30,19 +30,19 @@ def _harprops(level):
     level -= 1
     START_DHAR = 2*9*2 + 1
     return [
-        ('SLF33.%s' % (START_DHAR + level*13 +  1),'angular_second_moment-after-dsample-%s' % (level+1),2,1),
-        ('SLF33.%s' % (START_DHAR + level*13 +  2),'contrast-after-dsample-%s' % (level + 1),2,1),
-        ('SLF33.%s' % (START_DHAR + level*13 +  3),'correlation-after-dsample-%s' % (level + 1),2,1),
-        ('SLF33.%s' % (START_DHAR + level*13 +  4),'sum_of_squares-after-dsample-%s' % (level + 1),2,1),
-        ('SLF33.%s' % (START_DHAR + level*13 +  5),'inverse_diff_moment-after-dsample-%s' % (level + 1),2,1),
-        ('SLF33.%s' % (START_DHAR + level*13 +  6),'sum_avg-after-dsample-%s' % (level + 1),2,1),
-        ('SLF33.%s' % (START_DHAR + level*13 +  7),'sum_var-after-dsample-%s' % (level + 1),2,1),
-        ('SLF33.%s' % (START_DHAR + level*13 +  8),'sum_entropy-after-dsample-%s' % (level + 1),2,1),
-        ('SLF33.%s' % (START_DHAR + level*13 +  9),'entropy-after-dsample-%s' % (level + 1),2,1),
-        ('SLF33.%s' % (START_DHAR + level*13 + 10),'diff_var-after-dsample-%s' % (level + 1),2,1),
-        ('SLF33.%s' % (START_DHAR + level*13 + 11),'diff_entropy-after-dsample-%s' % (level + 1),2,1),
-        ('SLF33.%s' % (START_DHAR + level*13 + 12),'info_measure_corr_1-after-dsample-%s' % (level + 1),2,1),
-        ('SLF33.%s' % (START_DHAR + level*13 + 13),'info_measure_corr_2-after-dsample-%s' % (level + 1),2,1),
+        ('SLF33.%s' % (START_DHAR + level*13 +  0),'angular_second_moment-after-dsample-%s' % (level+1),2,1),
+        ('SLF33.%s' % (START_DHAR + level*13 +  1),'contrast-after-dsample-%s' % (level + 1),2,1),
+        ('SLF33.%s' % (START_DHAR + level*13 +  2),'correlation-after-dsample-%s' % (level + 1),2,1),
+        ('SLF33.%s' % (START_DHAR + level*13 +  3),'sum_of_squares-after-dsample-%s' % (level + 1),2,1),
+        ('SLF33.%s' % (START_DHAR + level*13 +  4),'inverse_diff_moment-after-dsample-%s' % (level + 1),2,1),
+        ('SLF33.%s' % (START_DHAR + level*13 +  5),'sum_avg-after-dsample-%s' % (level + 1),2,1),
+        ('SLF33.%s' % (START_DHAR + level*13 +  6),'sum_var-after-dsample-%s' % (level + 1),2,1),
+        ('SLF33.%s' % (START_DHAR + level*13 +  7),'sum_entropy-after-dsample-%s' % (level + 1),2,1),
+        ('SLF33.%s' % (START_DHAR + level*13 +  8),'entropy-after-dsample-%s' % (level + 1),2,1),
+        ('SLF33.%s' % (START_DHAR + level*13 +  9),'diff_var-after-dsample-%s' % (level + 1),2,1),
+        ('SLF33.%s' % (START_DHAR + level*13 + 10),'diff_entropy-after-dsample-%s' % (level + 1),2,1),
+        ('SLF33.%s' % (START_DHAR + level*13 + 11),'info_measure_corr_1-after-dsample-%s' % (level + 1),2,1),
+        ('SLF33.%s' % (START_DHAR + level*13 + 12),'info_measure_corr_2-after-dsample-%s' % (level + 1),2,1),
     ]
 
 featinfo = [
