@@ -34,7 +34,7 @@ from scipy import ndimage
 __all__ = ['imgfeatures','imgfeaturesdna']
 
 def _norm2(V):
-    return sqrt( (V**2).sum() )
+    return np.sqrt( (V**2).sum() )
 
 def imgfeatures(imageproc, isfield):
     """

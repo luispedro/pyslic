@@ -51,7 +51,7 @@ def _featsfor(featset):
     if ufeatset == 'SLF13' or ufeatset == 'SLF7DNA':
         return ['skl','nof','img','hul','zer','har','edg']
     if ufeatset == 'MCELL':
-        return ['har','img','edg','skl']
+        return ['har','obj-field','edg','skl']
     if ufeatset == 'SLF33':
         return ['har','har1','har2','har3','har4','har5','har6','obj-field','edg','skl','nof','pftas']
     if ufeatset == 'SLF34':
