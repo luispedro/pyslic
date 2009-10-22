@@ -70,7 +70,7 @@ def border_regions(mask_or_labeled):
         labeled,nr_objs = ndimage.label(mask_or_labeled)
     else:
         labeled = mask_or_labeled
-    positives = numpy.ones(nr_objs+1, numpy.bool)
+    positives = np.ones(nr_objs+1, np.bool)
 
     negs = np.unique(labeled[0])
     positives[negs] = False
