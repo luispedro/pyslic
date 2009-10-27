@@ -145,6 +145,8 @@ def computefeatures(img, featsets, progress=None, preprocessing=True, **kwargs):
     for F in featsets:
         if F in ['edg','edge']:
             feats = edgefeatures(procprotein)
+        elif F == 'raw-har':
+            feats = haralickfeatures(procprotein).mean(0)
         elif F[:3] == 'har':
             img = procprotein
             har_scale = kwargs.get('haralick.scale',_Default_Haralick_Scale)
