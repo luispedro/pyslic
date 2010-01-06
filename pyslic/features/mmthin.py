@@ -25,10 +25,47 @@
 
 from __future__ import division
 import numpy
+import numpy as np
 from scipy import ndimage
-from ..imageprocessing.bbox import bbox
+from mahotas.bbox import bbox
 
 __all__ = ['mmthin']
+
+_struct_elems = []
+_struct_elems.append([
+        [0,0,0],
+        [2,1,2],
+        [1,1,1]])
+_struct_elems.append([
+        [2,0,0],
+        [1,1,0],
+        [1,1,2]])
+_struct_elems.append([
+        [1,2,0],
+        [1,1,0],
+        [1,2,0]])
+_struct_elems.append([
+        [1,1,2],
+        [1,1,0],
+        [2,0,0]])
+_struct_elems.append([
+        [1,1,1],
+        [2,1,2],
+        [0,0,0]])
+_struct_elems.append([
+        [2,1,1],
+        [0,1,1],
+        [0,0,2]])
+_struct_elems.append([
+        [0,2,1],
+        [0,1,1],
+        [0,2,1]])
+_struct_elems.append([
+        [0,0,2],
+        [0,1,1],
+        [2,1,1]])
+
+_struct_elems = map(np.array, _struct_elems)
 
 def mmthin(binimg):
     """
@@ -45,41 +82,6 @@ def mmthin(binimg):
     degrees = 45;
     num_elem = abs(360//degrees)
 
-    struct_elem = []
-    struct_elem.append([
-            [0,0,0],
-            [2,1,2],
-            [1,1,1]])
-    struct_elem.append([
-            [2,0,0],
-            [1,1,0],
-            [1,1,2]])
-    struct_elem.append([
-            [1,2,0],
-            [1,1,0],
-            [1,2,0]])
-    struct_elem.append([
-            [1,1,2],
-            [1,1,0],
-            [2,0,0]])
-    struct_elem.append([
-            [1,1,1],
-            [2,1,2],
-            [0,0,0]])
-    struct_elem.append([
-            [2,1,1],
-            [0,1,1],
-            [0,0,2]])
-    struct_elem.append([
-            [0,2,1],
-            [0,1,1],
-            [0,2,1]])
-    struct_elem.append([
-            [0,0,2],
-            [0,1,1],
-            [2,1,1]])
-
-    struct_elem=[numpy.array(E) for E in struct_elem]
     min1,max1,min2,max2 = bbox(binimg)
     r,c=(max1-min1,max2-min2)
     acnum_elem = 0;
@@ -89,7 +91,7 @@ def mmthin(binimg):
     imagebuf = numpy.zeros((r+2,c+2),numpy.int8)
     image_exp[1:r+1, 1:c+1] = binimg[min1:max1,min2:max2]
     while True:
-        newimg=hitmiss(image_exp,struct_elem[acnum_elem],imagebuf)
+        newimg=hitmiss(image_exp,_struct_elems[acnum_elem],imagebuf)
         image_exp -= newimg
         total_op += fastany(newimg)
 

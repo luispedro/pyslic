@@ -24,17 +24,18 @@
 
 from __future__ import division
 import numpy as np
+import warnings
 from numpy import *
+from scipy import ndimage
+
+from mahotas.bbox import bbox
+
 from ..image import Image
 from ..imageprocessing.bweuler import bweuler
-from ..imageprocessing.bbox import bbox
-from scipy import ndimage
-from scipy.ndimage import *
 from .hullfeatures import hullfeatures
 from .mmthin import mmthin
 from ..imageprocessing.convexhull import convexhull
 from .imgskelfeats import find_branch_points
-import warnings
 
 try:
     import ncreduce
@@ -44,7 +45,7 @@ except ImportError:
 
 def objectfeatures(img):
     '''
-    values=objectfeatures(img,region=None)
+    values=objectfeatures(img)
 
     This implements the object features described in
     "Object Type Recognition for Automated Analysis of Protein Subcellular Location"
@@ -58,16 +59,19 @@ def objectfeatures(img):
         'pymorph.objectfeatures: DNA image is not of same size as Protein image.'
 
     labeled,N = ndimage.label(protimg,ones((3,3)))
-    indices = np.arange(1,N+1)
 
-    sofs = zeros((len(indices),11))
+    sofs = np.zeros((N,11))
     if dnaimg is not None:
         dnacofy,dnacofx = ndimage.center_of_mass(dnaimg)
         bindna = (dnaimg > 0)
+    
+    # According to the documentation, it shouldn't matter if indices is None,
+    # but in my version of scipy.ndimage, you *have* to use indices.
+    indices = np.arange(1,N+1)
     centers = ndimage.center_of_mass(protimg, labeled, indices)
-    for obji,obj in enumerate(indices):
-        binobj = (labeled == obj)
-        min1,max1,min2,max2=bbox(binobj)
+    for obji in xrange(N):
+        binobj = (labeled == (obji+1))
+        min1,max1,min2,max2 = bbox(binobj)
         if min1 > 0: min1 -= 1
         if min2 > 0: min2 -= 1
         binobjc = binobj[min1:max1+1,min2:max2+1] # leave a small margin for bweuler()
@@ -75,21 +79,21 @@ def objectfeatures(img):
         objimg = protimg * binobj
         cofy,cofx = centers[obji]
         binskel = mmthin(binobjc)
-        objhull=convexhull(binobjc)
+        objhull = convexhull(binobjc)
         no_of_branch_points = fast_sum(find_branch_points(binskel))
-        hfeats=hullfeatures(binobjc,objhull)
+        hfeats = hullfeatures(binobjc,objhull)
 
         sofs[obji,0] = fast_sum(binobjc)
         if dnaimg is not None:
-            sofs[obji,1] = sqrt((cofy-dnacofy)**2+(cofx-dnacofx)**2)
+            sofs[obji,1] = np.sqrt((cofy-dnacofy)**2+(cofx-dnacofx)**2)
             sofs[obji,2] = fast_sum(binobj&bindna)/sofs[obji,0]
-        sofs[obji,3] = hfeats[2]
-        sofs[obji,4] = bweuler(binobjc)
-        sofs[obji,5] = hfeats[1]
-        sofs[obji,6] = fast_sum(binskel)
-        sofs[obji,7] = hfeats[0]
-        sofs[obji,8] = sofs[obji,6]/sofs[obji,0]
-        sofs[obji,9] = fast_sum(objimg)/fast_sum(binskel*protobj)
+        sofs[obji, 3] = hfeats[2]
+        sofs[obji, 4] = bweuler(binobjc)
+        sofs[obji, 5] = hfeats[1]
+        sofs[obji, 6] = fast_sum(binskel)
+        sofs[obji, 7] = hfeats[0]
+        sofs[obji, 8] = sofs[obji,6]/sofs[obji,0]
+        sofs[obji, 9] = fast_sum(objimg)/fast_sum(binskel*protobj)
         sofs[obji,10] = no_of_branch_points/sofs[obji,6]
     return sofs
 
