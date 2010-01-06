@@ -86,7 +86,7 @@ def computeConvexHull(P):
     try:
         import _convexhull
         return _convexhull.computeConvexHull(P)
-    except Exception, e:
+    except ImportError:
         warnings.warn('C code for convex hull failed. Resorting to (slow) python (Error: %s)' % e)
         h=_inPlaceScan(P,False)
         for i in xrange(h-1):
