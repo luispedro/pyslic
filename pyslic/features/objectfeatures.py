@@ -36,6 +36,12 @@ from ..imageprocessing.convexhull import convexhull
 from .imgskelfeats import find_branch_points
 import warnings
 
+try:
+    import ncreduce
+    fast_sum = ncreduce.sum
+except ImportError:
+    fast_sum = np.sum
+
 def objectfeatures(img):
     '''
     values=objectfeatures(img,region=None)
@@ -68,23 +74,22 @@ def objectfeatures(img):
         protobj = protimg[min1:max1+1,min2:max2+1]
         objimg = protimg * binobj
         cofy,cofx = centers[obji]
-        objskel = mmthin(binobjc)
-        binskel = (objskel > 0)
+        binskel = mmthin(binobjc)
         objhull=convexhull(binobjc)
-        no_of_branch_points = find_branch_points(objskel).sum()
+        no_of_branch_points = fast_sum(find_branch_points(binskel))
         hfeats=hullfeatures(binobjc,objhull)
 
-        sofs[obji,0] = binobjc.sum()
+        sofs[obji,0] = fast_sum(binobjc)
         if dnaimg is not None:
             sofs[obji,1] = sqrt((cofy-dnacofy)**2+(cofx-dnacofx)**2)
-            sofs[obji,2] = (binobj*bindna).sum()/sofs[obji,0]
+            sofs[obji,2] = fast_sum(binobj&bindna)/sofs[obji,0]
         sofs[obji,3] = hfeats[2]
         sofs[obji,4] = bweuler(binobjc)
         sofs[obji,5] = hfeats[1]
-        sofs[obji,6] = binskel.sum()
+        sofs[obji,6] = fast_sum(binskel)
         sofs[obji,7] = hfeats[0]
         sofs[obji,8] = sofs[obji,6]/sofs[obji,0]
-        sofs[obji,9] = objimg.sum()/(binskel*protobj).sum()
+        sofs[obji,9] = fast_sum(objimg)/fast_sum(binskel*protobj)
         sofs[obji,10] = no_of_branch_points/sofs[obji,6]
     return sofs
 

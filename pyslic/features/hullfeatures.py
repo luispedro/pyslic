@@ -26,12 +26,15 @@ from imgmoments import imgcentmoments
 from ..imageprocessing.convexhull import convexhull
 
 from numpy import *
+import numpy as np
 from scipy.ndimage import center_of_mass
 
 __all__ = ['hullfeatures','hullsizefeatures']
 
 def _bwarea(img):
-    return (img > 0).sum()
+    if img.dtype != np.bool:
+        img = (img > 0)
+    return img.sum()
 
 def _hull_computations(imageproc,imagehull = None):
     # Just share code between the two functions below
