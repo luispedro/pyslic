@@ -35,7 +35,7 @@ from ..imageprocessing.convexhull import convexhull
 from .imgskelfeats import find_branch_points
 import warnings
 
-def objectfeatures(img,region=None):
+def objectfeatures(img):
     '''
     values=objectfeatures(img,region=None)
 
@@ -47,12 +47,8 @@ def objectfeatures(img,region=None):
 
     protimg = img.channeldata[Image.procprotein_channel]
     dnaimg = img.channeldata.get(Image.procdna_channel,None)
-    if region is not None:
-        if img.regions is None:
-            assert region == 1, 'objectfeatures called with region != 1, but img.regions is None!'
-        else:
-            protimg = protimg * (img.regions == region)
-            dnaimg = dnaimg * (img.regions == region)
+    assert dnaimg is None or protimg.shape == dnaimg.shape, \
+        'pymorph.objectfeatures: DNA image is not of same size as Protein image.'
 
     labeled,N = ndimage.label(protimg,ones((3,3)))
     objects = xrange(1,N+1)
