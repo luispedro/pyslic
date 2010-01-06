@@ -38,7 +38,7 @@ def detect_ic100dir(basedir):
 
     Returns True if basedir looks like a IC100 basedir
     '''
-    return exists('%s/tables' % basedir) and exists('%s/ProtocolArchive' % basedir) and exists('%s/CytoShopLogFile.txt' % basedir)
+    return exists('%s/tables' % basedir) and exists('%s/ProtocolArchive' % basedir)
 
 def read_ic100_BMP(input):
     '''
@@ -52,46 +52,49 @@ def read_ic100_BMP(input):
     '''
     if type(input) == str:
         input=file(input)
-    def get2():
-        S=input.read(2)
-        return ord(S[0])+(ord(S[1])<<8)
-    def get4():
-        S=input.read(4)
-        return ord(S[0])+(ord(S[1])<<8)+(ord(S[2])<<16)+(ord(S[3])<<24)
+    try:
+        def get2():
+            S=input.read(2)
+            return ord(S[0])+(ord(S[1])<<8)
+        def get4():
+            S=input.read(4)
+            return ord(S[0])+(ord(S[1])<<8)+(ord(S[2])<<16)+(ord(S[3])<<24)
 
-    # See http://en.wikipedia.org/wiki/BMP_file_format
-    magick = input.read(2)
-    if magick != 'BM': raise IOError, 'read_ic100_BMP: Unknown file format'
-    size=get4()
-    get2()
-    get2()
-    offset=get4()
-    hsize=get4()
-    width=get4()
-    height=get4()
-    planes=get2()
-    bitsppixel=get2()
-    compression=get4()
-    imgsize=get4()
-    hres=get4()
-    vres=get4()
-    colours=get4()
-    importantcolours=get4()
+        # See http://en.wikipedia.org/wiki/BMP_file_format
+        magick = input.read(2)
+        if magick != 'BM': raise IOError, 'read_ic100_BMP: Unknown file format'
+        size=get4()
+        get2()
+        get2()
+        offset=get4()
+        hsize=get4()
+        width=get4()
+        height=get4()
+        planes=get2()
+        bitsppixel=get2()
+        compression=get4()
+        imgsize=get4()
+        hres=get4()
+        vres=get4()
+        colours=get4()
+        importantcolours=get4()
 
-    # I don't actually know what the 12 bytes are, but it seems it is some
-    # additional header which is safe to ignore
-    if hsize != 40:
-        raise IOError, 'Header size is not 40'
-    if bitsppixel == 8:
-        img = numpy.empty((height,width),numpy.uint8)
-    elif bitsppixel == 16:
-        img = numpy.empty((height,width),numpy.dtype('<H'))
-    else:
-        raise IOError, 'Bits per pixel is not 8 or 16'
-    input.seek(offset)
-    img.data[:] = input.read() # This is very fast
-    # The scan order needs to be fixed
-    return img[::-1,:]
+        # I don't actually know what the 12 bytes are, but it seems it is some
+        # additional header which is safe to ignore
+        if hsize != 40:
+            raise IOError, 'Header size is not 40'
+        if bitsppixel == 8:
+            img = numpy.empty((height,width),numpy.uint8)
+        elif bitsppixel == 16:
+            img = numpy.empty((height,width),numpy.dtype('<H'))
+        else:
+            raise IOError, 'Bits per pixel is not 8 or 16'
+        input.seek(offset)
+        img.data[:] = input.read() # This is very fast
+        # The scan order needs to be fixed
+        return img[::-1,:]
+    except TypeError:
+        raise IOError("Cannot load image '%s' (TypeError)" % input)
 
 def read_ic100dir(basedir):
     '''
