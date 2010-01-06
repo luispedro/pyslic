@@ -23,8 +23,9 @@
 # send email to murphy@cmu.edu
 
 from __future__ import division
-from ..image import Image
+import numpy as np
 from numpy import *
+from ..image import Image
 from ..imageprocessing.bweuler import bweuler
 from ..imageprocessing.bbox import bbox
 from scipy import ndimage
@@ -51,13 +52,14 @@ def objectfeatures(img):
         'pymorph.objectfeatures: DNA image is not of same size as Protein image.'
 
     labeled,N = ndimage.label(protimg,ones((3,3)))
-    objects = xrange(1,N+1)
+    indices = np.arange(1,N+1)
 
-    sofs = zeros((len(objects),11))
+    sofs = zeros((len(indices),11))
     if dnaimg is not None:
-        dnacofy,dnacofx=center_of_mass(dnaimg)
-        bindna=(dnaimg > 0)
-    for obji,obj in enumerate(objects):
+        dnacofy,dnacofx = ndimage.center_of_mass(dnaimg)
+        bindna = (dnaimg > 0)
+    centers = ndimage.center_of_mass(protimg, labeled, indices)
+    for obji,obj in enumerate(indices):
         binobj = (labeled == obj)
         min1,max1,min2,max2=bbox(binobj)
         if min1 > 0: min1 -= 1
@@ -65,7 +67,7 @@ def objectfeatures(img):
         binobjc = binobj[min1:max1+1,min2:max2+1] # leave a small margin for bweuler()
         protobj = protimg[min1:max1+1,min2:max2+1]
         objimg = protimg * binobj
-        cofy,cofx = center_of_mass(objimg)
+        cofy,cofx = centers[obji]
         objskel = mmthin(binobjc)
         binskel = (objskel > 0)
         objhull=convexhull(binobjc)
@@ -82,7 +84,7 @@ def objectfeatures(img):
         sofs[obji,6] = binskel.sum()
         sofs[obji,7] = hfeats[0]
         sofs[obji,8] = sofs[obji,6]/sofs[obji,0]
-        sofs[obji,9] = (binobj*protimg).sum()/(binskel*protobj).sum()
+        sofs[obji,9] = objimg.sum()/(binskel*protobj).sum()
         sofs[obji,10] = no_of_branch_points/sofs[obji,6]
     return sofs
 
