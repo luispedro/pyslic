@@ -69,6 +69,8 @@ def objectfeatures(img):
     # but in my version of scipy.ndimage, you *have* to use indices.
     indices = np.arange(1,N+1)
     centers = ndimage.center_of_mass(protimg, labeled, indices)
+    if N == 1:
+        centers = [centers]
     for obji in xrange(N):
         binobj = (labeled == (obji+1))
         min1,max1,min2,max2 = bbox(binobj)
