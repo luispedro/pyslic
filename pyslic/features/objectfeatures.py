@@ -61,42 +61,42 @@ def objectfeatures(img):
     labeled,N = ndimage.label(protimg,ones((3,3)))
 
     sofs = np.zeros((N,11))
+    indices = np.arange(1,N+1)
     if dnaimg is not None:
         dnacofy,dnacofx = ndimage.center_of_mass(dnaimg)
         bindna = (dnaimg > 0)
-    
-    # According to the documentation, it shouldn't matter if indices is None,
-    # but in my version of scipy.ndimage, you *have* to use indices.
-    indices = np.arange(1,N+1)
-    centers = ndimage.center_of_mass(protimg, labeled, indices)
-    if N == 1:
-        centers = [centers]
+        # According to the documentation, it shouldn't matter if indices is None,
+        # but in my version of scipy.ndimage, you *have* to use indices.
+        centers = ndimage.center_of_mass(protimg, labeled, indices)
+        if N == 1:
+            centers = [centers]
+        centers = np.asarray(centers)
+        centers -= np.array((dnacofy, dnacofx))
+        centers **= 2
+        sofs[:,1] = np.sqrt(centers.sum(1))
+    locations = ndimage.find_objects(labeled, N)
+    sofs[:, 9] = ndimage.measurements.sum(protimg, labeled, indices)
     for obji in xrange(N):
-        binobj = (labeled == (obji+1))
-        min1,max1,min2,max2 = bbox(binobj)
-        if min1 > 0: min1 -= 1
-        if min2 > 0: min2 -= 1
-        binobjc = binobj[min1:max1+1,min2:max2+1] # leave a small margin for bweuler()
-        protobj = protimg[min1:max1+1,min2:max2+1]
-        objimg = protimg * binobj
-        cofy,cofx = centers[obji]
-        binskel = mmthin(binobjc)
-        objhull = convexhull(binobjc)
+        slice = locations[obji]
+        binobj = (labeled[slice] == (obji+1)).copy()
+        protobj = protimg[slice]
+        binskel = mmthin(binobj)
+        objhull = convexhull(binobj)
         no_of_branch_points = fast_sum(find_branch_points(binskel))
-        hfeats = hullfeatures(binobjc,objhull)
-
-        sofs[obji,0] = fast_sum(binobjc)
+        hfeats = hullfeatures(binobj,objhull)
+        sofs[obji,0] = fast_sum(binobj)
         if dnaimg is not None:
-            sofs[obji,1] = np.sqrt((cofy-dnacofy)**2+(cofx-dnacofx)**2)
-            sofs[obji,2] = fast_sum(binobj&bindna)/sofs[obji,0]
+            sofs[obji,2] = fast_sum(binobj&bindna[min1:max1+1,min2:max2+1])
         sofs[obji, 3] = hfeats[2]
-        sofs[obji, 4] = bweuler(binobjc)
+        sofs[obji, 4] = bweuler(binobj)
         sofs[obji, 5] = hfeats[1]
         sofs[obji, 6] = fast_sum(binskel)
         sofs[obji, 7] = hfeats[0]
-        sofs[obji, 8] = sofs[obji,6]/sofs[obji,0]
-        sofs[obji, 9] = fast_sum(objimg)/fast_sum(binskel*protobj)
-        sofs[obji,10] = no_of_branch_points/sofs[obji,6]
+        sofs[obji, 9] /= fast_sum(binskel*protobj)
+        sofs[obji,10] = no_of_branch_points
+    sofs[:,2] /= sofs[:,0]
+    sofs[:,8] = sofs[:,6]/sofs[:,0]
+    sofs[:,10] /= sofs[:,6]
     return sofs
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
