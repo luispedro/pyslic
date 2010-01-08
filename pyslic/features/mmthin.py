@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2006--2008  Murphy Lab
+# Copyright (C) 2006-2010  Murphy Lab
+# vim: set ts=4 sts=4 sw=4 expandtab smartindent:
 # Carnegie Mellon University
 #
 # Written by Luís Pedro Coelho <lpc@cmu.edu>, based on the 
@@ -158,31 +159,33 @@ def hitmiss(binimg,struct_elem,result = None):
                     result[y+1,x+1]=0
     return result
 
-def fastany(A):
-    try:
-        from scipy import weave
-        from scipy.weave import converters
-        r,c=A.shape
-        code = '''
-#line 150 "mmthin.py"
-        return_val = 0;
-        for (int y = 0; y != r ; ++y) {
-            for (int x = 0; x != c; ++x) {
-                if (A(y,x) != 0) {
-                    return_val = 1;
-                    goto finished;
+try:
+    import ncreduce
+    fastany = ncreduce.any
+except ImportError:
+    def fastany(A):
+        try:
+            from scipy import weave
+            from scipy.weave import converters
+            r,c=A.shape
+            code = '''
+#line 170 "mmthin.py"
+                return_val = 0;
+                for (int y = 0; y != r ; ++y) {
+                    for (int x = 0; x != c; ++x) {
+                        if (A(y,x) != 0) {
+                            return_val = 1;
+                            goto finished;
+                        }
+                    }
                 }
-            }
-        }
-        finished: /* do nothing*/ ;
-        '''
-        return weave.inline(code,
-            ['r','c','A'],
-            type_converters=converters.blitz
-            )
-    except Exception, e:
-        import warnings
-        warnings.warn('scipy.weave failed. Resorting to (slow) Python code.')
-        return A.any()
-        
-# vim: set ts=4 sts=4 sw=4 expandtab smartindent:
+                finished: /* do nothing*/ ;
+            '''
+            return weave.inline(code,
+                ['r','c','A'],
+                type_converters=converters.blitz
+                )
+        except ImportError:
+            import warnings
+            warnings.warn('scipy.weave failed. Resorting to (slow) Python code.')
+            return A.any()
