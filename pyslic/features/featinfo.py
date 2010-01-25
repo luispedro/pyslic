@@ -211,7 +211,7 @@ _dharidxs = _addfeats(_harprops(1)) + \
 
 _haridxs = range(72, 72+13)
 _imgidxs = range(6,20)
-_objfieldidxs = [6, 7, 8, 9, 10,]
+_objfieldidxs    = [6, 7, 8, 9, 10,]
 _objdnafieldidxs = [6, 7, 8, 9, 10, 18, 19]
 _nofidxs = [5]
 _edgidxs = range(85,90)

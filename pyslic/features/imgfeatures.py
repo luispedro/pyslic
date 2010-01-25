@@ -97,6 +97,8 @@ def imgfeaturesdna(imageproc, dnaproc, isfield=False):
     bwimage = (imageproc > 0)
     imagelabeled,obj_number = ndimage.label(bwimage)
     values = [obj_number]
+    dnacof = None
+
     if obj_number == 0:
         if isfield:
             if dnaproc is None: return np.zeros(5)
@@ -111,10 +113,6 @@ def imgfeaturesdna(imageproc, dnaproc, isfield=False):
     if not isfield:
         cof = np.array(ndimage.center_of_mass(imageproc))
 
-    dnacof = None
-    if dnaproc is not None:
-        dnacof = np.array(ndimage.center_of_mass(dnaproc))
-    
     # Find the maximum and minimum object sizes, and the distance 
     #    of each object to the center of fluorescence
     obj_distances = []
@@ -168,6 +166,8 @@ def imgfeaturesdna(imageproc, dnaproc, isfield=False):
 
 
     if not isfield:
+        if dnaproc is not None:
+            dnacof = np.array(ndimage.center_of_mass(dnaproc))
         for i in xrange(1,obj_number + 1):
             obj_m00 = float(img_moment00[i]);
             obj_m10 = float(img_moment10[i]);
@@ -223,7 +223,7 @@ def imgfeaturesdna(imageproc, dnaproc, isfield=False):
             dna_image_area_ratio = dna_area/image_area ;
             image_dna_overlap = image_overlap/image_area ;
         
-        if not isfield:
+        if dnacof is not None:
             dna_image_distance = _norm2(cof-dnacof)
             values.append(dna_image_distance)
         values.append(dna_image_area_ratio)
