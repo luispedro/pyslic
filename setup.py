@@ -52,10 +52,10 @@ def test_pyversion():
 test_pyversion()
 
 numpyutils.setup(name='PySLIC',
-      version='0.4.9',
+      version='0.5.0-rc0',
       description='Subcellular Location Image Classifier',
       author='Murphy Lab',
-      author_email='murphy@mcu.edu',
+      author_email='murphy@cmu.edu',
       url='http://murphylab.cbi.cmu.edu/',
       packages=packages,
       ext_modules = ext_modules,
