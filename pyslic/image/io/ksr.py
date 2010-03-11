@@ -67,6 +67,7 @@ def read_ksrdir(dir):
     files = os.listdir(dir)
     channelcode = { 1 : Image.dna_channel , 2 : Image.protein_channel, 3 : Image.autofluorescence_channel } 
     images={}
+    multi_Ts = False
     for f in files:
         m=_ksrpat.match(f)
         if not m:
@@ -76,15 +77,18 @@ def read_ksrdir(dir):
         T=int(T)
         Field=int(Field) - 1 # the KSR naming is 1-based.
         if T != 1:
-            warn("Don't know how to handle more than one time point, ignoring timepoints with t > 1")
-            continue
-        img=images.get((Well,Field),None)
+            warn("Don't know how to handle more than one time point, ignoring timepoint information")
+            multi_Ts = True
+        img = images.get((Well,Field),None)
         isdib = f.endswith('.DIB') or f.endswith('.dib')
         if img is None:
             img = Image()
             img.label = _fixlabel(Well)
             img.id = (img.label,Field)
-            images[(Well,Field)]=img
+            if (Well, Field) in images:
+                if multi_Ts:
+                    warn("Multiple timepoints for same well/field pair. Choosing arbitrarily!!")
+            images[Well, Field]=img
 
         # If there's a DIB and a TIFF, take the DIB!
         # The logic below is simplified, but it works for our dataset:
@@ -93,7 +97,6 @@ def read_ksrdir(dir):
         if (channelcode[int(Channel)] not in img.channels) or isdib:
             img.channels[channelcode[int(Channel)]]=os.path.abspath(os.path.join(dir,f))
     return list(images.values())
-
 
 read_ksr_dir = read_ksrdir
 detect_ksr_dir = detect_ksrdir
