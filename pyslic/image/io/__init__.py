@@ -26,6 +26,7 @@ from readtjz import readtjz_recursive, readtjz
 from ksr import read_ksr_dir, detect_ksr_dir
 from ic100 import detect_ic100dir, read_ic100dir
 from read_cellomics_dib import read_cellomics_dib
+from .tiff_pairs import read_tiff_pairs_dir
 import dirtransversal
 from readimg import readimg
 from .autoload import auto_detect_load
