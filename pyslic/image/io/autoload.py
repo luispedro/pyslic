@@ -27,6 +27,7 @@ from dirtransversal import *
 from ic100 import *
 from ksr import *
 from readtjz import *
+from tiff_pairs import *
 
 def auto_detect_load(basedir):
     '''
@@ -43,6 +44,7 @@ def auto_detect_load(basedir):
         * ic100
         * ksr
         * TJZ containing directory
+        * TIFF pairs directory
     '''
     if detect_dirtransversal(basedir):
         return dirtransversal(basedir)
@@ -54,5 +56,7 @@ def auto_detect_load(basedir):
         return read_ksr_dir(basedir)
     if detect_tjzdir(basedir):
         return readtjz_recursive(basedir)
+    if detect_tiff_pairs(basedir):
+        return read_tiff_pairs_dir(basedir)
     return None
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
