@@ -23,7 +23,7 @@
 # send email to murphy@cmu.edu
 
 from __future__ import division, with_statement
-from os import listdir
+from os import listdir, path
 import pyslic
 
 def read_tiff_pairs_dir(directory):
@@ -47,9 +47,17 @@ def read_tiff_pairs_dir(directory):
         if (label, 'dna') not in pairs:
             raise IOError("Unmatched protein pair: %s" % label)
         img = pyslic.Image()
-        img.channels['dna'] = pairs[label, 'dna']
-        img.channels['protein'] = pairs[label, 'protein']
+        img.channels['dna'] = path.join(directory, pairs[label, 'dna'])
+        img.channels['protein'] = path.join(directory, pairs[label, 'protein'])
         img.label = label
         imgs.append(img)
     return imgs
 
+
+def detect_tiff_pairs(directory):
+    '''
+    '''
+    for img in listdir(directory):
+        if img.endswith('_prot.tiff'):
+            base = img[:-len('_prot.tiff')]
+            return path.exists(path.join(directory, base+'_dna.tiff'))
