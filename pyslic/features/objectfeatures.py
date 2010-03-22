@@ -59,6 +59,8 @@ def objectfeatures(img):
         'pymorph.objectfeatures: DNA image is not of same size as Protein image.'
 
     labeled,N = ndimage.label(protimg,ones((3,3)))
+    if not N:
+        return np.zeros((0,11))
 
     sofs = np.zeros((N,11))
     indices = np.arange(1,N+1)
