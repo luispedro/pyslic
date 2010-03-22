@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2008-2009  Murphy Lab, Carnegie Mellon University
+# Copyright (C) 2008-2010  Murphy Lab, Carnegie Mellon University
+# vim: set ts=4 sts=4 sw=4 expandtab smartindent:
 #
-# Written by Luís Pedro Coelho <lpc@cmu.edu>
+# Written by Luis Pedro Coelho <lpc@cmu.edu>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published
@@ -25,4 +26,3 @@ from __future__ import division, with_statement
 import numpy as np
 
 
-# vim: set ts=4 sts=4 sw=4 expandtab smartindent:

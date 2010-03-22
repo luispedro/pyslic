@@ -21,7 +21,7 @@
 # send email to murphy@cmu.edu
 
 # 19 Dec 98 - M.V. Boland
-# Ported to Python by Luís Pedro Coelho <lpc@cmu.edu>
+# Ported to Python by Luis Pedro Coelho <lpc@cmu.edu>
 
 from __future__ import division
 from math import *
