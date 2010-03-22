@@ -3,7 +3,7 @@
 # Carnegie Mellon University
 # 
 # Original (Matlab) version by M.V. Boland (10 Aug 98)
-# Python version by Luís Pedro Coelho <lpc@cmu.edu>
+# Python version by Luis Pedro Coelho <lpc@cmu.edu>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published

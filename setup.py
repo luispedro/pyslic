@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2008-2009  Murphy Lab
+# vim: set ts=4 sts=4 sw=4 expandtab smartindent:
 # Carnegie Mellon University
 # 
-# Written by Luís Pedro Coelho <lpc@cmu.edu>
+# Written by Luis Pedro Coelho <lpc@cmu.edu>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published
@@ -52,7 +53,7 @@ def test_pyversion():
 test_pyversion()
 
 numpyutils.setup(name='PySLIC',
-      version='0.5.0-rc0',
+      version='0.5.0',
       description='Subcellular Location Image Classifier',
       author='Murphy Lab',
       author_email='murphy@cmu.edu',
@@ -63,4 +64,3 @@ numpyutils.setup(name='PySLIC',
       )
 
 
-# vim: set ts=4 sts=4 sw=4 expandtab smartindent:
