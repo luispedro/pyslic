@@ -89,12 +89,13 @@ def preprocessimage(image, regionid, crop=True, options = {}):
         residual *= ~mask
         return img,residual
     image.lazy_load()
-    image.channeldata[Image.procprotein_channel],image.channeldata[Image.residualprotein_channel]=preprocessimg(image.channeldata[Image.protein_channel])
+    image.channeldata['procprotein'],image.channeldata['resprotein'] = preprocessimg(image.channeldata['protein'])
+    if 'dna' in image.channeldata:
+        image.channeldata['procdna'],_ = preprocessimg(image.channeldata['dna'])
 
     if crop:
         fullimage = (image.channeldata[Image.procprotein_channel] > 0) | (image.channeldata[Image.residualprotein_channel] >0)
         if Image.dna_channel in image.channeldata:
-            image.channeldata[Image.procdna_channel],_=preprocessimg(image.channeldata[Image.dna_channel])
             fullimage |= (image.channeldata[image.procdna_channel] > 0)
 
         min1,max1,min2,max2 = bbox(fullimage)
