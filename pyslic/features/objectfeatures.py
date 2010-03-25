@@ -88,7 +88,7 @@ def objectfeatures(img):
         hfeats = hullfeatures(binobj,objhull)
         sofs[obji,0] = fast_sum(binobj)
         if dnaimg is not None:
-            sofs[obji,2] = fast_sum(binobj&bindna[min1:max1+1,min2:max2+1])
+            sofs[obji,2] = fast_sum(binobj&bindna[slice])
         sofs[obji, 3] = hfeats[2]
         sofs[obji, 4] = bweuler(binobj)
         sofs[obji, 5] = hfeats[1]
