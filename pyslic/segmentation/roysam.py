@@ -33,7 +33,7 @@ except:
     fast_all = np.all
 from ..imageprocessing import thresholding
 from ..imageprocessing.convexhull import convexhull
-from ..imageprocessing.bbox import bbox, croptobbox
+from mahotas.bbox import bbox, croptobbox
 from .. import features
 from scipy import ndimage
 import pymorph
