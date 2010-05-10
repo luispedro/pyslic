@@ -28,7 +28,7 @@
 
 from __future__ import division
 import numpy as np
-from ..imageprocessing.bweuler import bweuler
+from mahotas import euler
 from scipy import ndimage
 
 __all__ = ['imgfeatures','imgfeaturesdna']
@@ -106,7 +106,7 @@ def imgfeaturesdna(imageproc, dnaproc, isfield=False):
         if dnaproc is None: return np.zeros(8)
         return np.zeros(14)
 
-    euler_nr = bweuler(bwimage)
+    euler_nr = euler(bwimage)
     values.append(euler_nr)
 
     cof = None
