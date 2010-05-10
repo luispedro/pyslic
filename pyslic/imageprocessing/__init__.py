@@ -25,5 +25,4 @@
 import basics
 from basics import *
 import objectdetection
-from .edge import sobeledge
 

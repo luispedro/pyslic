@@ -23,7 +23,7 @@ from __future__ import division
 import numpy as np
 from numpy import *
 from scipy import ndimage
-from ..imageprocessing import sobeledge
+from mahotas.edge import sobel
 import math
 
 def edgefeatures(protproc):
@@ -61,7 +61,7 @@ def edgefeatures(protproc):
     """  
         
     binimg=(protproc > 0)
-    edges = sobeledge(protproc) > 100
+    edges = sobel(protproc) > 100
     A = edges.sum()/binimg.sum()
     #A = bwarea(edge(imageproc,'canny',[]))/bwarea(im2bw(imageproc)) ;
 
