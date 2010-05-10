@@ -25,7 +25,7 @@
 from __future__ import division
 from numpy import *
 from scipy.ndimage import distance_transform_edt,label, median_filter
-from ..imageprocessing.thresholding import otsu
+from mahotas.thresholding import otsu
 import nucleidetection
 
 __all__ = ['voronoi','gvoronoi']
