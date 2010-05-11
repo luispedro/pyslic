@@ -26,7 +26,7 @@ from __future__ import division, with_statement
 import numpy as np
 from ..image import loadedimage
 from ..imageprocessing.thresholding import threshold
-import morph
+import mahotas
 import pymorph
 from scipy import ndimage
 
@@ -64,7 +64,7 @@ def watershed_segment(img, mode='direct', thresholding=None, min_obj_size=None, 
         elif mode == 'gradient':
             dnag = pymorph.gradm(dna)
             watershed_img = dnag.max()-dnag
-        water = morph.cwatershed(watershed_img,rmax_L)
+        water = mahotas.cwatershed(watershed_img,rmax_L)
         if thresholding is not None:
             T = threshold(dnaf,thresholding)
             water *= (dnaf >= T)
