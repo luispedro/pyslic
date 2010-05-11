@@ -37,7 +37,7 @@ from mahotas.bbox import bbox, croptobbox
 from .. import features
 from scipy import ndimage
 import pymorph
-import morph
+import mahotas
 
 __all__ = ['roysam_watershed']
 def roysam_watershed(dna,thresh=None,blur_factor=3):
@@ -72,7 +72,7 @@ def roysam_watershed(dna,thresh=None,blur_factor=3):
     R *= M
     R,N = ndimage.label(R)
     R[(R==0)&(M==0)] = N+1
-    W,WL = morph.cwatershed(T,R,return_lines=True)
+    W,WL = mahotas.cwatershed(T,R,return_lines=True)
     W *= M
     return W,WL
 
@@ -96,7 +96,7 @@ def border(W,Bc=None):
     neighbours = defaultdict(set)
     border_id = defaultdict(xrange(1,W.max()**2).__iter__().next)
     for obji in xrange(1,W.max()):
-        B_obji = (morph.dilate(W == obji,Bc)-(W==obji))
+        B_obji = (mahotas.dilate(W == obji,Bc)-(W==obji))
         for neighbour in np.unique(W[B_obji]):
             if neighbour == 0 or neighbour == bg: continue
             a1,a2 = obji,neighbour
