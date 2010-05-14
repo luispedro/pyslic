@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2008  Murphy Lab
+# vim: set ts=4 sts=4 sw=4 expandtab smartindent:
 # Carnegie Mellon University
 # 
 # Written by Luis Pedro Coelho <lpc@cmu.edu>
@@ -23,75 +24,7 @@
 # send email to murphy@cmu.edu
 
 from __future__ import division
-import numpy as np
-import numpy
-from scipy import ndimage
-
-__all__ = ['pftas','tas']
-_M = numpy.array([
-    [1, 1,1],
-    [1,10,1],
-    [1, 1,1]
-    ])
-_bins = numpy.arange(11)
-
-def _tas(img,thresh,margin):
-    def _ctas(img):
-        V = ndimage.convolve(img.astype(numpy.uint8),_M)
-        values,_ = numpy.histogram(V,bins=_bins)
-        values = values[:9]
-        return values/values.sum()
-
-    def _compute(bimg):
-        alltas.append(_ctas(bimg))
-        allntas.append(_ctas(~bimg))
-
-    alltas = []
-    allntas = []
-    mu = ((img > thresh)*img).sum() / (img > thresh).sum()
-    _compute( (img > mu - margin) * (img < mu + margin) )
-    _compute(img > mu - margin)
-    _compute(img > mu)
-
-    return numpy.concatenate(alltas + allntas)
-
-def tas(img):
-    '''
-    values = tas(img)
-
-     This algorithm was presented by Hamilton et al.
-    in "Fast automated cell phenotype image classification"
-    (http://www.biomedcentral.com/1471-2105/8/110)
-
-    See also pftas() for a variation without any hardcoded parameters.
-    '''
-    return _tas(img,30,30)
-
-tas.names = [( 'tas_%s' % i) for i in xrange(3*9)] + \
-            [('ntas_%s' % i) for i in xrange(3*9)]
-
-def pftas(img):
-    '''
-    values = pftas(img)
-
-     This algorithm was presented by Hamilton et al.
-    in "Fast automated cell phenotype image classification"
-    (http://www.biomedcentral.com/1471-2105/8/110)
-
-     The current implementation is an adapted version which
-    is free of parameters. The thresholding is done beforehand
-    (automatically), the margin around the mean of pixels to be
-    included is the standard deviation of the pixel values
-    and not fixed to 30, as before.
-
-     Use tas() to get the original version of the features.
-    Also do NOT run the preprocessing code on images on which the original
-    are to be calculated on.
-    '''
-    T = 0
-    pixels = img[img > T].ravel()
-    std = pixels.std()
-    return _tas(img, T, std)
+from tas import tas, pftas
 
 def pftasinfo():
     return [('SLF31.%s' % (i+1),'pftas:center_%s' % i,2,1) for i in xrange(9)] + \
@@ -101,4 +34,3 @@ def pftasinfo():
             [('SLF33.%s' % (i+1+9),'pftas:mu_%s' % i,2,1) for i in xrange(9)] + \
             [('SLF33.%s' % (i+1+3*9),'npftas:mu_%s' % i,2,1) for i in xrange(9)]
 
-# vim: set ts=4 sts=4 sw=4 expandtab smartindent:
