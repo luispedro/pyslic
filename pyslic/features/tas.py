@@ -24,7 +24,7 @@
 # send email to murphy@cmu.edu
 
 from __future__ import division
-from tas import tas, pftas
+from mahotas.tas import tas, pftas
 
 def pftasinfo():
     return [('SLF31.%s' % (i+1),'pftas:center_%s' % i,2,1) for i in xrange(9)] + \
