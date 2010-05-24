@@ -28,7 +28,7 @@
 
 from __future__ import division
 import numpy as np
-from mahotas import euler
+from mahotas.euler import euler
 from scipy import ndimage
 
 __all__ = ['imgfeatures','imgfeaturesdna']
