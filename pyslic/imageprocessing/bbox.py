@@ -23,7 +23,7 @@
 # For additional information visit http://murphylab.web.cmu.edu or
 # send email to murphy@cmu.edu
 
-from mahotas import bbox, croptobbox
+from mahotas.bbox import bbox, croptobbox
 import numpy as np
 __all__ = ['bbox', 'croptobbox', 'expandto']
 
