@@ -101,10 +101,10 @@ def border(W,Bc=None):
             if neighbour == 0 or neighbour == bg: continue
             a1,a2 = obji,neighbour
             if a2 < a1: a1,a2 = a2,a1
-            B[B_obji & (W==neighbour)] = border_id[(a1,a2)]
+            B[B_obji & (W==neighbour)] = border_id[a1,a2]
             neighbours[a1].add(a2)
             neighbours[a2].add(a1)
-    return B, neighbours, border_id
+    return B, dict(neighbours), dict(border_id)
 
 def _compute_features(img):
     bimg = (img > 0)
