@@ -26,7 +26,7 @@ from __future__ import division
 import numpy
 from scipy import ndimage
 from ..imageprocessing.bbox import croptobbox
-from mmthin import mmthin
+from mahotas import thin
 from ..imageprocessing.convexhull import convexhull
 import pickle
 
@@ -96,7 +96,7 @@ def _objskelfeats(objimg):
     if objsize == 0:
         return numpy.zeros(5)
 
-    objskel = mmthin(objbin);
+    objskel = thin(objbin);
     skellen = (objskel > 0).sum()
 
 

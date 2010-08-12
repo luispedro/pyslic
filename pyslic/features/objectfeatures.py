@@ -33,7 +33,7 @@ from mahotas.bbox import bbox
 from ..image import Image
 from mahotas import euler
 from .hullfeatures import hullfeatures
-from .mmthin import mmthin
+from mahotas import thin
 from ..imageprocessing.convexhull import convexhull
 from .imgskelfeats import find_branch_points
 
@@ -82,7 +82,7 @@ def objectfeatures(img):
         slice = locations[obji]
         binobj = (labeled[slice] == (obji+1)).copy()
         protobj = protimg[slice]
-        binskel = mmthin(binobj)
+        binskel = thin(binobj)
         objhull = convexhull(binobj)
         no_of_branch_points = fast_sum(find_branch_points(binskel))
         hfeats = hullfeatures(binobj,objhull)
