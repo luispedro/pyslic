@@ -101,10 +101,6 @@ class Image(object):
     Images can be pickled, but image data *does not* go with the pickling. Pickling an image is always the same as pickling its
     unloaded version.
     """
-    dna_channel='dna'
-    protein_channel='protein'
-    autofluorescence_channel='autofluorescence'
-    crop_channel='crop'
 
     procdna_channel='procdna'
     procprotein_channel='procprotein'
@@ -235,14 +231,14 @@ class Image(object):
             if orig.ptp():
                 return numpy.array( (orig.astype(numpy.float)-orig.min()) * 255./orig.ptp(), numpy.uint8 )
             return orig
-        prot=getchannel(self.protein_channel)
+        prot = getchannel('protein')
         X,Y=prot.shape
         composite=numpy.zeros((X,Y,3),numpy.uint8)
         composite[:,:,1]=getchannel(self.procprotein_channel if processed else self.protein_channel)
-        if self.dna_channel in self.channeldata:
-            composite[:,:,0]=getchannel(self.procdna_channel if processed else self.dna_channel)
-        if self.autofluorescence_channel in self.channeldata:
-            composite[:,:,2]=getchannel(self.autofluorescence_channel)
+        if 'dna' in self.channeldata:
+            composite[:,:,0] = getchannel('procdna' if processed else 'dna')
+        if 'autofluorescence' in self.channeldata:
+            composite[:,:,2] = getchannel('autofluorescence')
         return composite
 
     def show(self, idx = 0, processed = False):
