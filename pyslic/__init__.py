@@ -8,7 +8,6 @@ except:
     readimg = imread
     del imread
 import preprocess
-import classify
 import clustering
 import utils
 import segmentation
@@ -19,7 +18,6 @@ __all__ = [
     'Image',
     'preprocess',
     'computefeatures',
-    'classify',
     'clustering',
     'utils',
     'segmentation',
