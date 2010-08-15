@@ -94,9 +94,9 @@ def preprocessimage(image, regionid, crop=True, options = {}):
         image.channeldata['procdna'],_ = preprocessimg(image.channeldata['dna'])
 
     if crop:
-        fullimage = (image.channeldata[Image.procprotein_channel] > 0) | (image.channeldata[Image.residualprotein_channel] >0)
-        if Image.dna_channel in image.channeldata:
-            fullimage |= (image.channeldata[image.procdna_channel] > 0)
+        fullimage = (image.channeldata['procprotein'] > 0) | (image.channeldata['resprotein'] >0)
+        if 'dna' in image.channeldata:
+            fullimage |= (image.channeldata['procdna'] > 0)
 
         min1,max1,min2,max2 = bbox(fullimage)
         border = 2
@@ -104,10 +104,10 @@ def preprocessimage(image, regionid, crop=True, options = {}):
         min2 = max(0, min2 - border)
         max1 += border
         max2 += border
-        image.channeldata[Image.procprotein_channel] = image.channeldata[Image.procprotein_channel][min1:max1,min2:max2]
-        image.channeldata[Image.residualprotein_channel] = image.channeldata[Image.residualprotein_channel][min1:max1,min2:max2]
-        if Image.dna_channel in image.channeldata:
-            image.channeldata[Image.procdna_channel] = image.channeldata[Image.procdna_channel][min1:max1,min2:max2]
+        image.channeldata['procprotein'] = image.channeldata['procprotein'][min1:max1,min2:max2]
+        image.channeldata['resprotein'] = image.channeldata['resprotein'][min1:max1,min2:max2]
+        if 'dna' in image.channeldata:
+            image.channeldata['procdna'] = image.channeldata['procdna'][min1:max1,min2:max2]
 
 
 def thresholdfor(img,options = {}):

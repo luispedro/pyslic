@@ -94,8 +94,8 @@ def readtjz(path):
         img.set_load_function(readimageinzip)
         p_channel='%s/Stack-%05d' % (path,2*i)
         d_channel='%s/Stack-%05d' % (path,2*i+1)
-        img.channels[Image.dna_channel]=d_channel
-        img.channels[Image.protein_channel]=p_channel
+        img.channels['dna']=d_channel
+        img.channels['protein']=p_channel
         label=_getlabel(path)
         img.label=label
         img.id=(label,i)

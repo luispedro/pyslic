@@ -117,8 +117,8 @@ def read_ic100dir(basedir):
         for i,c0,c1,c2 in zip(xrange(len(channel_0)),channel_0,channel_1,channel_2):
             img=Image()
             img.load_function=read_ic100_BMP
-            img.channels[Image.dna_channel]=c0
-            img.channels[Image.protein_channel]=c1
+            img.channels['dna']=c0
+            img.channels['protein']=c1
             img.channels['autofl']=c2
             name,nr=wellpat.search(well).groups()
             wellname=name + nr

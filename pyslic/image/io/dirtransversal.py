@@ -85,10 +85,10 @@ def dirtransversal(startdir):
         res.label = d
         res.id = (d, labelcount[d])
         labelcount[d] += 1
-        res.channels[Image.dna_channel] = os.path.abspath(os.path.join(startdir,d,'dna',dna))
-        res.channels[Image.protein_channel] = os.path.abspath(os.path.join(startdir,d,'prot',prot))
+        res.channels['dna'] = os.path.abspath(os.path.join(startdir,d,'dna',dna))
+        res.channels['protein'] = os.path.abspath(os.path.join(startdir,d,'prot',prot))
         if crop:
-            res.channels[Image.crop_channel]= os.path.abspath(os.path.join(startdir,d,'crop',crop))
+            res.channels['crop']= os.path.abspath(os.path.join(startdir,d,'crop',crop))
         return res
     for d in sorted(os.listdir(startdir)):
         if not isdir(os.path.join(startdir,d)): continue

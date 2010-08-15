@@ -65,7 +65,7 @@ def read_ksrdir(dir):
     '''
     assert type(dir) is not unicode, 'pyslic.image.io.read_ksrdir does not work with unicode input' # The problem is that it creates images with unicode paths which cannot be loaded!
     files = os.listdir(dir)
-    channelcode = { 1 : Image.dna_channel , 2 : Image.protein_channel, 3 : Image.autofluorescence_channel } 
+    channelcode = { 1 : 'dna', 2 : 'protein', 3 : 'autofl' }
     images={}
     multi_Ts = False
     for f in files:

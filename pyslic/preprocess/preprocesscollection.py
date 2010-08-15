@@ -88,7 +88,7 @@ class FixIllumination(object):
     and then dividing the pixel values by that amount.
     '''
     __slots__ = ['S','channel']
-    def __init__(self,channel=Image.protein_channel):
+    def __init__(self,channel='protein'):
         self.S=None
         self.channel=channel
 

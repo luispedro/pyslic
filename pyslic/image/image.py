@@ -171,7 +171,7 @@ class Image(object):
         Calls any post loading actions registered with append_post_load()
         '''
         for k,v in self.channels.items():
-            if k != self.crop_channel: # Crop is called "regions"
+            if k != 'crop': # Crop is called "regions"
                 if type(v) == list:
                     self.channeldata[k]=[]
                     for f in v:
@@ -179,8 +179,8 @@ class Image(object):
                     self.channeldata[k]=numpy.array(self.channeldata[k])
                 else:
                     self.channeldata[k]=self.load_function(v)
-        if self.crop_channel in self.channels:
-            self.regions = self.load_function(self.channels[self.crop_channel])
+        if 'crop' in self.channels:
+            self.regions = self.load_function(self.channels['crop'])
             # These files often need to be fixed 
             self.regions,_ = label(self.regions)
         self.loaded = True
@@ -201,9 +201,9 @@ class Image(object):
 
         Returns the number of z slices.
         '''
-        if type(self.channels[self.protein_channel]) != list:
+        if type(self.channels['protein']) != list:
             return 1
-        return len(self.channels[self.protein_channel])
+        return len(self.channels['protein'])
 
     def get(self,channelid):
         '''
@@ -224,7 +224,7 @@ class Image(object):
         '''
         self.lazy_load()
         def getchannel(channel):
-            if type(self.channels[Image.protein_channel]) == list:
+            if type(self.channels['protein']) == list:
                 orig=self.channeldata[channel][idx,:,:]
             else:
                 orig=self.channeldata[channel]
@@ -234,7 +234,7 @@ class Image(object):
         prot = getchannel('protein')
         X,Y=prot.shape
         composite=numpy.zeros((X,Y,3),numpy.uint8)
-        composite[:,:,1]=getchannel(self.procprotein_channel if processed else self.protein_channel)
+        composite[:,:,1]=getchannel('procprotein' if processed else 'protein')
         if 'dna' in self.channeldata:
             composite[:,:,0] = getchannel('procdna' if processed else 'dna')
         if 'autofluorescence' in self.channeldata:
