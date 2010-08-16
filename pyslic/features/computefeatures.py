@@ -40,7 +40,7 @@ from hullfeatures import hullfeatures, hullsizefeatures
 from zernike import zernike, znames
 from tas import tas, pftas
 from .overlap import overlapfeatures
-from .lbp import lbp
+from mahotas.lbp import lbp
 
 __all__ = ['computefeatures','featurenames']
 
