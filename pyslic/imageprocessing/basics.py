@@ -110,34 +110,5 @@ def majority_filter(bwimg, N = 3):
         bwimg = ndimage.convolve(bwimg,filter)
         return bwimg > (N**2/2)
 
-def nonzeromin(img):
-    '''
-    Returns the minimum non zero element in img.
-    '''
-    r,c=img.shape
-    try:
-        from scipy import weave
-        from scipy.weave import converters
-        v=array([img.max()])
-        code = '''
-#line 124 "basics.py"
-        for (int i = 0; i != r; ++i) {
-            for (int j = 0; j != c; ++j) { 
-                if (img(i,j) && img(i,j) < v(0)) v(0) = img(i,j);
-            }
-        }
-        '''
-        weave.inline(code,
-            ['r','c','img','v'],
-            type_converters=converters.blitz
-            )
-        pmin=v[0]
-    except:
-        pmin=img.max()
-        for i in xrange(r):
-            for j in xrange(c):
-                if img[i,j] and img[i,j] < pmin:
-                    pmin = img[i,j]
-    return pmin
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:

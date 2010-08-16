@@ -25,7 +25,7 @@
 from __future__ import division
 from numpy import *
 from scipy.ndimage import histogram
-from .basics import fullhistogram, nonzeromin
+from .basics import fullhistogram
 
 __all__=['threshold', 'rc','murphy_rc','otsu','softthreshold','hardthreshold']
 

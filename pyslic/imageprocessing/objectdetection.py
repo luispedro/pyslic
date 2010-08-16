@@ -28,6 +28,17 @@ from scipy import ndimage
 from .basics import majority_filter, nonzeromin
 from .thresholding import otsu, rc, murphy_rc
 
+def nonzeromin(img):
+    '''
+    Returns the minimum non zero element in img.
+    '''
+    A = A.copy().ravel()
+    A.sort()
+    if A[-1] == 0: return 0
+    pos = np.searchsorted(A, 1)
+    return A[pos]
+
+
 def mean_filter(img,size=3):
     '''
     meanimg = mean_filter(img, size=3)
