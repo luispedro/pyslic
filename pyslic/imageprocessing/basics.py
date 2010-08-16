@@ -27,35 +27,11 @@ import numpy as np
 import numpy
 from scipy import ndimage
 from numpy import array, asarray, ones, uint32, uint8, zeros
+from mahotas.histogram import fullhistogram
 from nhistogram import nhistogram
 
-__all__ = ['fullhistogram','majority_filter','nonzeromin']
+__all__ = ['fullhistogram','majority_filter',]
 
-def fullhistogram(img):
-    """
-    H = fullhistogram(img)
-
-    Return a histogram with bins
-        0, 1, ..., img.max()
-    """
-    try:
-        from scipy import weave
-        histogram = np.zeros(img.max()+1,np.int32)
-        img = np.ascontiguousarray(img.ravel())
-        N = img.size
-        code = '''
-#line 46 "basics.py"
-        for (int i = 0; i != N; ++i) {
-            ++histogram[static_cast<long int>(img[i])];
-        }
-        '''
-        weave.inline(code, ['img','N','histogram'])
-        return histogram
-    except ImportError:
-        maxt = img.max()
-        if maxt == 0:
-            return np.array([img.size])
-        return nhistogram(img, numpy.arange(maxt+2))[0]
 
 def majority_filter(bwimg, N = 3):
     """
