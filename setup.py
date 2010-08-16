@@ -37,8 +37,7 @@ try_imports()
 
 import numpy.distutils.core as numpyutils
 
-convexhull = numpyutils.Extension('pyslic/imageprocessing/_convexhull', sources = ['pyslic/imageprocessing/convexhull.cpp'])
-ext_modules = [convexhull]
+ext_modules = []
 
 packages=setuptools.find_packages()
 if 'tests' in packages: packages.remove('tests')
