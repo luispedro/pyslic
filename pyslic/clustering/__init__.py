@@ -22,5 +22,5 @@
 # For additional information visit http://murphylab.web.cmu.edu or
 # send email to murphy@cmu.edu
 
-from kmeans import kmeans,repeated_kmeans
+from milk.unsupervised.kmeans import kmeans,repeated_kmeans
 from gaussianmixture import *
