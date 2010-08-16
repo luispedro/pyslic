@@ -74,6 +74,119 @@ def residual_sum_squares(fmatrix,assignments,centroids,distance='euclidean',**kw
         raise NotImplemented, "residual_sum_squares only implemented for 'euclidean' distance"
     return (centroid_errors(fmatrix,assignments,centroids)**2).sum()
 
+def fkmeans(fmatrix,K,distance='euclidean',max_iter=1000,R=None,**kwargs):
+    '''
+    assignmens, centroids = kmean(fmatrix, K, distance='euclidean', R=None, icov=None, covmat=None)
+
+    K-Means Clustering
+
+    Parameters
+    ----------
+     * distance can be one of:
+        - 'euclidean'   : euclidean distance (default)
+        - 'seuclidean'  : standartised euclidean distance. This is equivalent to first normalising the features
+                        by zscoring them.
+        - 'mahalanobis' : mahalanobis distance.
+                This can make use of the following keyword arguments:
+                    'icov' (the inverse of the covariance matrix), 
+                    'covmat' (the covariance matrix)
+                If neither is passed, then the function computes the covariance from the feature matrix
+     * max_iter: Maximum number of iteration.
+     * 
+    '''
+    fmatrix=numpy.asanyarray(fmatrix)
+    if distance == 'euclidean':
+        distfunction=_euclidean2
+    elif distance == 'seuclidean':
+        fmatrix = zscore(fmatrix)
+        distfunction=_euclidean2
+    elif distance == 'mahalanobis':
+        icov = kwargs.get('icov',None)
+        if icov is None:
+            covmat=kwargs.get('covmat',None)
+            if covmat is None:
+                covmat=cov(fmatrix.T)
+            icov=linalg.inv(covmat)
+        distfunction = lambda f, x, out: _mahalabonis2(f, x, icov, output=out)
+    else:
+        raise 'Distance argument unknown (%s)' % distance
+    R=get_pyrandom(R)
+
+    N,q = fmatrix.shape
+    centroids = array(R.sample(fmatrix,K))
+    prev = np.zeros(N,np.int32)
+    sum2 = (fmatrix**2).sum(1)
+    assignments = np.zeros(N,np.int32)
+    dists = np.zeros(N, fmatrix.dtype) 
+    ndists = np.zeros(N, fmatrix.dtype)
+    for i in xrange(max_iter):
+        assignments[:] = 0
+        computed = False
+        if distfunction is _euclidean2:
+            ndists[:] = 0
+            ndists += (centroids**2).sum(1)
+            ndT = ndists.T
+            ndT += sum2
+            for i,c in enumerate(centroids):
+                prod = np.dot(fmatrix, c)
+                prod *= -2.
+                ndists[:,i] += prod
+                assignments[:] = ndists.argmin(1)
+                dists[:] = ndists
+        else:
+            dists[:] = np.inf
+            for ci,C in enumerate(centroids):
+                ndists = distfunction(fmatrix, C, output=ndists)
+                try:
+                    from scipy import weave
+                    from scipy.weave import converters
+                    code = '''
+                    for (int i = 0; i != N; ++i) {
+                        if (ndists(i) < dists(i)) {
+                            assignments(i) = ci;
+                            dists(i) = ndists(i);
+                        }
+                    }
+                    '''
+                    weave.inline(
+                        code,
+                        ['dists', 'ndists', 'N', 'assignments', 'ci'],
+                        type_converters=converters.blitz)
+                except Exception, e:
+                    print 'scipy.weave.inline failed. Resorting to Python code (Exception was "%s")' % e
+                    better = (ndists < dists)
+                    assignments[better] = ci
+                    dists[better] = ndists[better]
+        if np.all(assignments == prev):
+            break
+        try:
+            from scipy import weave
+            from scipy.weave import converters
+            centroids[:]=0
+            counts=zeros(K,numpy.uint32)
+            code = '''
+            for (int i = 0; i != N; ++i) {
+                int c = assignments(i);
+                ++counts(c);
+                for (int j = 0; j != q; ++j) {
+                    centroids(c,j) += fmatrix(i,j);
+                }
+            }
+            for (int i = 0; i != K; ++i) {
+                for (int j = 0; j != q; ++j) {
+                    centroids(i,j) /= counts(i);
+                }
+            }
+            '''
+            weave.inline(
+                    code,
+                    ['fmatrix','centroids','N','q','K','assignments','counts'],
+                    type_converters=converters.blitz)
+        except Exception, e:
+            print 'scipy.weave.inline failed. Resorting to Python code (Exception was "%s")' % e
+            centroids = array([fmatrix[assignments == C].mean(0) for C in xrange(K)])
+        prev[:] = assignments
+    return assignments, centroids
 def kmeans(fmatrix,K,distance='euclidean',max_iter=1000,R=None,**kwargs):
     '''
     assignmens, centroids = kmean(fmatrix, K, distance='euclidean', R=None, icov=None, covmat=None)
