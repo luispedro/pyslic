@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2008  Murphy Lab
+# Copyright (C) 2008-2010 Murphy Lab
+# vim: set ts=4 sts=4 sw=4 expandtab smartindent:
 # Carnegie Mellon University
 # 
 # Original (Matlab) version by M.V. Boland (10 Aug 98)
@@ -23,11 +24,11 @@
 # For additional information visit http://murphylab.web.cmu.edu or
 # send email to murphy@cmu.edu
 
-from numpy import *
-from scipy.ndimage import center_of_mass
+import numpy as np
+from mahotas import center_of_mass
 
 __all__ = ['imgmoments','imgcentmoments']
-def imgmonents(img,x,y):
+def imgmonents(img, x, y):
     """
      M = imgmonents(IMG, X, Y) calculates the moment MXY for IMAGE
      imgmoments(img, x, y), 
@@ -40,12 +41,7 @@ def imgmonents(img,x,y):
         imgmoments(image,0,1)/imgmoments(image,0,0) is the 
         'center of mass (fluorescence)' in the y-direction
     """
-    img = double(img)
-    N,M=img.shape
-    img *= arange(M)**y
-    img=img.T
-    img *= arange(N)**x
-    return img.sum()
+    return imgcentmoments(img, x, y, 0, 0)
 
 def imgcentmoments(img,x,y,cofy=None,cofx=None):
     """
@@ -56,35 +52,15 @@ def imgcentmoments(img,x,y,cofy=None,cofx=None):
     if cofy is None or cofx is None:
         print 'calling center_of_mass'
         cofy, cofx = center_of_mass(img)
-    try:
-        from scipy import weave
-        from scipy.weave import converters
-        max1,max2=img.shape
-        img=asarray(img,uint8)
-        vals=zeros(1)
-        code = '''
-#line 67 "imgmoments.py"
-        double res = 0.;
-        for (int y_index = 0; y_index != max1; ++y_index) {
-            for (int x_index = 0; x_index != max2; ++x_index) {
-                res += img(y_index,x_index) * std::pow(cofy - y_index,y) * std::pow(cofx - x_index,x);
-            }
-        }
-        vals(0) = res;
-        '''
-        weave.inline(
-                code,
-                ['max1','max2','img','cofy','cofx','y','x','vals'],
-                type_converters=converters.blitz)
-        return vals[0]
-    except ImportError:
-        import warnings
-        warnings.warn('scipy.weave failed. Resorting to (slow) Python code')
-        img = double(img)
-        N,M=img.shape
-        img *= (arange(M)-cofx)**x
-        img = img.T
-        img *= (arange(N)-cofy)**y
-        return img.sum()
+    if not np.issubdtype(img.dtype, float):
+        img = img.astype(float)
+    r,c = img.shape
+    p = np.arange(c)
+    p -= cofx
+    p **= x
+    inter = np.dot(img, p)
+    p = np.arange(r)
+    p -= cofy
+    p **= y
+    return np.dot(inter, p)
 
-# vim: set ts=4 sts=4 sw=4 expandtab smartindent:
