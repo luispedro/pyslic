@@ -25,7 +25,7 @@
 from __future__ import division
 import numpy
 from scipy import ndimage
-from .basics import majority_filter, nonzeromin
+from .basics import majority_filter
 from .thresholding import otsu, rc, murphy_rc
 
 def nonzeromin(img):
