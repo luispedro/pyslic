@@ -66,8 +66,14 @@ def edgefeatures(protproc):
     #A = bwarea(edge(imageproc,'canny',[]))/bwarea(im2bw(imageproc)) ;
 
     # Directional edge filters
-    N = array([[1,1,1],[0,0,0],[-1,-1,-1]])
-    W = array([[1,0,-1],[1,0,-1],[1,0,-1]])
+    N = np.array([
+            [ 1, 1, 1],
+            [ 0, 0, 0],
+            [-1,-1,-1]])
+    W = np.array([
+            [ 1, 0,-1],
+            [ 1, 0,-1],
+            [ 1, 0,-1]])
 
     # Calculation of the gradient from two orthogonal directions
     protproc=asarray(protproc.copy(),int16)
@@ -75,7 +81,7 @@ def edgefeatures(protproc):
     iprocW = ndimage.convolve(protproc,W)
 
     # Calculate the magnitude and direction of the gradient
-    iprocmag = sqrt(iprocN**2 + iprocW**2)
+    iprocmag = np.sqrt(iprocN**2. + iprocW**2.)
     iproctheta = np.arctan2(iprocN, iprocW)
 
     # Change by MV:
