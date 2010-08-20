@@ -53,8 +53,8 @@ def objectfeatures(img):
     in IEEE Transaction on Image Processing
     '''
 
-    protimg = img.channeldata[Image.procprotein_channel]
-    dnaimg = img.channeldata.get(Image.procdna_channel,None)
+    protimg = img.get('procprotein')
+    dnaimg = img.channeldata.get('procdna',None)
     assert dnaimg is None or protimg.shape == dnaimg.shape, \
         'pymorph.objectfeatures: DNA image is not of same size as Protein image.'
 

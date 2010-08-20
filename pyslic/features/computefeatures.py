@@ -128,17 +128,17 @@ def computefeatures(img, featsets, progress=None, preprocessing=True, **kwargs):
     if preprocessing:
         preprocessimage(img, kwargs.get('region',1), options=kwargs.get('options',{}))
     else:
-        if not img.channeldata[Image.procprotein_channel]:
-            img.channeldata[Image.procprotein_channel] = img.channeldata[Image.protein_channel]
-            img.channeldata[Image.residualprotein_channel] = 0*img.channeldata[Image.protein_channel]
-        if not img.channeldata[Image.procdna_channel]:
-            img.channeldata[Image.procdna_channel] = img.channeldata[Image.dna_channel]
+        if not img.channeldata['procprotein']:
+            img.channeldata['procprotein'] = img.get('protein')
+            img.channeldata['resprotein'] = 0*img.get('protein')
+        if not img.channeldata['procdna']:
+            img.channeldata['procdna'] = img.get('dna')
     features = numpy.array([])
-    protein = img.channeldata[Image.protein_channel]
-    procprotein = img.channeldata[Image.procprotein_channel]
-    resprotein = img.channeldata[Image.residualprotein_channel]
-    dna = img.channeldata.get(Image.dna_channel)
-    procdna = img.channeldata.get(Image.procdna_channel)
+    protein = img.get('protein')
+    procprotein = img.get('procprotein')
+    resprotein = img.get('resprotein')
+    dna = img.channeldata.get('dna')
+    procdna = img.channeldata.get('procdna')
     if procprotein.size < _Min_image_size:
         return np.array([np.nan for i in xrange(90)])
     lbppat = re.compile(r'lbp\(([0-9]+), ?([0-9]+)\)')

@@ -38,23 +38,23 @@ def test_readimg():
 
 def _buildimg():
     img = pyslic.Image()
-    img.channels[img.protein_channel] = protimg
+    img.channels['protein'] = protimg
     return img
 
 def test_image_load():
     img = _buildimg()
-    assert img.protein_channel not in img.channeldata
+    assert 'protein' not in img.channeldata
     img.load()
     assert img.loaded
 
-    assert img.dna_channel not in img.channeldata
+    assert 'dna' not in img.channeldata
     img_direct = readimg(protimg)
-    assert numpy.all(img_direct == img.channeldata[img.protein_channel])
+    assert numpy.all(img_direct == img.channeldata['protein'])
 
     img.unload()
     assert not img.loaded
-    assert img.protein_channel not in img.channeldata
-    assert img.dna_channel not in img.channeldata
+    assert 'protein' not in img.channeldata
+    assert 'dna' not in img.channeldata
 
 def test_image_pickle():
     try:
@@ -62,14 +62,14 @@ def test_image_pickle():
         pickle_filename='/tmp/pyslic.test.img.pp'
         pickle.dump(img,file(pickle_filename,'w'))
         img2=pickle.load(file(pickle_filename))
-        assert img.channels[img.protein_channel] == img2.channels[img.protein_channel]
+        assert img.channels['protein'] == img2.channels['protein']
         assert not img2.loaded
         img.load()
         pickle.dump(img,file(pickle_filename,'w'))
         img2=pickle.load(file(pickle_filename))
         assert not img2.loaded
-        assert img2.protein_channel not in img2.channeldata
-        assert img2.dna_channel not in img2.channeldata
+        assert 'protein' not in img2.channeldata
+        assert 'dna' not in img2.channeldata
     finally:
         os.unlink(pickle_filename)
 
