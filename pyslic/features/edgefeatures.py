@@ -69,14 +69,16 @@ def edgefeatures(protproc):
     N = np.array([
             [ 1, 1, 1],
             [ 0, 0, 0],
-            [-1,-1,-1]])
+            [-1,-1,-1]],
+            np.float_)
     W = np.array([
             [ 1, 0,-1],
             [ 1, 0,-1],
-            [ 1, 0,-1]])
+            [ 1, 0,-1]],
+            np.float_)
 
     # Calculation of the gradient from two orthogonal directions
-    protproc=asarray(protproc.copy(),int16)
+    protproc = asarray(protproc.copy(), np.float_)
     iprocN = ndimage.convolve(protproc,N)
     iprocW = ndimage.convolve(protproc,W)
 
