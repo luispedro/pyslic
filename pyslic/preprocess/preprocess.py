@@ -27,13 +27,10 @@ import numpy as np
 from ..image import Image
 from ..imageprocessing.basics import fullhistogram, majority_filter
 from ..imageprocessing.thresholding import rc
-from ..imageprocessing.bbox import croptobbox, bbox
+from mahotas.bbox import bbox
 from numpy import *
 from warnings import warn
-try:
-    import ncreduce as fn
-except:
-    fn = np
+fn = np
 
 __all__ = ['preprocessimg','bgsub']
 
@@ -104,6 +101,8 @@ def preprocessimage(image, regionid, crop=True, options = {}):
         min2 = max(0, min2 - border)
         max1 += border
         max2 += border
+
+
         image.channeldata['procprotein'] = image.channeldata['procprotein'][min1:max1,min2:max2]
         image.channeldata['resprotein'] = image.channeldata['resprotein'][min1:max1,min2:max2]
         if 'dna' in image.channeldata:
@@ -152,9 +151,9 @@ def _scale(img):
         scaled.min() ~= 0
         scaled.max() ~= 255
     '''
-    img = np.array(img,int32)
-    M = fn.max(img)
-    m = fn.min(img)
+    img = img.astype(np.float_)
+    M = img.max()
+    m = img.min()
     if M == m:
         return np.zeros(img.shape,np.uint8)
     img -= m
