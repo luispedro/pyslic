@@ -165,7 +165,11 @@ def computefeatures(img, featsets, progress=None, preprocessing=True, **kwargs):
             else:
                 bins = kwargs.get('haralick.bins',_Default_Haralick_Bins)
                 if bins != 256:
-                    img = numpy.array((img-img.min()).astype(float) * bins / (img.max()-img.min()),numpy.uint8)
+                    min = img.min()
+                    max = img.max()
+                    ptp = max - min
+                    if ptp:
+                        img = np.array((img-min).astype(float) * bins/ptp, np.uint8)
                 feats = haralickfeatures(img)
                 feats = feats.mean(0)
         elif F == 'har3d':
