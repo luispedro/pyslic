@@ -28,6 +28,7 @@ from ..image import Image
 from ..imageprocessing.basics import fullhistogram, majority_filter
 from ..imageprocessing.thresholding import rc
 from mahotas.bbox import bbox
+from mahotas.stretch import stretch
 from numpy import *
 from warnings import warn
 fn = np
@@ -77,7 +78,7 @@ def preprocessimage(image, regionid, crop=True, options = {}):
                 img *= (cropimg == regionid)
         elif regionid != 1:
             warn('Selecting a region different from 1 for an image without region information')
-        imgscaled=_scale(img)
+        imgscaled = stretch(img, 255)
         T=thresholdfor(imgscaled,options)
         mask=(imgscaled > T)
         mask=majority_filter(mask)
@@ -128,36 +129,19 @@ def bgsub(img,options = {}):
 
     B = bgsub(A.copy(),options)
     '''
-    type=options.get('bgsub.type','lowcommon')
+    type = options.get('bgsub.type','lowcommon')
     if type == 'nobgsub':
         return img
     elif type == 'lowcommon':
-        hist=fullhistogram(img)
-        M=round(img.mean())-1
+        M = np.round(img.mean())-1
         if M <= 0:
             T=0
         else:
-            T=argmax(hist[:M])
-        img -= minimum(img,T)
+            hist = fullhistogram(img)
+            T = np.argmax(hist[:M])
+        img -= np.minimum(img,T)
         return img
     else:
         raise KeyError('Background subtraction option not recognised (%s).' % type)
-
-def _scale(img):
-    '''
-    scaled = _scale(img)
-
-    Returns a scaled version of img, where
-        scaled.min() ~= 0
-        scaled.max() ~= 255
-    '''
-    img = img.astype(np.float_)
-    M = img.max()
-    m = img.min()
-    if M == m:
-        return np.zeros(img.shape,np.uint8)
-    img -= m
-    img *= 255/(M-m)
-    return img.astype(np.uint8)
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
