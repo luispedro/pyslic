@@ -31,6 +31,7 @@ import numpy as np
 from mahotas.euler import euler
 from mahotas.center_of_mass import center_of_mass
 from scipy import ndimage
+from mahotas.histogram import fullhistogram
 
 __all__ = ['imgfeatures','imgfeaturesdna']
 
@@ -113,7 +114,7 @@ def imgfeaturesdna(imageproc, dnaproc, isfield=False):
     if not isfield:
         cof = center_of_mass(imageproc.astype(np.uint32))
 
-    obj_sizes = np.array([(imagelabeled == (oi+1)).sum() for oi in xrange(nr_objs)])
+    obj_sizes = fullhistogram(imagelabeled.view(np.uint32))[1:]
 
     obj_size_avg = obj_sizes.mean()
     obj_size_var = obj_sizes.var()
