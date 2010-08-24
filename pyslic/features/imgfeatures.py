@@ -29,6 +29,7 @@
 from __future__ import division
 import numpy as np
 from mahotas.euler import euler
+from mahotas.center_of_mass import center_of_mass
 from scipy import ndimage
 
 __all__ = ['imgfeatures','imgfeaturesdna']
@@ -110,7 +111,7 @@ def imgfeaturesdna(imageproc, dnaproc, isfield=False):
 
     cof = None
     if not isfield:
-        cof = mahotas.center_of_mass(imageproc)
+        cof = center_of_mass(imageproc.astype(np.uint32))
 
     obj_sizes = np.array([(imagelabeled == (oi+1)).sum() for oi in xrange(nr_objs)])
 
@@ -124,11 +125,11 @@ def imgfeaturesdna(imageproc, dnaproc, isfield=False):
 
 
     if not isfield:
-        obj_cms = mahotas.center_of_mass(imageproc, imagelabeled)
+        obj_cms = center_of_mass(imageproc.astype(np.uint32), imagelabeled)
         obj_distances = []
         obj_dnadistances = []
         if dnaproc is not None:
-            dnacof = np.array(ndimage.center_of_mass(dnaproc))
+            dnacof = center_of_mass(dnaproc.astype(np.uint32))
         for obj_center in obj_cms:
             obj_distance = _norm2(obj_center - cof)
             obj_distances.append(obj_distance)
