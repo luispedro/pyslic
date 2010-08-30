@@ -23,8 +23,9 @@
 # send email to murphy@cmu.edu
 
 from __future__ import division
-from numpy import *
+import numpy as np
 from scipy.ndimage import histogram
+from mahotas.thresholding import rc, otsu
 from .basics import fullhistogram
 
 __all__=['threshold', 'rc','murphy_rc','otsu','softthreshold','hardthreshold']
@@ -72,7 +73,7 @@ def softthreshold(img,T):
 
     @see hardthreshold
     '''
-    img -= minimum(img,T)
+    img -= np.minimum(img,T)
     return img
 
 def hardthreshold(img,T):
@@ -94,38 +95,6 @@ def hardthreshold(img,T):
     img *= (img > T)
     return img
 
-def rc(img,ignore_zeros=False):
-    """
-    T = rc(img, ignore_zeros=False)
-    
-    Calculate a threshold according to the RC method.
-
-    @param ignore_zeros: Whether to ignore zero valued pixels (default: False)
-    """
-    hist=fullhistogram(img)
-    if ignore_zeros:
-        if hist[0] == img.size:
-            return 0
-        hist[0]=0
-    N=hist.size
-
-    # Precompute most of what we need:
-    sum1 = cumsum(arange(N) * hist)
-    sum2 = cumsum(hist)
-    sum3 = flipud(cumsum(flipud(arange(N) * hist)))
-    sum4 = flipud(cumsum(flipud(hist)))
-
-    maxt=N-1
-    while hist[maxt] == 0:
-        maxt -= 1
-
-    res=maxt
-    t=0
-    while t < min(maxt,res):
-        res=(sum1[t]/sum2[t] + sum3[t+1]/sum4[t+1])/2
-        t += 1
-    return res
-        
 
 def murphy_rc(img,ignore_zeros=False):
     """
@@ -136,37 +105,8 @@ def murphy_rc(img,ignore_zeros=False):
     @param ignore_zeros: Whether to ignore zero valued pixels (default: False)
         Murphy's Matlab implementation always ignores zero valued pixels.
     """
-    pmax=img.max()
-    return pmax-rc(pmax-img,ignore_zeros=ignore_zeros)
+    pmax = img.max()
+    return pmax-rc(pmax-img, ignore_zeros=ignore_zeros)
 
-def otsu(img, ignore_zeros=False):
-    """
-    T = otsu(img)
-
-    Calculate a threshold according to the Otsu method.
-    """
-    # Calculated according to CVonline: http://homepages.inf.ed.ac.uk/rbf/CVonline/LOCAL_COPIES/MORSE/threshold.pdf
-    hist=fullhistogram(img)
-    hist=asarray(hist,double) # This forces everything to be double precision
-    if ignore_zeros:
-        hist[0]=0
-    Ng=len(hist)
-    nB=cumsum(hist)
-    nO=nB[-1]-nB
-    mu_B=0
-    mu_O=(arange(1,Ng)*hist[1:]).sum()/hist[1:].sum()
-    best=nB[0]*nO[0]*(mu_B-mu_O)*(mu_B-mu_O)
-    bestT=0
-
-    for T in xrange(1,Ng):
-        if nB[T] == 0: continue
-        if nO[T] == 0: break
-        mu_B = (mu_B*nB[T-1] + T*hist[T]) / nB[T]
-        mu_O = (mu_O*nO[T-1] - T*hist[T]) / nO[T]
-        sigma_between=nB[T]*nO[T]*(mu_B-mu_O)*(mu_B-mu_O)
-        if sigma_between > best:
-            best = sigma_between
-            bestT = T
-    return bestT
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
