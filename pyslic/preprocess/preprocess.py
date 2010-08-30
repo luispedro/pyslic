@@ -76,14 +76,16 @@ def preprocessimage(image, regionid, crop=True, options = {}):
             else:
                 img = bgsub(img,options)
                 img *= (cropimg == regionid)
-        elif regionid != 1:
-            warn('Selecting a region different from 1 for an image without region information')
+        else:
+            if regionid != 1:
+                warn('Selecting a region different from 1 for an image without region information')
+            img = bgsub(img, options)
         imgscaled = stretch(img, 255)
-        T=thresholdfor(imgscaled,options)
-        mask=(imgscaled > T)
-        mask=majority_filter(mask)
-        residual=img.copy()
-        img *= mask.astype(bool)
+        T = thresholdfor(imgscaled,options)
+        mask = (imgscaled > T)
+        mask = majority_filter(mask)
+        residual = img.copy()
+        img *= mask
         residual *= ~mask
         return img,residual
     image.lazy_load()
@@ -135,11 +137,12 @@ def bgsub(img,options = {}):
     elif type == 'lowcommon':
         M = np.round(img.mean())-1
         if M <= 0:
-            T=0
+            T = 0
         else:
             hist = fullhistogram(img)
             T = np.argmax(hist[:M])
-        img -= np.minimum(img,T)
+        if T > 0:
+            img -= np.minimum(img,T)
         return img
     else:
         raise KeyError('Background subtraction option not recognised (%s).' % type)
