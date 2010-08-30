@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2008  Murphy Lab
+# vim: set ts=4 sts=4 sw=4 expandtab smartindent:
+# Copyright (C) 2008-2010 Murphy Lab
 # Carnegie Mellon University
 # 
 # Written by Luis Pedro Coelho <lpc@cmu.edu>
@@ -29,13 +30,22 @@ from ..imageprocessing.basics import fullhistogram, majority_filter
 from ..imageprocessing.thresholding import rc
 from mahotas.bbox import bbox
 from mahotas.stretch import stretch
-from numpy import *
+from scipy import ndimage
 from warnings import warn
 fn = np
 
-__all__ = ['preprocessimg','bgsub']
+__all__ = ['preprocessimg', 'precomputestats', 'bgsub']
 
-def preprocessimage(image, regionid, crop=True, options = {}):
+def precomputestats(image):
+    image.lazy_load()
+    image.temp['bgsubprotein'] = bgsub(image.channeldata['protein'].copy())
+    if 'dna' in image.channeldata:
+        image.temp['bgsubdna'] = bgsub(image.channeldata['dna'].copy())
+    if image.regions is not None:
+        image.temp['region_ids'] = ndimage.find_objects(image.regions)
+
+
+def preprocessimage(image, regionid=None, crop=True, options = {}):
     """
     Preprocess the image
 
@@ -67,19 +77,20 @@ def preprocessimage(image, regionid, crop=True, options = {}):
                 return out_proc,out_res
             else:
                 raise Exception('pyslic.preprocessimg: Do not know how to handle 3d.mode: %s' % options['3d.mode'])
-        img=img.copy()
-        cropimg=image.regions
-        if cropimg is not None:
-            if options.get('bgsub.way','ml') == 'ml':
-                img *= (cropimg == regionid)
-                img = bgsub(img,options)
+        if do_bgsub:
+            regions = image.regions
+            img = img.copy()
+            if regions is not None:
+                if options.get('bgsub.way','ml') == 'ml':
+                    img *= (regions == regionid)
+                    img = bgsub(img, options)
+                else:
+                    img = bgsub(img, options)
+                    img *= (cropimg == regionid)
             else:
-                img = bgsub(img,options)
-                img *= (cropimg == regionid)
-        else:
-            if regionid != 1:
-                warn('Selecting a region different from 1 for an image without region information')
-            img = bgsub(img, options)
+                if regionid:
+                    warn('Selecting a region different from 1 for an image without region information')
+                img = bgsub(img, options)
         imgscaled = stretch(img, 255)
         T = thresholdfor(imgscaled,options)
         mask = (imgscaled > T)
@@ -89,9 +100,26 @@ def preprocessimage(image, regionid, crop=True, options = {}):
         residual *= ~mask
         return img,residual
     image.lazy_load()
-    image.channeldata['procprotein'],image.channeldata['resprotein'] = preprocessimg(image.channeldata['protein'])
-    if 'dna' in image.channeldata:
-        image.channeldata['procdna'],_ = preprocessimg(image.channeldata['dna'])
+
+    protein = image.channeldata['protein']
+    dna = image.channeldata.get('dna')
+    do_bgsub = True
+    if 'bgsubprotein' in image.temp:
+        protein = image.temp['bgsubprotein']
+        do_bgsub = False
+    if regionid is not None and 'region_ids' in image.temp:
+        location = image.temp['region_ids'][regionid - 1]
+        if location is None:
+            image.channeldata['procprotein'] = \
+                image.channeldata['resprotein'] = \
+                image.channeldata['procdna'] = np.zeros((0,0), dtype=protein.dtype)
+            return
+        protein = protein[location]
+        if dna is not None:
+            dna = dna[location]
+    image.channeldata['procprotein'],image.channeldata['resprotein'] = preprocessimg(protein)
+    if dna is not None:
+        image.channeldata['procdna'],_ = preprocessimg(dna)
 
     if crop:
         fullimage = (image.channeldata['procprotein'] > 0) | (image.channeldata['resprotein'] >0)
@@ -104,7 +132,6 @@ def preprocessimage(image, regionid, crop=True, options = {}):
         min2 = max(0, min2 - border)
         max1 += border
         max2 += border
-
 
         image.channeldata['procprotein'] = image.channeldata['procprotein'][min1:max1,min2:max2]
         image.channeldata['resprotein'] = image.channeldata['resprotein'][min1:max1,min2:max2]
@@ -147,4 +174,3 @@ def bgsub(img,options = {}):
     else:
         raise KeyError('Background subtraction option not recognised (%s).' % type)
 
-# vim: set ts=4 sts=4 sw=4 expandtab smartindent:
