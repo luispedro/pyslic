@@ -11,7 +11,7 @@ import preprocess
 import clustering
 import utils
 import segmentation
-from .preprocess import preprocessimage, bgsub
+from .preprocess import preprocessimage
 from .imageprocessing import thresholding
 __all__ = [
     'image',

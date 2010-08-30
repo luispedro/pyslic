@@ -22,5 +22,5 @@
 # For additional information visit http://murphylab.web.cmu.edu or
 # send email to murphy@cmu.edu
 
-from preprocess import preprocessimage, bgsub
+from preprocess import preprocessimage, precomputestats
 from preprocesscollection import *

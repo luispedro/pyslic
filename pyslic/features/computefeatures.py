@@ -29,7 +29,7 @@ from scipy import ndimage
 from string import upper
 import re
 from ..image import Image
-from ..preprocess import preprocessimage
+from ..preprocess import preprocessimage, precomputestats
 
 from edgefeatures import edgefeatures
 from texture import haralickfeatures
@@ -119,6 +119,7 @@ def computefeatures(img, featsets, progress=None, preprocessing=True, **kwargs):
         return numpy.array(features)
     regions = img.regions
     if regions is not None and regions.max() > 1 and 'region' not in kwargs:
+        precomputestats(img)
         return numpy.array([
                     computefeatures(img, featsets, progress=progress, region=r, **kwargs)
                     for r in xrange(1,regions.max()+1)])
