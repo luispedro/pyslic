@@ -127,6 +127,7 @@ def imgfeaturesdna(imageproc, dnaproc, isfield=False):
 
     if not isfield:
         obj_cms = center_of_mass(imageproc.astype(np.uint32), imagelabeled)
+        obj_cms = obj_cms[1:]
         obj_distances = []
         obj_dnadistances = []
         if dnaproc is not None:
