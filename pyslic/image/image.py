@@ -122,12 +122,14 @@ class Image(object):
         self.regions=None
         self.channeldata={}
         self.post_load=[]
+        self.temp = {}
 
     def __getstate__(self):
         copy = self.__dict__.copy()
         del copy['channeldata']
         del copy['loaded']
         del copy['regions']
+        del copy['temp']
         items = copy.items()
         items.sort(key=lambda it: it[0])
         return items
@@ -136,6 +138,7 @@ class Image(object):
         self.loaded = False
         self.channeldata = {}
         self.regions = None
+        self.temp = {}
         for k,v in state:
             self.__dict__[k] = v
 
