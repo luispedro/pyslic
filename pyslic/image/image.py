@@ -93,7 +93,6 @@ class Image(object):
         * scale: scale of the image in microns/pixel.
         * regions: saves the segmentation of the image as a labeled map of regions.
 
-        * attributes: this is a dictionary for the user's use.
 
     Pickling
     --------
@@ -122,7 +121,6 @@ class Image(object):
         self.loaded=False
         self.regions=None
         self.channeldata={}
-        self.attributes={}
         self.post_load=[]
 
     def __getstate__(self):
