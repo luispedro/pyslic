@@ -34,7 +34,7 @@ from ..image import Image
 from mahotas import euler
 from .hullfeatures import hullfeatures
 from mahotas import thin
-from ..imageprocessing.convexhull import convexhull
+from mahotas.polygon import fill_convexhull as convexhull
 from .imgskelfeats import find_branch_points
 
 try:

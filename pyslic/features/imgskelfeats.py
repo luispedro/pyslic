@@ -26,10 +26,9 @@
 from __future__ import division
 import numpy
 from scipy import ndimage
-from ..imageprocessing.bbox import croptobbox
+from mahotas.bbox import croptobbox
 from mahotas import thin
-from ..imageprocessing.convexhull import convexhull
-import pickle
+from mahotas.polygon import fill_convexhull as convexhull
 
 __all__ = ['imgskelfeatures', 'find_branch_points']
 

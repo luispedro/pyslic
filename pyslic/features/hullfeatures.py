@@ -23,7 +23,7 @@ from __future__ import division
 import numpy
 from ..imageprocessing.bwperim import bwperim
 from imgmoments import imgcentmoments
-from ..imageprocessing.convexhull import convexhull
+from mahotas.polygon import fill_convexhull as convexhull
 
 from numpy import *
 import numpy as np

@@ -32,7 +32,7 @@ try:
 except:
     fast_all = np.all
 from ..imageprocessing import thresholding
-from ..imageprocessing.convexhull import convexhull
+from mahotas.polygon import fill_convexhull as convexhull
 from mahotas.bbox import bbox, croptobbox
 from .. import features
 from scipy import ndimage

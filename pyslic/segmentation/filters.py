@@ -27,7 +27,7 @@ import numpy as np
 from scipy import ndimage
 from ..imageprocessing.bwperim import bwperim
 from mahotas.bbox import croptobbox
-from ..imageprocessing.convexhull import convexhull
+from mahotas.polygon import fill_convexhull as convexhull
 import warnings
 
 __all__ = ['dna_size_shape','border_regions','filter_labeled']
