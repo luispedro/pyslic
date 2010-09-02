@@ -1,5 +1,6 @@
 # Created by MV 1/18/02
 # Modified MV 6/2/02: Added SLF names
+# vim: set ts=4 sts=4 sw=4 expandtab smartindent:
 
 # Copyright (C) 2006  Murphy Lab
 # Carnegie Mellon University
@@ -96,23 +97,19 @@ def _objskelfeats(objimg):
     if objsize == 0:
         return numpy.zeros(5)
 
-    objskel = thin(objbin);
-    skellen = (objskel > 0).sum()
+    objskel = thin(objbin)
+    skellen = objskel.sum()
 
 
     skelhull = convexhull(objskel);
     hullsize = skelhull.sum()
-
-    # if hull size comes out smaller than length of skeleton then it
-    # is obviously wrong, therefore adjust
-    if hullsize < skellen:
-         hullsize = skellen
+    hullsize = max(hullsize, skellen) # Corner cases such as [[1]]
 
     skel_hull_area_ratio = skellen / hullsize
 
     skel_obj_area_ratio = skellen/objsize
 
-    skel_fluor = objimg[objskel].sum()
+    skel_fluor = (objimg * objskel).sum()
     obj_fluor = objimg.sum()
     skel_obj_fluor_ratio = skel_fluor/obj_fluor
 
@@ -129,4 +126,3 @@ imgskelfeatures.names = [
         
 
 
-# vim: set ts=4 sts=4 sw=4 expandtab smartindent:
