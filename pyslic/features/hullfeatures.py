@@ -21,7 +21,7 @@
 
 from __future__ import division
 import numpy
-from ..imageprocessing.bwperim import bwperim
+from mahotas import bwperim
 from imgmoments import imgcentmoments
 from mahotas.polygon import fill_convexhull as convexhull
 

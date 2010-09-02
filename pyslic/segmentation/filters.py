@@ -25,7 +25,7 @@
 from __future__ import division
 import numpy as np
 from scipy import ndimage
-from ..imageprocessing.bwperim import bwperim
+from mahotas import bwperim
 from mahotas.bbox import croptobbox
 from mahotas.polygon import fill_convexhull as convexhull
 import warnings
