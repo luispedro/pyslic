@@ -26,8 +26,9 @@
 from __future__ import division
 import numpy as np
 from ..image import Image
-from ..imageprocessing.basics import fullhistogram, majority_filter
 from ..imageprocessing.thresholding import rc
+from mahotas.morph import majority_filter
+from mahotas.histogram import fullhistogram
 from mahotas.bbox import bbox
 from mahotas.stretch import stretch
 from scipy import ndimage
