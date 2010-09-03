@@ -23,8 +23,9 @@
 # send email to murphy@cmu.edu
 
 try:
-    from readmagick import readimg
-except:
+    from mahotas.freeimage import imread
+    readimg = imread
+except ImportError:
     from scipy.misc.pilutil import imread
     readimg = imread
     del imread

@@ -26,7 +26,7 @@ from __future__ import division
 import numpy
 from scipy.ndimage import label
 from contextlib import contextmanager
-from .io.readimg import readimg
+from mahotas.freeimage import imread
 
 __all__ = ['Image', 'setshowimage','loadedimage']
 
@@ -34,7 +34,7 @@ def _open_file_bw(fname):
     """
     Force a file to be B&W
     """
-    A = readimg(fname)
+    A = imread(fname)
     if A.ndim == 3:
         A = A.max(2)
     return A
