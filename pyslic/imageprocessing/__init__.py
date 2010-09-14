@@ -22,7 +22,5 @@
 # For additional information visit http://murphylab.web.cmu.edu or
 # send email to murphy@cmu.edu
 
-import basics
-from basics import *
 import objectdetection
 

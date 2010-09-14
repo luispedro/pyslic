@@ -26,7 +26,6 @@ from __future__ import division
 import numpy as np
 from scipy.ndimage import histogram
 from mahotas.thresholding import rc, otsu
-from .basics import fullhistogram
 
 __all__=['threshold', 'rc','murphy_rc','otsu','softthreshold','hardthreshold']
 

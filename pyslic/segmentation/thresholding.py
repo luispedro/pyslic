@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2008  Murphy Lab
 # Carnegie Mellon University
+# vim: set ts=4 sts=4 sw=4 expandtab smartindent:
 # 
 # Written by Luis Pedro Coelho <lpc@cmu.edu>
 #
@@ -24,7 +25,7 @@
 
 from __future__ import division, with_statement
 import numpy
-from ..imageprocessing import basics
+from mahotas.morph import majority_filter
 from ..imageprocessing.thresholding import threshold
 from ..image import Image, loadedimage
 from scipy import ndimage
@@ -52,7 +53,7 @@ def threshold_segment(dna, threshold_method='otsu', smooth=None, median_size=5, 
     T = threshold(dna,threshold_method)
     binimg = dna > T
     if median_size is not None:
-        binimg = basics.majority_filter(binimg, median_size)
+        binimg = majority_filter(binimg, median_size)
     L,N = ndimage.label(binimg)
     if N == 0:
         return L
@@ -63,4 +64,3 @@ def threshold_segment(dna, threshold_method='otsu', smooth=None, median_size=5, 
     return L
 
 
-# vim: set ts=4 sts=4 sw=4 expandtab smartindent:
