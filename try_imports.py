@@ -22,13 +22,6 @@ def try_imports():
 
     Ncreduce is not necessary, but makes classification and clustering faster.'''
 
-    try:
-        import milk
-    except:
-        print '''import milk failed.
-
-    Classification will not be available (everything else will work).'''
-
 if __name__ == '__main__':
     try_imports()
 
