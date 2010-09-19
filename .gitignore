@@ -3,3 +3,4 @@ build
 pyslic/image/io/readimg.so
 pyslic/imageprocessing/_convexhull.so
 PySLIC.egg-info
+dist/
