@@ -15,13 +15,6 @@ def try_imports():
     Please install scipy.
     Under linux, the package is often called python-scipy.'''
 
-    try:
-        import ncreduce
-    except:
-        print '''import ncreduce failed.
-
-    Ncreduce is not necessary, but makes classification and clustering faster.'''
-
 if __name__ == '__main__':
     try_imports()
 
