@@ -50,8 +50,10 @@ def read_ic100_BMP(input):
 
     Reference: http://en.wikipedia.org/wiki/BMP_file_format
     '''
+    def do_close(): pass
     if type(input) == str:
         input=file(input)
+        do_close = input.close
     try:
         def get2():
             S=input.read(2)
@@ -95,6 +97,8 @@ def read_ic100_BMP(input):
         return img[::-1,:]
     except TypeError:
         raise IOError("Cannot load image '%s' (TypeError)" % input)
+    finally:
+        do_close()
 
 def read_ic100dir(basedir):
     '''
