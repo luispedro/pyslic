@@ -60,8 +60,8 @@ def edgefeatures(protproc):
     Ported to Python by Luis Pedro Coelho
     """  
         
-    binimg=(protproc > 0)
-    edges = sobel(protproc) > 100
+    binimg = (protproc > 0)
+    edges = sobel(protproc)
     A = edges.sum()/binimg.sum()
     #A = bwarea(edge(imageproc,'canny',[]))/bwarea(im2bw(imageproc)) ;
 
