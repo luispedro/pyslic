@@ -1,3 +1,0 @@
-** Have image loading functions return subclasses of Image instead of doing it all on Image.load_function
-
-** Classify should work with lists
