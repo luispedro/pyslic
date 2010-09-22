@@ -1,2 +1,2 @@
-include try_imports.py FIXME CHANGES
+include try_imports.py CHANGES
 include docs/*.rst docs/conf.py docs/Makefile
