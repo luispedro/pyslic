@@ -173,9 +173,6 @@ def computefeatures(img, featsets, progress=None, preprocessing=True, **kwargs):
                         img = np.array((img-min).astype(float) * bins/ptp, np.uint8)
                 feats = haralickfeatures(img)
                 feats = feats.mean(0)
-        elif F == 'har3d':
-            feats = haralickfeatures(procprotein)
-            feats = numpy.r_[feats.mean(0),feats.ptp(0)]
         elif F in ['hul', 'hull']:
             feats = hullfeatures(procprotein)
         elif F == 'hullsize':
