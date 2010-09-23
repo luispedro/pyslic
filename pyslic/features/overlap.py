@@ -42,9 +42,9 @@ def overlapfeatures(protein, reference, procprotein, procreference):
         protein[binref].sum()/protein.sum(),
         procprotein[binref].sum()/procprotein.sum(),
         binref[binprot].mean(),
-        _corrcoef(binprot,binref),
-        _corrcoef(protein,binref),
-        _corrcoef(protein,reference),
+        _corrcoef(binprot, binref),
+        _corrcoef(procprotein, binref),
+        _corrcoef(protein, reference),
         np.median((dist * procprotein)[binprot]),
         np.mean((dist * procprotein)[binprot]),
         ])
