@@ -50,6 +50,14 @@ def test_pyversion():
         sys.exit(1)
 
 test_pyversion()
+install_requires = [
+    'numpy',
+    'scipy',
+    'milk>=0.2.1',
+    'pymorph>=0.95',
+    'mahotas>=0.5.2',
+    ]
+
 
 numpyutils.setup(name='PySLIC',
       version='0.6',
@@ -59,6 +67,7 @@ numpyutils.setup(name='PySLIC',
       url='http://murphylab.cbi.cmu.edu/',
       packages=packages,
       ext_modules = ext_modules,
+      install_requires=install_requires,
       test_suite='nose.collector',
       )
 
