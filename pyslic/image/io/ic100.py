@@ -161,6 +161,7 @@ def read_ic100dir_flat(basedir):
         if match is not None:
             _,wellrow,wellcol,channelnr,imageid = match.groups()
             channel = _channels[int(channelnr)]
+            imageid = int(imageid)
             wellfiles[wellrow+wellcol,imageid][channel] = name
     images = []
     for (well,idx),channels in wellfiles.iteritems():
