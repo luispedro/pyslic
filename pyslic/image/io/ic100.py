@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2008  Murphy Lab
+# Copyright (C) 2008-2010  Murphy Lab
+# vim: set ts=4 sts=4 sw=4 expandtab smartindent:
 # Carnegie Mellon University
 # 
 # Written by Luis Pedro Coelho <lpc@cmu.edu>
@@ -129,6 +130,7 @@ def read_ic100dir(basedir):
             img.label=wellname
             img.id=(wellname,i)
             imgs.append(img)
+    imgs.sort(key=(lambda img: img.id))
     return imgs
 
 _flat_pat = re.compile(r'(^|/)[0-9]{6}[A-Z_]+[0-9]__([A-H])___?([0-9]{1,2})_T_001_ch_0([012])_image_0+([1-9][0-9]?)_Z_001\.bmp$')
@@ -172,6 +174,6 @@ def read_ic100dir_flat(basedir):
         img.label = well
         img.load_function = read_ic100_BMP
         images.append(img)
-    images.sort(key=lambda Img: Img.label)
+    images.sort(key=(lambda img: img.id))
     return images
-# vim: set ts=4 sts=4 sw=4 expandtab smartindent:
+
