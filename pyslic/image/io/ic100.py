@@ -123,7 +123,7 @@ def read_ic100dir(basedir):
             img.load_function=read_ic100_BMP
             img.channels['dna']=c0
             img.channels['protein']=c1
-            img.channels['autofl']=c2
+            img.channels['autofluorescence']=c2
             name,nr=wellpat.search(well).groups()
             wellname=name + nr
             img.label=wellname
