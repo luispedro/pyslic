@@ -127,7 +127,7 @@ def computefeatures(img, featsets, progress=None, preprocessing=True, **kwargs):
     if scale is None:
         scale = _Default_Scale
     if preprocessing:
-        preprocessimage(img, kwargs.get('region',1), options=kwargs.get('options',{}))
+        preprocessimage(img, kwargs.get('region'), options=kwargs.get('options',{}))
     else:
         if not img.channeldata['procprotein']:
             img.channeldata['procprotein'] = img.get('protein')
