@@ -23,12 +23,8 @@
 # send email to murphy@cmu.edu
 
 from __future__ import division
-import zipfile
 import os
-import tempfile
-from glob import glob
 from ..image import Image
-import readmagick
 
 __all__ = ['readtjz_recursive','readtjz', 'detect_tjzdir']
 
@@ -38,6 +34,7 @@ def getfileinsidezip(fname,inner):
 
     Returns the contents of the file inner inside the zip file zipname
     '''
+    import zipfile
     Z=zipfile.ZipFile(fname)
     S=Z.read(inner)
     Z.close()
@@ -49,6 +46,7 @@ def _getimage(fname,inner):
 
     Reads an image inside a zip file
     '''
+    import readmagick
     S = getfileinsidezip(fname,inner)
     Img = readmagick.readimgfromblob(S)
     if len(Img.shape) > 2:
@@ -70,6 +68,7 @@ def _getlabel(T):
         return T
 
 def _parsedir(base):
+    from glob import glob
     Tjzs=glob('%s/*000.flex.tjz' % base)
     Tjzs.sort()
 
@@ -84,6 +83,7 @@ def readtjz(path):
 
     Returns all the images inside readtjz.
     '''
+    import zipfile
     images=[]
     Nstacks=len(filter(lambda inner: inner.startswith('Stack-'),zipfile.ZipFile(path).namelist()))
     if (Nstacks % 2):
