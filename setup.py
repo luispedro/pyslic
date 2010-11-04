@@ -60,7 +60,7 @@ install_requires = [
 
 
 numpyutils.setup(name='PySLIC',
-      version='0.6',
+      version='0.6.1',
       description='Subcellular Location Image Classifier',
       author='Murphy Lab',
       author_email='murphy@cmu.edu',
