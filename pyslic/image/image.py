@@ -36,6 +36,8 @@ def _open_file_bw(fname):
     """
     try:
         from mahotas.freeimage import imread
+    except OSError:
+        from scipy.misc.pilutil import imread
     except ImportError:
         from scipy.misc.pilutil import imread
     A = imread(fname)
