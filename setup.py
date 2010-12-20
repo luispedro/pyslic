@@ -36,6 +36,7 @@ On linux, the package is often called python-setuptools'''
 try_imports()
 
 import numpy.distutils.core as numpyutils
+execfile('pyslic/pyslic_version.py')
 
 ext_modules = []
 
@@ -59,7 +60,7 @@ install_requires = [
 
 
 numpyutils.setup(name='PySLIC',
-      version='0.6.1',
+      version=__version__,
       description='Subcellular Location Image Classifier',
       author='Murphy Lab',
       author_email='murphy@cmu.edu',
