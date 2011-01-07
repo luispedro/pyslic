@@ -42,16 +42,16 @@ def getfileinsidezip(fname,inner):
 
 def _getimage(fname,inner):
     '''
-    Img = getimage(zipfilename,innername)
+    img = getimage(zipfilename,innername)
 
     Reads an image inside a zip file
     '''
-    import readmagick
+    from mahotas.freeimage import imreadfromblob
     S = getfileinsidezip(fname,inner)
-    Img = readmagick.readimgfromblob(S)
-    if len(Img.shape) > 2:
-        return Img.mean(2)
-    return Img
+    img = imreadfromblob(S)
+    if len(img.shape) > 2:
+        return img.mean(2)
+    return img
 
 def readimageinzip(P):
     zip=os.path.dirname(P)
