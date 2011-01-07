@@ -24,6 +24,7 @@
 
 from __future__ import division, with_statement
 import numpy
+import numpy as np
 from scipy.ndimage import gaussian_filter
 from ..image import Image, loadedimage
 
@@ -101,7 +102,7 @@ class FixIllumination(object):
         img.lazy_load()
         P=img.channeldata[self.channel]
         if self.S is None:
-            self.S = numpy.zeros(P.shape,numpy.float96)
+            self.S = numpy.zeros(P.shape,np.float64)
         self.S += P
 
     def __getstate__(self):
