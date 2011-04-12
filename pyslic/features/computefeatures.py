@@ -41,6 +41,7 @@ from zernike import zernike, znames
 from tas import tas, pftas
 from .overlap import overlapfeatures
 from mahotas.lbp import lbp
+from .surf import surf_ref
 
 __all__ = ['computefeatures','featurenames']
 
@@ -200,6 +201,10 @@ def computefeatures(img, featsets, progress=None, preprocessing=True, **kwargs):
         elif lbppat.match(F):
             radius,points = lbppat.match(F).groups()
             feats = lbp(protein, int(radius), int(points))
+        elif F == 'surfp':
+            if len(featsets) > 1:
+                raise ValueError('pyslic.features.computefeatures: surfp must be computed on its own')
+            return surf_ref(protein, dna)
         else:
             raise Exception('Unknown feature set: %s' % F)
         features = numpy.r_[features,feats]
