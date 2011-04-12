@@ -71,7 +71,7 @@ def objectfeatures(img):
         # but in my version of scipy.ndimage, you *have* to use indices.
         centers = ndimage.center_of_mass(protimg, labeled, indices)
         if N == 1:
-            centers = [centers]
+            centers = list(centers)
         centers = np.asarray(centers)
         centers -= np.array((dnacofy, dnacofx))
         centers **= 2
