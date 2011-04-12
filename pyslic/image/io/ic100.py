@@ -133,7 +133,7 @@ def read_ic100dir(basedir):
     imgs.sort(key=(lambda img: img.id))
     return imgs
 
-_flat_pat = re.compile(r'(^|/)[0-9]{6}[A-Z_]+[0-9]__([A-H])___?([0-9]{1,2})_T_001_ch_0([012])_image_0+([1-9][0-9]?)_Z_001\.bmp$')
+_flat_pat = re.compile(r'(^|/)[0-9]{5,8}[A-Z_]+[0-9]__([A-H])___?([0-9]{1,2})_T_001_ch_0([012])_image_0+([1-9][0-9]?)_Z_001\.bmp$')
 _channels = ('dna','protein','autofluorescence')
 
 def detect_ic100dir_flat(basedir):
