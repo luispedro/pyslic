@@ -103,8 +103,8 @@ class Image(object):
     Pickling
     --------
 
-    Images can be pickled, but image data *does not* go with the pickling. Pickling an image is always the same as pickling its
-    unloaded version.
+    Images can be pickled, but image data *does not* go with the pickling.
+    Pickling an image is always the same as pickling its unloaded version.
     """
 
     procdna_channel='procdna'
