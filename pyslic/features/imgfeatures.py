@@ -101,7 +101,7 @@ def imgfeaturesdna(imageproc, dnaproc, isfield=False):
     if not nr_objs:
         if isfield:
             if dnaproc is None: return np.zeros(5)
-            raise NotImplementedError
+            return np.zeros(11)
         if dnaproc is None: return np.zeros(8)
         return np.zeros(14)
 
