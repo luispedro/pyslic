@@ -28,7 +28,7 @@ import re
 from collections import defaultdict
 import pyslic
 
-_name_pat = re.compile('([A-Z0-9]{5})_Image_([0-9]+)_(prot|dna).tiff')
+_name_pat = re.compile('([A-Z0-9]{5,6})_Image_([0-9]+)_(prot|dna).tiff')
 def _channelname(c):
     if c == 'prot':
         return 'protein'
