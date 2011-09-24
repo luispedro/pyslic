@@ -87,12 +87,12 @@ def format_table(table,collabels,rowlabels,format='latex'):
     max_c = max(len(c) for c in collabels)
     max_r = max(len(r) for r in rowlabels)
     heading = (' ' * max_r) + ' & '
-    col_format = '%%%ss &' % max_c
+    col_format = '%%-%ss &' % max_c
     for c in collabels:
         heading +=  col_format % c
     heading += eol
     content = ''
-    row_format = '%%%ss &' % max_r
+    row_format = '%%-%ss &' % max_r
     for i in xrange(r):
         row = row_format % (str(rowlabels[i]) if rowlabels else '')
         for elem in table[i]:
@@ -101,13 +101,13 @@ def format_table(table,collabels,rowlabels,format='latex'):
         content += row
 
     return r'''
-    \begin{tabular}
-    \toprule
-        %(heading)s
-    \midrule
-        %(content)s
-    \bottomrule
-    \end{tabular}
+\begin{tabular}
+\toprule
+%(heading)s
+\midrule
+%(content)s
+\bottomrule
+\end{tabular}
     ''' % locals()
 
 def format_confusion_matrix(cmatrix,labels,format='latex'):
