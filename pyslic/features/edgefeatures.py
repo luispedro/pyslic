@@ -31,23 +31,21 @@ def edgefeatures(protproc):
     values = edgefeatures(protproc)
        where protproc contains the pre-processed fluorescence image.
        Pre-processed means that the image has been cropped and had
-       pixels of interest selected (via a threshold, for instance).
-    
       Features calculated include:
-      (The following feature descriptions were added here by T. Zhao 
-      according to the reference 
-      "R. F. Murphy, M. Velliste, and G. Porreca (2003) Robust Numerical 
-      Features for Description and Classification of Subcellular Location 
-      Patterns in Fluorescence Microscope Images. J. VLSI Sig. Proc. 35: 
+      (The following feature descriptions were added here by T. Zhao
+      according to the reference
+      "R. F. Murphy, M. Velliste, and G. Porreca (2003) Robust Numerical
+      Features for Description and Classification of Subcellular Location
+      Patterns in Fluorescence Microscope Images. J. VLSI Sig. Proc. 35:
       311-321.")
       1. Fraction of above-threshold pixels along edge
       2. Measure of edge gradient intensity homogenerity
       3. Measure of edge direction homogenerity 1
       4. Measure of edge direction homogenerity 2
       5. Measure of edge direction difference
-    
+
     07 Mar 99 - M.V. Boland
-    
+
     Corrections by M. Velliste 1/20/02
     1) corrected the way non-zero edge pixels are selected (see below).
     2) corrected the homogeneity feature so that it is based on a
@@ -55,11 +53,11 @@ def edgefeatures(protproc):
     3) Made some comments below about differences between Matlab 5 &
        6, and provided a fix for version 5 so that it would give
        consistent results.
-    
+
     M.Velliste June 2, 2002: added SLF names
     Ported to Python by Luis Pedro Coelho
-    """  
-        
+    """
+
     binimg = (protproc > 0)
     edges = sobel(protproc)
     A = edges.sum()/binimg.sum()
@@ -107,7 +105,7 @@ def edgefeatures(protproc):
     maxidx=argmax(h)
     hmax=h[maxidx]
     hmin=h.min()
-    
+
     if hmin > 0:
         maxminratio = hmax/hmin
     else:
@@ -116,7 +114,7 @@ def edgefeatures(protproc):
 
     # Difference between bins of histogram at angle and angle+pi
     #  In general, objects have an equal number of pixels at an angle
-    #  and that angle+pi. The differences are normalized to the sum of 
+    #  and that angle+pi. The differences are normalized to the sum of
     #  the two directions.
     diff = abs(h[:4]-h[4:])/abs(h[:4]+h[4:])
     diff[abs(h[:4]-h[4:])==0] = 0

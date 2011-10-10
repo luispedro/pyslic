@@ -37,8 +37,8 @@ def imgskelfeatures(protproc):
     values = imgskelfeatures(protproc)
     Compute skeleton features for protproc
 
-    where protproc contains the pre-processed fluorescence image, 
-    Pre-processed means that the image has been cropped and had 
+    where protproc contains the pre-processed fluorescence image,
+    Pre-processed means that the image has been cropped and had
     pixels of interest selected (via a threshold, for instance).
     """
     values = []
@@ -114,7 +114,12 @@ def _objskelfeats(objimg):
 
     branch_points = find_branch_points(objskel)
     no_of_branch_points = branch_points.sum()
-    return numpy.array([skellen,skel_hull_area_ratio,skel_obj_area_ratio, skel_obj_fluor_ratio,no_of_branch_points/skellen])
+    return numpy.array([
+            skellen,
+            skel_hull_area_ratio,
+            skel_obj_area_ratio,
+            skel_obj_fluor_ratio,
+            no_of_branch_points/skellen])
 
 imgskelfeatures.names = [
     'obj_skel_len',
@@ -122,6 +127,6 @@ imgskelfeatures.names = [
     'obj_skel_obj_area_ratio',
     'obj_skel_obj_fluor_ratio',
     'obj_skel_branch_per_len']
-        
+
 
 
