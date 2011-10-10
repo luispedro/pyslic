@@ -130,10 +130,10 @@ def computefeatures(img, featsets, progress=None, preprocessing=True, **kwargs):
     if preprocessing:
         preprocessimage(img, kwargs.get('region'), options=kwargs.get('options',{}))
     else:
-        if not img.channeldata['procprotein']:
+        if 'procprotein' not in img.channeldata:
             img.channeldata['procprotein'] = img.get('protein')
             img.channeldata['resprotein'] = 0*img.get('protein')
-        if not img.channeldata['procdna']:
+        if 'procdna' not in img.channeldata:
             img.channeldata['procdna'] = img.get('dna')
     features = numpy.array([])
     protein = img.get('protein')
