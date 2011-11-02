@@ -112,7 +112,7 @@ class Image(object):
     residualprotein_channel='resprotein'
 
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         '''
         Create an Image.
 
@@ -121,7 +121,7 @@ class Image(object):
         self.label=''
         self.id=None
         self.scale = None
-        self.channels={}
+        self.channels = kwargs
         self.load_function = _open_file_bw
 
         self.loaded=False
