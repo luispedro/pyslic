@@ -201,11 +201,14 @@ def computefeatures(img, featsets, progress=None, preprocessing=True, **kwargs):
         elif lbppat.match(F):
             radius,points = lbppat.match(F).groups()
             feats = lbp(protein, int(radius), int(points))
-        elif F in ('surf-ref','surfp'):
+        elif F in ('surf', 'surf-ref','surfp'):
             if F == 'surfp':
-                print 'surfp is deprecated. Use surf-ref'
+                from warnings import warn
+                warn('surfp is deprecated. Use surf-ref', DeprecationWarning)
             if len(featsets) > 1:
                 raise ValueError('pyslic.features.computefeatures: surf-ref must be computed on its own')
+            if F == 'surf':
+                dna = None
             return surf_ref(protein, dna)
         else:
             raise Exception('Unknown feature set: %s' % F)
