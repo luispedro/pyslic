@@ -30,10 +30,10 @@ import mahotas.surf
 def surf_ref(f, ref):
     fi = mahotas.surf.integral(f.copy())
     points = mahotas.surf.interest_points(fi, 6, 24, 1, max_points=1024, is_integral=True)
-    descs = mahotas.surf.descriptors(fi, points, is_integral=True)
+    descs = mahotas.surf.descriptors(fi, points, is_integral=True, descriptor_only=True)
     if ref is None:
         return descs
     ri = mahotas.surf.integral(ref.copy())
-    descsref = mahotas.surf.descriptors(ri, points, is_integral=True)
+    descsref = mahotas.surf.descriptors(ri, points, is_integral=True, descriptor_only=True)
     return np.hstack( (descs, descsref) )
 
