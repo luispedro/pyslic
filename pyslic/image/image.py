@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2008  Murphy Lab
+# Copyright (C) 2008-2011  Murphy Lab
 # Carnegie Mellon University
 # 
 # Written by Luis Pedro Coelho <lpc@cmu.edu>
@@ -24,9 +24,8 @@
 
 from __future__ import division
 import numpy
-from scipy.ndimage import label
 from contextlib import contextmanager
-
+import mahotas
 
 __all__ = ['Image', 'setshowimage','loadedimage']
 
@@ -189,7 +188,7 @@ class Image(object):
         if 'crop' in self.channels:
             self.regions = self.load_function(self.channels['crop'])
             # These files often need to be fixed 
-            self.regions,_ = label(self.regions)
+            self.regions,_ = mahotas.label(self.regions)
         self.loaded = True
         for post in self.post_load:
             post(self)
@@ -239,9 +238,7 @@ class Image(object):
                 orig=self.channeldata[channel][idx,:,:]
             else:
                 orig=self.channeldata[channel]
-            if orig.ptp():
-                return numpy.array( (orig.astype(numpy.float)-orig.min()) * 255./orig.ptp(), numpy.uint8 )
-            return orig
+            return mahotas.stretch(orig)
         prot = getchannel('protein')
         X,Y=prot.shape
         composite=numpy.zeros((X,Y,3),numpy.uint8)
