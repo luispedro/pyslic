@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2008  Murphy Lab
+# Copyright (C) 2008-2012  Murphy Lab
 # Carnegie Mellon University
 # 
 # Written by Luis Pedro Coelho <lpc@cmu.edu>
@@ -142,6 +142,8 @@ def computefeatures(img, featsets, progress=None, preprocessing=True, **kwargs):
     dna = img.channeldata.get('dna')
     procdna = img.channeldata.get('procdna')
     if procprotein.size < _Min_image_size:
+        if len(featsets) == 1 and featsets[0] in ('surf', 'surf-ref','surfp'):
+            return np.array([])
         return np.array([np.nan for i in xrange(90)])
     lbppat = re.compile(r'lbp\(([0-9]+), ?([0-9]+)\)')
     for F in featsets:
