@@ -34,7 +34,7 @@ def _open_file_bw(fname):
     Force a file to be B&W
     """
     try:
-        from mahotas.freeimage import imread
+        from mahotas import imread
     except OSError:
         from scipy.misc.pilutil import imread
     except ImportError:
