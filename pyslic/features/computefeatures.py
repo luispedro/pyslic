@@ -68,7 +68,7 @@ _Default_Haralick_Scale = 1.15
 _Default_Haralick_Bins = 32
 _Min_image_size = 100
 
-def computefeatures(img, featsets, progress=None, preprocessing=True, **kwargs):
+def computefeatures(img, featsets, progress=None, preprocessing=None, **kwargs):
     '''
     features = computefeatures(img,featsets,progress=None,**kwargs)
 
@@ -127,13 +127,16 @@ def computefeatures(img, featsets, progress=None, preprocessing=True, **kwargs):
     scale = img.scale
     if scale is None:
         scale = _Default_Scale
+    is_surf = ( len(featsets) == 1 and featsets[0] in ('surf', 'surf-ref','surfp'))
+    if preprocessing is None:
+        preprocessing = not is_surf
     if preprocessing:
         preprocessimage(img, kwargs.get('region'), options=kwargs.get('options',{}))
     else:
         if 'procprotein' not in img.channeldata:
             img.channeldata['procprotein'] = img.get('protein')
             img.channeldata['resprotein'] = 0*img.get('protein')
-        if 'procdna' not in img.channeldata:
+        if ('dna' in img.channeldata) and ('procdna' not in img.channeldata):
             img.channeldata['procdna'] = img.get('dna')
     features = numpy.array([])
     protein = img.get('protein')
@@ -142,7 +145,7 @@ def computefeatures(img, featsets, progress=None, preprocessing=True, **kwargs):
     dna = img.channeldata.get('dna')
     procdna = img.channeldata.get('procdna')
     if procprotein.size < _Min_image_size:
-        if len(featsets) == 1 and featsets[0] in ('surf', 'surf-ref','surfp'):
+        if is_surf:
             return np.array([])
         return np.array([np.nan for i in xrange(90)])
     lbppat = re.compile(r'lbp\(([0-9]+), ?([0-9]+)\)')
