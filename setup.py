@@ -52,7 +52,6 @@ def test_pyversion():
 
 test_pyversion()
 install_requires = [
-    'milk>=0.3.1',
     'pymorph>=0.95',
     'mahotas>=0.5.2',
     ]
