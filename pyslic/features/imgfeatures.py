@@ -99,11 +99,14 @@ def imgfeaturesdna(imageproc, dnaproc, isfield=False):
     bwimage = (imageproc > 0)
     imagelabeled,nr_objs = ndimage.label(bwimage)
     if not nr_objs:
-        if isfield:
-            if dnaproc is None: return np.zeros(5)
-            return np.zeros(11)
-        if dnaproc is None: return np.zeros(8)
-        return np.zeros(14)
+        nfeatures = 5
+        if not isfield:
+            nfeatures += 3
+        if dnaproc is not None:
+            nfeatures += 2
+        if (not isfield and (dnaproc is not None)):
+            nfeatures  += 1
+        return np.zeros(nfeatures)
 
     values = [nr_objs]
     dnacof = None
