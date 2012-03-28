@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2011  Murphy Lab
+# Copyright (C) 2011-2012  Murphy Lab
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
 # Carnegie Mellon University
 #
@@ -25,15 +25,15 @@
 
 from __future__ import division, with_statement
 import numpy as np
-import mahotas.surf
+from mahotas.features import surf
 
 def surf_ref(f, ref):
-    fi = mahotas.surf.integral(f.copy())
-    points = mahotas.surf.interest_points(fi, 6, 24, 1, max_points=1024, is_integral=True)
-    descs = mahotas.surf.descriptors(fi, points, is_integral=True, descriptor_only=True)
+    fi = surf.integral(f.copy())
+    points = surf.interest_points(fi, 6, 24, 1, max_points=1024, is_integral=True)
+    descs = surf.descriptors(fi, points, is_integral=True, descriptor_only=True)
     if ref is None:
         return descs
-    ri = mahotas.surf.integral(ref.copy())
-    descsref = mahotas.surf.descriptors(ri, points, is_integral=True, descriptor_only=True)
+    ri = surf.integral(ref.copy())
+    descsref = surf.descriptors(ri, points, is_integral=True, descriptor_only=True)
     return np.hstack( (descs, descsref) )
 
