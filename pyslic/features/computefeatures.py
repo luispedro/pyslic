@@ -147,7 +147,11 @@ def computefeatures(img, featsets, progress=None, preprocessing=None, **kwargs):
     if procprotein.size < _Min_image_size:
         if is_surf:
             return np.array([])
-        return np.array([np.nan for i in xrange(90)])
+        if featsets == _featsfor('SLF7dna'):
+            return np.array([np.nan for i in xrange(90)])
+        if featsets == _featsfor('field-dna+'):
+            return np.array([np.nan for i in xrange(173)])
+        raise ValueError
     lbppat = re.compile(r'lbp\(([0-9]+), ?([0-9]+)\)')
     for F in featsets:
         if F in ['edg','edge']:
