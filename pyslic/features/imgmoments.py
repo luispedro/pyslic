@@ -55,11 +55,11 @@ def imgcentmoments(img,x,y,cofy=None,cofx=None):
     if not np.issubdtype(img.dtype, float):
         img = img.astype(float)
     r,c = img.shape
-    p = np.arange(c)
+    p = np.arange(c, dtype=float)
     p -= cofx
     p **= x
     inter = np.dot(img, p)
-    p = np.arange(r)
+    p = np.arange(r, dtype=float)
     p -= cofy
     p **= y
     return np.dot(inter, p)
