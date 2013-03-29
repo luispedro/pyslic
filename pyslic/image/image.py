@@ -187,8 +187,6 @@ class Image(object):
                     self.channeldata[k]=self.load_function(v)
         if 'crop' in self.channels:
             self.regions = self.load_function(self.channels['crop'])
-            # These files often need to be fixed 
-            self.regions,_ = mahotas.label(self.regions)
         self.loaded = True
         for post in self.post_load:
             post(self)

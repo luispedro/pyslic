@@ -82,12 +82,13 @@ def preprocessimage(image, regionid=None, crop=True, options = {}):
             regions = image.regions
             img = img.copy()
             if regions is not None:
+                rid = (regionid if regionid is not None else 1)
                 if options.get('bgsub.way','ml') == 'ml':
-                    img *= (regions == regionid)
+                    img *= (regions == rid)
                     img = bgsub(img, options)
                 else:
                     img = bgsub(img, options)
-                    img *= (cropimg == regionid)
+                    img *= (cropimg == rid)
             else:
                 if regionid:
                     warn('Selecting a region different from 1 for an image without region information')
