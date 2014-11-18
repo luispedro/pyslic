@@ -56,11 +56,11 @@ def imgcentmoments(img,x,y,cofy=None,cofx=None):
         img = img.astype(float)
     r,c = img.shape
     p = np.arange(c, dtype=float)
-    p -= cofx
+    p = p-cofx
     p **= x
     inter = np.dot(img, p)
     p = np.arange(r, dtype=float)
-    p -= cofy
+    p = p-cofy
     p **= y
     return np.dot(inter, p)
 
