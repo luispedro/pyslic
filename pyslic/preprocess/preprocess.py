@@ -169,7 +169,8 @@ def bgsub(img,options = {}):
             T = 0
         else:
             hist = fullhistogram(img)
-            T = np.argmax(hist[:M])
+            # type has changed; need to cast as int
+            T = np.argmax(hist[:int(M)])
         if T > 0:
             img -= np.minimum(img,T)
         return img
