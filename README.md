@@ -22,8 +22,19 @@ The dependencies are fairly standard libraries:
 
 - numpy
 - scipy
-- Python Imaging Library
+- [mahotas](http://mahotas.readthedocs.org)
 
 On ubuntu, you can use the following command to install dependencies:
 
-    sudo aptitude install python-numpy python-scipy python-imaging
+    sudo aptitude install python-numpy python-scipy
+
+# Citation
+
+PySLIC does not have a paper associated with it, but is a wrapper around
+[mahotas](http://mahotas.readthedocs.org). Thus, if you use this in a
+scientific publication, please cite:
+
+**Luis Pedro Coelho** Mahotas: Open source software for scriptable computer
+vision in Journal of Open Research Software, vol 1, 2013.
+[DOI](http://dx.doi.org/10.5334/jors.ac)
+
